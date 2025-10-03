@@ -1,8 +1,8 @@
 package services;
 
 import dao.AuthDAO;
-import models.AuthResponse;
-import models.User;
+import model.AuthResponse;
+import model.User;
 
 /**
  * Service layer for authentication operations

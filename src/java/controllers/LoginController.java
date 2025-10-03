@@ -13,8 +13,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import services.AuthService;
-import models.AuthResponse;
-import models.User;
+import model.AuthResponse;
+import model.User;
 
 /**
  * Login Controller handles authentication
@@ -124,7 +124,7 @@ public class LoginController extends HttpServlet {
         
         switch (roleName.toLowerCase()) {
             case "admin":
-                response.sendRedirect(contextPath + "/views/admin/dashboard.jsp");
+                response.sendRedirect(contextPath + "/admin/dashboard");
                 break;
             case "hr":
                 response.sendRedirect(contextPath + "/views/hr/dashboard.jsp");

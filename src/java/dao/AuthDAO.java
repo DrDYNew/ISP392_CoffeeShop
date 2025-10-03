@@ -4,8 +4,8 @@
  */
 package dao;
 
-import models.User;
-import models.AuthResponse;
+import model.User;
+import model.AuthResponse;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

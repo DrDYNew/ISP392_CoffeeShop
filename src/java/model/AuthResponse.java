@@ -1,4 +1,4 @@
-package models;
+package model;
 
 /**
  * Response object for authentication operations

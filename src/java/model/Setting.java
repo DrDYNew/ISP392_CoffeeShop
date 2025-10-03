@@ -1,6 +1,5 @@
-package models;
+package model;
 
-import java.sql.Timestamp;
 
 public class Setting {
     private int settingID;
