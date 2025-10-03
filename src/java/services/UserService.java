@@ -5,8 +5,8 @@
 package services;
 
 import dao.UserDAO;
-import models.User;
-import models.Setting;
+import model.User;
+import model.Setting;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -25,9 +25,10 @@ public class UserService {
      * Validate user data
      * @param user User object to validate
      * @param isUpdate true if this is an update operation
+     * @param currentUserRole Current user's role ID
      * @return Error message if validation fails, null if valid
      */
-    public String validateUser(User user, boolean isUpdate) {
+    public String validateUser(User user, boolean isUpdate, Integer currentUserRole) {
         // Validate required fields
         if (user.getFullName() == null || user.getFullName().trim().isEmpty()) {
             return "Họ tên không được để trống";
@@ -39,6 +40,11 @@ public class UserService {
         
         if (!isUpdate && (user.getPasswordHash() == null || user.getPasswordHash().trim().isEmpty())) {
             return "Mật khẩu không được để trống";
+        }
+        
+        // Validate role permissions - Admins cannot create/edit other admin accounts
+        if (currentUserRole != null && currentUserRole == 2 && user.getRoleID() == 2) {
+            return "Admin không được phép tạo hoặc chỉnh sửa tài khoản admin khác";
         }
         
         // Validate email format
@@ -65,6 +71,16 @@ public class UserService {
         }
         
         return null; // No validation errors
+    }
+    
+    /**
+     * Validate user data (legacy method for backward compatibility)
+     * @param user User object to validate
+     * @param isUpdate true if this is an update operation
+     * @return Error message if validation fails, null if valid
+     */
+    public String validateUser(User user, boolean isUpdate) {
+        return validateUser(user, isUpdate, null);
     }
     
     /**
@@ -119,7 +135,8 @@ public class UserService {
         user.setPasswordHash(userDAO.hashPassword(plainPassword));
         
         // Validate user data
-        String validationError = validateUser(user, false);
+        Integer currentUserRoleId = getRoleIdFromRoleName(currentUserRole);
+        String validationError = validateUser(user, false, currentUserRoleId);
         if (validationError != null) {
             return validationError;
         }
@@ -156,7 +173,8 @@ public class UserService {
         }
         
         // Validate user data
-        String validationError = validateUser(user, true);
+        Integer currentUserRoleId = getRoleIdFromRoleName(currentUserRole);
+        String validationError = validateUser(user, true, currentUserRoleId);
         if (validationError != null) {
             return validationError;
         }
@@ -264,7 +282,8 @@ public class UserService {
      */
     public List<Setting> getAvailableRoles(String currentUserRole) {
         if ("Admin".equals(currentUserRole)) {
-            return userDAO.getAllRoles();
+            // Admin can see all roles except admin role (to prevent creating other admins)
+            return userDAO.getAvailableRolesForAdmin();
         } else if ("HR".equals(currentUserRole)) {
             return userDAO.getAvailableRolesForHR();
         }
@@ -331,5 +350,22 @@ public class UserService {
      */
     public User getUserById(int userID) {
         return userDAO.getUserById(userID);
+    }
+    
+    /**
+     * Convert role name to role ID
+     * @param roleName Role name
+     * @return Role ID or null if not found
+     */
+    private Integer getRoleIdFromRoleName(String roleName) {
+        if (roleName == null) return null;
+        
+        switch (roleName) {
+            case "HR": return 1;
+            case "Admin": return 2;
+            case "Inventory": return 3;
+            case "Barista": return 4;
+            default: return null;
+        }
     }
 }

@@ -4,8 +4,8 @@
  */
 package controllers;
 
-import models.User;
-import models.Setting;
+import model.User;
+import model.Setting;
 import services.UserService;
 import java.io.IOException;
 import java.util.List;

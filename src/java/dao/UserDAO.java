@@ -4,8 +4,8 @@
  */
 package dao;
 
-import models.User;
-import models.Setting;
+import model.User;
+import model.Setting;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -374,6 +374,40 @@ public class UserDAO extends DBContext {
                 role.setDescription(rs.getString("Description"));
                 role.setActive(rs.getBoolean("IsActive"));
                 
+                roles.add(role);
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return roles;
+    }
+    
+    /**
+     * Get available roles for Admin users (all roles except Admin)
+     * @return List of roles
+     */
+    public List<Setting> getAvailableRolesForAdmin() {
+        List<Setting> roles = new ArrayList<>();
+        String sql = "SELECT SettingID, Type, Value, Description, IsActive " +
+                    "FROM Setting " +
+                    "WHERE Type = 'Role' AND IsActive = true " +
+                    "AND Value != 'Admin' " +
+                    "ORDER BY Value";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                Setting role = new Setting();
+                role.setSettingID(rs.getInt("SettingID"));
+                role.setType(rs.getString("Type"));
+                role.setValue(rs.getString("Value"));
+                role.setDescription(rs.getString("Description"));
+                role.setActive(rs.getBoolean("IsActive"));
                 roles.add(role);
             }
             

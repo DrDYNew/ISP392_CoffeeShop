@@ -21,9 +21,33 @@
             
             <!-- Dashboard -->
             <li class="active">
-                <a href="${pageContext.request.contextPath}/hr/dashboard" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
-                    <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-                </a>
+                <c:choose>
+                    <c:when test="${sessionScope.roleName == 'Admin'}">
+                        <a href="${pageContext.request.contextPath}/admin/dashboard" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                            <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                        </a>
+                    </c:when>
+                    <c:when test="${sessionScope.roleName == 'HR'}">
+                        <a href="${pageContext.request.contextPath}/hr/dashboard" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                            <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                        </a>
+                    </c:when>
+                    <c:when test="${sessionScope.roleName == 'Barista'}">
+                        <a href="${pageContext.request.contextPath}/barista/dashboard" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                            <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                        </a>
+                    </c:when>
+                    <c:when test="${sessionScope.roleName == 'Inventory'}">
+                        <a href="${pageContext.request.contextPath}/inventory/dashboard" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                            <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                        </a>
+                    </c:when>
+                    <c:otherwise>
+                        <a href="${pageContext.request.contextPath}/dashboard" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                            <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                        </a>
+                    </c:otherwise>
+                </c:choose>
             </li>
             
             <!-- HR specific menu items -->
@@ -139,19 +163,19 @@
             <!-- Barista specific menu items -->
             <c:if test="${sessionScope.roleName == 'Barista' || sessionScope.roleName == 'barista'}">
                 <li>
-                    <a href="javascript:void(0)">
+                    <a href="${pageContext.request.contextPath}/barista/orders" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                         <i class="fa fa-coffee"></i> <span>Đơn hàng</span>
                     </a>
                 </li>
                 
                 <li>
-                    <a href="javascript:void(0)">
+                    <a href="${pageContext.request.contextPath}/barista/menu" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                         <i class="fa fa-list"></i> <span>Menu</span>
                     </a>
                 </li>
                 
                 <li>
-                    <a href="javascript:void(0)">
+                    <a href="${pageContext.request.contextPath}/barista/schedule" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                         <i class="fa fa-clock-o"></i> <span>Ca làm việc</span>
                     </a>
                 </li>
@@ -174,21 +198,21 @@
                 </li>
                 
                 <li class="treeview">
-                    <a href="javascript:void(0)" onclick="toggleMenu(this)">
+                    <a href="javascript:void(0)" onclick="toggleMenu(this)" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                         <i class="fa fa-cogs"></i>
                         <span>Quản trị hệ thống</span>
-                        <span class="pull-right-container">
+                        <span class="pull-right-container" style="float: right;">
                             <i class="fa fa-angle-left pull-right"></i>
                         </span>
                     </a>
-                    <ul class="treeview-menu">
-                        <li><a href="javascript:void(0)"><i class="fa fa-circle-o"></i> Phân quyền</a></li>
-                        <li><a href="javascript:void(0)"><i class="fa fa-circle-o"></i> Cài đặt</a></li>
+                    <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
+                        <li><a href="${pageContext.request.contextPath}/user" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Quản lý người dùng</a></li>
+                        <li><a href="${pageContext.request.contextPath}/admin/setting" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Quản lý cài đặt</a></li>
                     </ul>
                 </li>
                 
                 <li>
-                    <a href="javascript:void(0)">
+                    <a href="${pageContext.request.contextPath}/admin/reports" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                         <i class="fa fa-pie-chart"></i> <span>Thống kê tổng quan</span>
                     </a>
                 </li>
