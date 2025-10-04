@@ -11,6 +11,10 @@ public class Ingredient {
     private int supplierID;
     private boolean isActive;
     private Timestamp createdAt;
+    
+    // Additional fields for display
+    private String unitName;
+    private String supplierName;
 
     // Default constructor
     public Ingredient() {
@@ -93,6 +97,22 @@ public class Ingredient {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
     }
 
     public String toString() {

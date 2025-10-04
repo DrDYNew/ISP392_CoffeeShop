@@ -38,7 +38,7 @@
                         </a>
                     </c:when>
                     <c:when test="${sessionScope.roleName == 'Inventory'}">
-                        <a href="${pageContext.request.contextPath}/inventory/dashboard" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                        <a href="${pageContext.request.contextPath}/inventory-dashboard" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                         </a>
                     </c:when>
@@ -127,35 +127,37 @@
             <!-- Inventory Staff specific menu items -->
             <c:if test="${sessionScope.roleName == 'Inventory' || sessionScope.roleName == 'inventory'}">
                 <li class="treeview">
-                    <a href="javascript:void(0)" onclick="toggleMenu(this)">
+                    <a href="javascript:void(0)" onclick="toggleInventoryMenu(this)" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                         <i class="fa fa-cubes"></i>
                         <span>Quản lý kho</span>
-                        <span class="pull-right-container">
+                        <span class="pull-right-container" style="float: right;">
                             <i class="fa fa-angle-left pull-right"></i>
                         </span>
                     </a>
-                    <ul class="treeview-menu">
-                        <li><a href="javascript:void(0)"><i class="fa fa-circle-o"></i> Tồn kho</a></li>
-                        <li><a href="javascript:void(0)"><i class="fa fa-circle-o"></i> Nhập hàng</a></li>
-                        <li><a href="javascript:void(0)"><i class="fa fa-circle-o"></i> Xuất hàng</a></li>
+                    <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
+                        <li><a href="${pageContext.request.contextPath}/ingredient" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Danh sách nguyên liệu</a></li>
+                        <li><a href="${pageContext.request.contextPath}/ingredient?action=low-stock" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Nguyên liệu sắp hết</a></li>
+                    </ul>
+                </li>
+                
+                <li class="treeview">
+                    <a href="javascript:void(0)" onclick="togglePurchaseMenu(this)" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                        <i class="fa fa-shopping-cart"></i>
+                        <span>Đơn đặt hàng</span>
+                        <span class="pull-right-container" style="float: right;">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
+                        <li><a href="${pageContext.request.contextPath}/purchase-order" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Danh sách đơn hàng</a></li>
+                        <li><a href="${pageContext.request.contextPath}/purchase-order?action=create" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Tạo đơn hàng</a></li>
+                        <li><a href="${pageContext.request.contextPath}/purchase-order?action=auto-order" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Đặt hàng tự động</a></li>
                     </ul>
                 </li>
                 
                 <li>
-                    <a href="javascript:void(0)">
-                        <i class="fa fa-shopping-cart"></i> <span>Đơn đặt hàng</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="javascript:void(0)">
+                    <a href="${pageContext.request.contextPath}/supplier" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                         <i class="fa fa-truck"></i> <span>Nhà cung cấp</span>
-                    </a>
-                </li>
-                
-                <li>
-                    <a href="javascript:void(0)">
-                        <i class="fa fa-bar-chart"></i> <span>Báo cáo kho</span>
                     </a>
                 </li>
             </c:if>
@@ -221,39 +223,3 @@
     </section>
     <!-- /.sidebar -->
 </aside>
-
-<script>
-function toggleMenu(element) {
-    const parentLi = element.parentElement;
-    const treeviewMenu = parentLi.querySelector('.treeview-menu');
-    const arrow = parentLi.querySelector('.fa-angle-left');
-    
-    if (treeviewMenu) {
-        if (treeviewMenu.style.display === 'none' || treeviewMenu.style.display === '') {
-            treeviewMenu.style.display = 'block';
-            arrow.style.transform = 'rotate(-90deg)';
-            parentLi.classList.add('active');
-        } else {
-            treeviewMenu.style.display = 'none';
-            arrow.style.transform = 'rotate(0deg)';
-            parentLi.classList.remove('active');
-        }
-    }
-}
-
-// Initialize menu state on page load
-document.addEventListener('DOMContentLoaded', function() {
-    // Close all menus by default
-    const treeviewMenus = document.querySelectorAll('.treeview-menu');
-    treeviewMenus.forEach(function(menu) {
-        menu.style.display = 'none';
-    });
-    
-    // Reset all arrows
-    const arrows = document.querySelectorAll('.fa-angle-left');
-    arrows.forEach(function(arrow) {
-        arrow.style.transform = 'rotate(0deg)';
-        arrow.style.transition = 'transform 0.3s ease';
-    });
-});
-</script>

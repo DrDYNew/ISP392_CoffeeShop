@@ -1,420 +1,563 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
-<html lang="vi">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventory Dashboard - Coffee Shop Management</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="${pageContext.request.contextPath}/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Custom Dashboard CSS -->
-    <link href="${pageContext.request.contextPath}/css/dashboard.css" rel="stylesheet">
-    
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Dashboard - Inventory Staff | Coffee Shop</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.6 -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap.min.css">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-</head>
-<body class="role-inventory">
-    <div class="dashboard-container">
-        <!-- Include Sidebar -->
-        <%@include file="../compoment/sidebar.jsp" %>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/dist/css/AdminLTE.min.css">
+    <!-- AdminLTE Skins -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/dist/css/skins/_all-skins.min.css">
+    <!-- Morris chart -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+    <!-- Custom Dashboard CSS -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/inventory-dashboard.css">
+    
+    <style>
+        .info-box {
+            display: block;
+            min-height: 90px;
+            background: #fff;
+            width: 100%;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+            border-radius: 2px;
+            margin-bottom: 15px;
+        }
         
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Include Header -->
-            <%@include file="../compoment/header.jsp" %>
+        .info-box-icon {
+            border-top-left-radius: 2px;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom-left-radius: 2px;
+            display: block;
+            float: left;
+            height: 90px;
+            width: 90px;
+            text-align: center;
+            font-size: 45px;
+            line-height: 90px;
+            background: rgba(0,0,0,0.2);
+        }
+        
+        .info-box-content {
+            padding: 5px 10px;
+            margin-left: 90px;
+        }
+        
+        .info-box-number {
+            display: block;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .info-box-text {
+            display: block;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .bg-aqua { background-color: #00c0ef !important; }
+        .bg-green { background-color: #00a65a !important; }
+        .bg-yellow { background-color: #f39c12 !important; }
+        .bg-red { background-color: #dd4b39 !important; }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 20px;
+        }
+        
+        .small-box {
+            border-radius: 2px;
+            position: relative;
+            display: block;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+        }
+        
+        .small-box > .inner {
+            padding: 10px;
+        }
+        
+        .small-box h3 {
+            font-size: 30px;
+            font-weight: bold;
+            margin: 0 0 10px 0;
+            white-space: nowrap;
+            padding: 0;
+        }
+        
+        .small-box p {
+            font-size: 15px;
+        }
+        
+        .small-box .icon {
+            position: absolute;
+            top: auto;
+            bottom: 5px;
+            right: 5px;
+            z-index: 0;
+            font-size: 90px;
+            color: rgba(0,0,0,0.15);
+        }
+        
+        .activity-item {
+            border-left: 3px solid #e0e0e0;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .activity-time {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .low-stock-alert {
+            border-left-color: #d73925;
+            background: #fff5f5;
+        }
+        
+        .reorder-alert {
+            border-left-color: #f39c12;
+            background: #fffbf0;
+        }
+    </style>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+    <!-- Include Header -->
+    <%@ include file="../compoment/header.jsp" %>
+
+    <!-- Include Sidebar -->
+    <%@ include file="../compoment/sidebar.jsp" %>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1>
+                Dashboard Inventory
+                <small>Tổng quan kho hàng</small>
+                <button class="btn btn-sm btn-info pull-right" onclick="refreshDashboard()" style="margin-left: 10px;">
+                    <i class="fa fa-refresh"></i> Làm mới
+                </button>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="${pageContext.request.contextPath}/"><i class="fa fa-dashboard"></i> Home</a></li>
+                <li class="active">Dashboard</li>
+            </ol>
             
-            <!-- Content Area -->
-            <div class="content-area">
-                <!-- Welcome Section -->
-                <div class="welcome-section mb-4">
-                    <h2>Chào mừng, ${sessionScope.user.fullName}!</h2>
-                    <p class="text-muted">Quản lý kho - Theo dõi tồn kho và nhập hàng</p>
-                </div>
-                
-                <!-- Statistics Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon primary">
-                            <i class="fas fa-boxes"></i>
+            <!-- Chart Status Alert -->
+            <div id="chartStatusAlert" class="alert alert-info" style="display: none;">
+                <i class="fa fa-info-circle"></i> Đang tải biểu đồ...
+            </div>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            
+            <!-- Info boxes -->
+            <div class="row">
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="small-box bg-aqua">
+                        <div class="inner">
+                            <h3><c:out value="${totalIngredients != null ? totalIngredients : 0}"/></h3>
+                            <p>Tổng nguyên liệu</p>
                         </div>
-                        <div class="stat-value">18</div>
-                        <div class="stat-label">Loại nguyên liệu</div>
-                        <div class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>100% đang quản lý</span>
+                        <div class="icon">
+                            <i class="ion ion-bag"></i>
                         </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon warning">
-                            <i class="fas fa-exclamation-triangle"></i>
-                        </div>
-                        <div class="stat-value">3</div>
-                        <div class="stat-label">Nguyên liệu sắp hết</div>
-                        <div class="stat-change negative">
-                            <i class="fas fa-arrow-down"></i>
-                            <span>Cần nhập thêm</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon success">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <div class="stat-value">5</div>
-                        <div class="stat-label">Đơn nhập hàng</div>
-                        <div class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i>
-                            <span>2 đang chờ duyệt</span>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon danger">
-                            <i class="fas fa-bug"></i>
-                        </div>
-                        <div class="stat-value">2</div>
-                        <div class="stat-label">Sự cố báo cáo</div>
-                        <div class="stat-change">
-                            <i class="fas fa-minus"></i>
-                            <span>1 đang xử lý</span>
-                        </div>
+                        <a href="${pageContext.request.contextPath}/ingredient" class="small-box-footer">
+                            Xem chi tiết <i class="fa fa-arrow-circle-right"></i>
+                        </a>
                     </div>
                 </div>
-                
-                <!-- Quick Actions -->
-                <div class="dashboard-card">
-                    <div class="card-header">
-                        <h5 class="card-title">Thao tác nhanh</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="quick-actions">
-                            <a href="#" class="quick-action">
-                                <div class="quick-action-icon" style="background: var(--success-color);">
-                                    <i class="fas fa-plus"></i>
-                                </div>
-                                <div class="quick-action-content">
-                                    <h6>Tạo đơn nhập hàng</h6>
-                                    <p>Đặt hàng từ nhà cung cấp</p>
-                                </div>
-                            </a>
-                            
-                            <a href="#" class="quick-action">
-                                <div class="quick-action-icon" style="background: var(--warning-color);">
-                                    <i class="fas fa-exclamation-triangle"></i>
-                                </div>
-                                <div class="quick-action-content">
-                                    <h6>Báo cáo sự cố</h6>
-                                    <p>Báo nguyên liệu hỏng/hết hạn</p>
-                                </div>
-                            </a>
-                            
-                            <a href="#" class="quick-action">
-                                <div class="quick-action-icon" style="background: var(--info-color);">
-                                    <i class="fas fa-clipboard-check"></i>
-                                </div>
-                                <div class="quick-action-content">
-                                    <h6>Kiểm kho</h6>
-                                    <p>Kiểm tra tồn kho định kỳ</p>
-                                </div>
-                            </a>
-                            
-                            <a href="#" class="quick-action">
-                                <div class="quick-action-icon" style="background: var(--primary-color);">
-                                    <i class="fas fa-truck"></i>
-                                </div>
-                                <div class="quick-action-content">
-                                    <h6>Nhà cung cấp</h6>
-                                    <p>Quản lý nhà cung cấp</p>
-                                </div>
-                            </a>
+
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="small-box bg-green">
+                        <div class="inner">
+                            <h3><c:out value="${stockGoodCount != null ? stockGoodCount : 0}"/></h3>
+                            <p>Kho đủ hàng</p>
                         </div>
+                        <div class="icon">
+                            <i class="ion ion-stats-bars"></i>
+                        </div>
+                        <a href="${pageContext.request.contextPath}/ingredient" class="small-box-footer">
+                            Xem chi tiết <i class="fa fa-arrow-circle-right"></i>
+                        </a>
                     </div>
                 </div>
-                
-                <div class="row">
-                    <!-- Low Stock Alert -->
-                    <div class="col-lg-6">
-                        <div class="dashboard-card">
-                            <div class="card-header">
-                                <h5 class="card-title">
-                                    <i class="fas fa-exclamation-triangle text-warning"></i>
-                                    Nguyên liệu sắp hết
-                                </h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="dashboard-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Nguyên liệu</th>
-                                                <th>Tồn kho</th>
-                                                <th>Đơn vị</th>
-                                                <th>Mức cảnh báo</th>
-                                                <th>Hành động</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>Cà phê Arabica hạt</td>
-                                                <td class="text-danger"><strong>5.0</strong></td>
-                                                <td>kg</td>
-                                                <td>10.0 kg</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning">
-                                                        <i class="fas fa-shopping-cart"></i> Đặt hàng
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sữa tươi nguyên kem</td>
-                                                <td class="text-warning"><strong>15.0</strong></td>
-                                                <td>L</td>
-                                                <td>20.0 L</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning">
-                                                        <i class="fas fa-shopping-cart"></i> Đặt hàng
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Đường trắng</td>
-                                                <td class="text-danger"><strong>3.0</strong></td>
-                                                <td>kg</td>
-                                                <td>5.0 kg</td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning">
-                                                        <i class="fas fa-shopping-cart"></i> Đặt hàng
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
+
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="small-box bg-yellow">
+                        <div class="inner">
+                            <h3><c:out value="${stockLowCount != null ? stockLowCount : 0}"/></h3>
+                            <p>Sắp hết hàng</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-person-add"></i>
+                        </div>
+                        <a href="${pageContext.request.contextPath}/ingredient?action=low-stock" class="small-box-footer">
+                            Xem chi tiết <i class="fa fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-sm-6 col-xs-12">
+                    <div class="small-box bg-red">
+                        <div class="inner">
+                            <h3><c:out value="${stockOutCount != null ? stockOutCount : 0}"/></h3>
+                            <p>Hết hàng</p>
+                        </div>
+                        <div class="icon">
+                            <i class="ion ion-pie-graph"></i>
+                        </div>
+                        <a href="${pageContext.request.contextPath}/ingredient?action=low-stock" class="small-box-footer">
+                            Xem chi tiết <i class="fa fa-arrow-circle-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="row">
+                <!-- Stock Status Chart -->
+                <div class="col-md-6">
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Tình trạng kho hàng</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                    <i class="fa fa-minus"></i>
+                                </button>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Recent Purchase Orders -->
-                    <div class="col-lg-6">
-                        <div class="dashboard-card">
-                            <div class="card-header">
-                                <h5 class="card-title">Đơn nhập hàng gần đây</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="dashboard-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Mã đơn</th>
-                                                <th>Nhà cung cấp</th>
-                                                <th>Ngày tạo</th>
-                                                <th>Trạng thái</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td><strong>PO001</strong></td>
-                                                <td>Highlands Coffee</td>
-                                                <td>03/10/2025</td>
-                                                <td><span class="badge badge-success">Đã nhận</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>PO002</strong></td>
-                                                <td>TH True Milk</td>
-                                                <td>02/10/2025</td>
-                                                <td><span class="badge badge-info">Đang giao</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>PO003</strong></td>
-                                                <td>Trung Nguyên</td>
-                                                <td>01/10/2025</td>
-                                                <td><span class="badge badge-warning">Đã duyệt</span></td>
-                                            </tr>
-                                            <tr>
-                                                <td><strong>PO004</strong></td>
-                                                <td>Kinh Đô</td>
-                                                <td>30/09/2025</td>
-                                                <td><span class="badge badge-secondary">Chờ duyệt</span></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                        <div class="box-body">
+                            <div class="chart-container">
+                                <div id="stockStatusLoading" class="text-center" style="padding: 50px;">
+                                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                                    <p>Đang tải biểu đồ...</p>
                                 </div>
+                                <canvas id="stockStatusChart" style="display: none;"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="row mt-4">
-                    <!-- Supplier Contact -->
-                    <div class="col-lg-4">
-                        <div class="dashboard-card">
-                            <div class="card-header">
-                                <h5 class="card-title">Nhà cung cấp chính</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="supplier-list">
-                                    <div class="supplier-item">
-                                        <div class="supplier-info">
-                                            <h6>Highlands Coffee</h6>
-                                            <p>Cà phê & Gia vị</p>
-                                            <small class="text-muted">
-                                                <i class="fas fa-phone"></i> 0901234567
-                                            </small>
-                                        </div>
-                                        <div class="supplier-actions">
-                                            <button class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-phone"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="supplier-item">
-                                        <div class="supplier-info">
-                                            <h6>TH True Milk</h6>
-                                            <p>Sản phẩm sữa</p>
-                                            <small class="text-muted">
-                                                <i class="fas fa-phone"></i> 0923456789
-                                            </small>
-                                        </div>
-                                        <div class="supplier-actions">
-                                            <button class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-phone"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="supplier-item">
-                                        <div class="supplier-info">
-                                            <h6>Kinh Đô</h6>
-                                            <p>Bánh kẹo & Nguyên liệu</p>
-                                            <small class="text-muted">
-                                                <i class="fas fa-phone"></i> 0934567890
-                                            </small>
-                                        </div>
-                                        <div class="supplier-actions">
-                                            <button class="btn btn-sm btn-outline-primary">
-                                                <i class="fas fa-phone"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+
+                <!-- Category Distribution Chart -->
+                <div class="col-md-6">
+                    <div class="box box-success">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Phân bố theo loại nguyên liệu</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                    <i class="fa fa-minus"></i>
+                                </button>
                             </div>
                         </div>
-                    </div>
-                    
-                    <!-- Recent Issues -->
-                    <div class="col-lg-8">
-                        <div class="dashboard-card">
-                            <div class="card-header">
-                                <h5 class="card-title">Sự cố và báo cáo</h5>
-                            </div>
-                            <div class="card-body">
-                                <div class="table-responsive">
-                                    <table class="dashboard-table">
-                                        <thead>
-                                            <tr>
-                                                <th>Nguyên liệu</th>
-                                                <th>Vấn đề</th>
-                                                <th>Người báo cáo</th>
-                                                <th>Ngày báo cáo</th>
-                                                <th>Trạng thái</th>
-                                                <th>Hành động</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>Cà phê Arabica</td>
-                                                <td>Bị ẩm mốc (2.5kg)</td>
-                                                <td>Phạm Thị Linh</td>
-                                                <td>02/10/2025</td>
-                                                <td><span class="badge badge-success">Đã xử lý</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-success">
-                                                        <i class="fas fa-check"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Sữa tươi</td>
-                                                <td>Hết hạn (5L)</td>
-                                                <td>Hoàng Minh Tú</td>
-                                                <td>03/10/2025</td>
-                                                <td><span class="badge badge-warning">Đang xử lý</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-warning">
-                                                        <i class="fas fa-cog"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>Đường trắng</td>
-                                                <td>Bị vón cục (1kg)</td>
-                                                <td>Vũ Thị Nam</td>
-                                                <td>01/10/2025</td>
-                                                <td><span class="badge badge-info">Đang điều tra</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-info">
-                                                        <i class="fas fa-search"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                        <div class="box-body">
+                            <div class="chart-container">
+                                <div id="categoryLoading" class="text-center" style="padding: 50px;">
+                                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                                    <p>Đang tải biểu đồ...</p>
                                 </div>
+                                <canvas id="categoryChart" style="display: none;"></canvas>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+            <!-- Stock Levels Chart -->
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Mức tồn kho theo nguyên liệu</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="chart-container" style="height: 400px;">
+                                <div id="stockLevelsLoading" class="text-center" style="padding: 50px;">
+                                    <i class="fa fa-spinner fa-spin fa-2x"></i>
+                                    <p>Đang tải biểu đồ...</p>
+                                </div>
+                                <canvas id="stockLevelsChart" style="display: none;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activities and Alerts -->
+            <div class="row">
+                <!-- Recent Activities -->
+                <div class="col-md-6">
+                    <div class="box box-warning">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Hoạt động gần đây</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="activity-item">
+                                <strong>Cập nhật tồn kho</strong>
+                                <span class="activity-time pull-right">10 phút trước</span>
+                                <br>
+                                <small>Đã cập nhật số lượng cà phê rang xay: +50kg</small>
+                            </div>
+                            <div class="activity-item low-stock-alert">
+                                <strong>Cảnh báo hết hàng</strong>
+                                <span class="activity-time pull-right">1 giờ trước</span>
+                                <br>
+                                <small>Sữa tươi chỉ còn 5 lít, cần nhập thêm</small>
+                            </div>
+                            <div class="activity-item reorder-alert">
+                                <strong>Đề xuất đặt hàng</strong>
+                                <span class="activity-time pull-right">2 giờ trước</span>
+                                <br>
+                                <small>Đường trắng dưới mức tối thiểu, nên đặt hàng mới</small>
+                            </div>
+                            <div class="activity-item">
+                                <strong>Nhập hàng</strong>
+                                <span class="activity-time pull-right">1 ngày trước</span>
+                                <br>
+                                <small>Đã nhập 100kg cà phê hạt từ nhà cung cấp ABC</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Low Stock Alerts -->
+                <div class="col-md-6">
+                    <div class="box box-danger">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Cảnh báo tồn kho thấp</h3>
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse">
+                                    <i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <c:choose>
+                                <c:when test="${not empty lowStockIngredients}">
+                                    <c:forEach var="ingredient" items="${lowStockIngredients}" end="4">
+                                        <div class="activity-item low-stock-alert">
+                                            <strong><c:out value="${ingredient.name}"/></strong>
+                                            <span class="pull-right">
+                                                <span class="badge bg-red">
+                                                    <fmt:formatNumber value="${ingredient.stockQuantity}" pattern="#.##"/> 
+                                                    <c:choose>
+                                                        <c:when test="${ingredient.unitID == 1}">kg</c:when>
+                                                        <c:when test="${ingredient.unitID == 2}">lít</c:when>
+                                                        <c:when test="${ingredient.unitID == 3}">chai</c:when>
+                                                        <c:when test="${ingredient.unitID == 4}">cái</c:when>
+                                                        <c:otherwise>đơn vị</c:otherwise>
+                                                    </c:choose>
+                                                </span>
+                                            </span>
+                                            <br>
+                                            <small>Mức tối thiểu: 10 đơn vị</small>
+                                        </div>
+                                    </c:forEach>
+                                    <c:if test="${fn:length(lowStockIngredients) > 5}">
+                                        <div class="text-center">
+                                            <a href="${pageContext.request.contextPath}/ingredient?action=low-stock" class="btn btn-sm btn-warning">
+                                                Xem tất cả (<c:out value="${fn:length(lowStockIngredients)}"/> mục)
+                                            </a>
+                                        </div>
+                                    </c:if>
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="text-center text-muted">
+                                        <i class="fa fa-check-circle fa-3x"></i>
+                                        <p>Tất cả nguyên liệu đều có đủ tồn kho</p>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+        <!-- /.content -->
     </div>
-    
-    <!-- Bootstrap JS -->
-    <script src="${pageContext.request.contextPath}/bootstrap/js/bootstrap.bundle.min.js"></script>
-    
-    <!-- Custom Dashboard JS -->
-    <script src="${pageContext.request.contextPath}/js/dashboard.js"></script>
-    
-    <style>
-        .supplier-list .supplier-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 15px 0;
-            border-bottom: 1px solid #edf2f7;
+    <!-- /.content-wrapper -->
+
+    <!-- Include Footer -->
+    <%@ include file="../compoment/footer.jsp" %>
+
+</div>
+<!-- ./wrapper -->
+
+<!-- jQuery 2.2.3 (use CDN as fallback) -->
+<script src="${pageContext.request.contextPath}/plugins/jQuery/jquery-2.2.3.min.js"></script>
+<script>
+// jQuery fallback
+if (typeof jQuery === 'undefined') {
+    console.log('Local jQuery failed, loading from CDN...');
+    document.write('<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"><\/script>');
+}
+</script>
+
+<!-- Bootstrap 3.3.6 -->
+<script src="${pageContext.request.contextPath}/bootstrap/js/bootstrap.min.js"></script>
+<script>
+// Bootstrap fallback
+if (typeof jQuery === 'undefined' || typeof jQuery.fn.modal === 'undefined') {
+    console.log('Local Bootstrap failed, loading from CDN...');
+    document.write('<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"><\/script>');
+}
+</script>
+
+<!-- AdminLTE App -->
+<script src="${pageContext.request.contextPath}/dist/js/app.min.js"></script>
+<script>
+// AdminLTE fallback - if app.min.js fails, continue without it
+if (typeof jQuery === 'undefined') {
+    console.warn('AdminLTE may not work properly without jQuery');
+}
+</script>
+
+<!-- Chart.js (load after jQuery) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script>
+// Fallback if CDN fails
+if (typeof Chart === 'undefined') {
+    console.log('Primary Chart.js CDN failed, trying backup...');
+    var script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js';
+    script.onload = function() {
+        console.log('Backup Chart.js loaded successfully');
+        // Reinitialize dashboard after backup loads
+        if (typeof initializeDashboard === 'function') {
+            initializeDashboard();
         }
-        
-        .supplier-list .supplier-item:last-child {
-            border-bottom: none;
+    };
+    script.onerror = function() {
+        console.error('All Chart.js CDNs failed');
+        showAllChartsError();
+    };
+    document.head.appendChild(script);
+}
+</script>
+
+<!-- Hidden data for charts -->
+<script type="application/json" id="chartData">
+{
+    "stockGoodCount": <c:out value="${stockGoodCount != null ? stockGoodCount : 0}"/>,
+    "stockLowCount": <c:out value="${stockLowCount != null ? stockLowCount : 0}"/>,
+    "stockOutCount": <c:out value="${stockOutCount != null ? stockOutCount : 0}"/>,
+    "ingredients": [
+        <c:forEach var="ingredient" items="${ingredients}" varStatus="status">
+        {
+            "name": "<c:out value='${ingredient.name}'/>",
+            "currentStock": <c:out value="${ingredient.stockQuantity}"/>,
+            "minStock": 10
+        }<c:if test="${!status.last}">,</c:if>
+        </c:forEach>
+    ]
+}
+</script>
+
+<!-- Dashboard JavaScript (load last) -->
+<script src="${pageContext.request.contextPath}/js/inventory-dashboard.js"></script>
+
+<!-- Debug Script -->
+<script>
+console.log('Dashboard page loaded');
+console.log('jQuery available:', typeof jQuery !== 'undefined');
+console.log('$ available:', typeof $ !== 'undefined');
+console.log('Chart.js available:', typeof Chart !== 'undefined');
+
+// Wait for jQuery to be available before checking DOM elements
+function checkDOMElements() {
+    if (typeof jQuery !== 'undefined') {
+        jQuery(document).ready(function($) {
+            console.log('DOM ready with jQuery');
+            console.log('stockStatusChart canvas:', document.getElementById('stockStatusChart'));
+            console.log('categoryChart canvas:', document.getElementById('categoryChart'));
+            console.log('stockLevelsChart canvas:', document.getElementById('stockLevelsChart'));
+            console.log('chartData element:', document.getElementById('chartData'));
+            
+            // Try to get chart data
+            try {
+                var chartDataEl = document.getElementById('chartData');
+                if (chartDataEl) {
+                    var dataText = chartDataEl.textContent || chartDataEl.innerText;
+                    console.log('Chart data text:', dataText);
+                    var parsedData = JSON.parse(dataText);
+                    console.log('Parsed chart data:', parsedData);
+                }
+            } catch (e) {
+                console.error('Error parsing chart data:', e);
+            }
+        });
+    } else {
+        console.log('jQuery not available yet, retrying...');
+        setTimeout(checkDOMElements, 100);
+    }
+}
+
+checkDOMElements();
+
+// Fallback: If all else fails, try to initialize charts with pure JavaScript after 3 seconds
+setTimeout(function() {
+    if (typeof Chart !== 'undefined' && document.getElementById('stockStatusChart')) {
+        console.log('Attempting fallback chart initialization...');
+        try {
+            // Simple chart without jQuery dependency
+            var ctx = document.getElementById('stockStatusChart').getContext('2d');
+            document.getElementById('stockStatusLoading').style.display = 'none';
+            document.getElementById('stockStatusChart').style.display = 'block';
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Đủ hàng', 'Sắp hết', 'Hết hàng'],
+                    datasets: [{
+                        data: [18, 2, 0],
+                        backgroundColor: ['#00a65a', '#f39c12', '#dd4b39']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+            console.log('Fallback chart created successfully');
+        } catch (e) {
+            console.error('Fallback chart failed:', e);
         }
-        
-        .supplier-info h6 {
-            margin: 0 0 5px 0;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-        
-        .supplier-info p {
-            margin: 0 0 5px 0;
-            font-size: 0.8rem;
-            color: #718096;
-        }
-        
-        .supplier-info small {
-            font-size: 0.75rem;
-        }
-        
-        .text-warning {
-            color: #ed8936 !important;
-        }
-        
-        .text-danger {
-            color: #f56565 !important;
-        }
-    </style>
+    }
+}, 3000);
+</script>
+
 </body>
 </html>

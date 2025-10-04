@@ -130,7 +130,7 @@ public class LoginController extends HttpServlet {
                 response.sendRedirect(contextPath + "/views/hr/dashboard.jsp");
                 break;
             case "inventory":
-                response.sendRedirect(contextPath + "/views/inventory-staff/dashboard.jsp");
+                response.sendRedirect(contextPath + "/inventory-dashboard");
                 break;
             case "barista":
                 response.sendRedirect(contextPath + "/views/barista/dashboard.jsp");
