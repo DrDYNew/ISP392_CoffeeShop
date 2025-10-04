@@ -353,6 +353,41 @@ public class UserService {
     }
     
     /**
+     * Verify password against hashed password
+     * @param plainPassword Plain text password
+     * @param hashedPassword Hashed password from database
+     * @return true if password matches, false otherwise
+     */
+    public boolean verifyPassword(String plainPassword, String hashedPassword) {
+        if (plainPassword == null || hashedPassword == null) {
+            return false;
+        }
+        try {
+            return org.mindrot.jbcrypt.BCrypt.checkpw(plainPassword, hashedPassword);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    /**
+     * Hash password using BCrypt
+     * @param plainPassword Plain text password
+     * @return Hashed password
+     */
+    public String hashPassword(String plainPassword) {
+        if (plainPassword == null) {
+            return null;
+        }
+        try {
+            return org.mindrot.jbcrypt.BCrypt.hashpw(plainPassword, org.mindrot.jbcrypt.BCrypt.gensalt());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    /**
      * Convert role name to role ID
      * @param roleName Role name
      * @return Role ID or null if not found
