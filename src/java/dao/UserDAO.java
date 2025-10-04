@@ -316,6 +316,46 @@ public class UserDAO extends DBContext {
     }
     
     /**
+     * Get user by email
+     * @param email Email to search for
+     * @return User object if found, null otherwise
+     */
+    public User getUserByEmail(String email) {
+        String sql = "SELECT u.UserID, u.FullName, u.Email, u.PasswordHash, u.Phone, " +
+                    "u.Address, u.RoleID, u.IsActive, u.CreatedAt, s.Value as RoleName " +
+                    "FROM Users u " +
+                    "JOIN Setting s ON u.RoleID = s.SettingID " +
+                    "WHERE u.Email = ? AND s.Type = 'Role'";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
+            
+            if (rs.next()) {
+                User user = new User();
+                user.setUserID(rs.getInt("UserID"));
+                user.setFullName(rs.getString("FullName"));
+                user.setEmail(rs.getString("Email"));
+                user.setPasswordHash(rs.getString("PasswordHash"));
+                user.setPhone(rs.getString("Phone"));
+                user.setAddress(rs.getString("Address"));
+                user.setRoleID(rs.getInt("RoleID"));
+                user.setActive(rs.getBoolean("IsActive"));
+                user.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                
+                return user;
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
+    /**
      * Get all available roles that HR can create (Inventory and Barista)
      * @return List of roles
      */
@@ -416,6 +456,30 @@ public class UserDAO extends DBContext {
         }
         
         return roles;
+    }
+    
+    /**
+     * Update user password
+     * @param userId User ID
+     * @param newPasswordHash New hashed password
+     * @return true if successful, false otherwise
+     */
+    public boolean updateUserPassword(int userId, String newPasswordHash) {
+        String sql = "UPDATE Users SET PasswordHash = ? WHERE UserID = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            
+            stmt.setString(1, newPasswordHash);
+            stmt.setInt(2, userId);
+            
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
     
     /**

@@ -233,6 +233,35 @@
                     </a>
                 </li>
             </c:if>
+            
+            <!-- Common menu items for all roles -->
+            <li class="header" style="color: #4b646f; background: #1a2226; padding: 10px 25px 10px 15px; font-size: 12px;">CÁ NHÂN</li>
+            
+            <li>
+                <a href="${pageContext.request.contextPath}/profile" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                    <i class="fa fa-user"></i> <span>Thông tin cá nhân</span>
+                </a>
+            </li>
+            
+            <li class="treeview">
+                <a href="javascript:void(0)" onclick="toggleMenu(this)" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                    <i class="fa fa-cogs"></i>
+                    <span>Cài đặt</span>
+                    <span class="pull-right-container" style="float: right;">
+                        <i class="fa fa-angle-left pull-right"></i>
+                    </span>
+                </a>
+                <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
+                    <li><a href="${pageContext.request.contextPath}/profile?action=edit" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Chỉnh sửa thông tin</a></li>
+                    <li><a href="${pageContext.request.contextPath}/profile?action=change-password" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Đổi mật khẩu</a></li>
+                </ul>
+            </li>
+            
+            <li>
+                <a href="${pageContext.request.contextPath}/login?action=logout" style="padding: 12px 5px 12px 15px; display: block; color: #dd4b39; text-decoration: none;">
+                    <i class="fa fa-sign-out"></i> <span>Đăng xuất</span>
+                </a>
+            </li>
         </ul>
     </section>
     <!-- /.sidebar -->
