@@ -5,9 +5,12 @@
 package controllers;
 
 import model.User;
+import model.Product;
 import dao.UserDAO;
+import services.ProductService;
 import java.io.IOException;
 import java.util.List;
+import java.math.BigDecimal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -23,11 +26,13 @@ import jakarta.servlet.http.HttpSession;
 public class AdminController extends HttpServlet {
 
     private UserDAO userDAO;
+    private ProductService productService;
 
     @Override
     public void init() throws ServletException {
         super.init();
         userDAO = new UserDAO();
+        productService = new ProductService();
     }
 
     @Override
@@ -62,6 +67,12 @@ public class AdminController extends HttpServlet {
                     break;
                 case "/users":
                     showUserManagement(request, response);
+                    break;
+                case "/products":
+                    showProductManagement(request, response);
+                    break;
+                case "/products/view":
+                    showProductView(request, response);
                     break;
                 case "/settings":
                     showSystemSettings(request, response);
@@ -220,5 +231,90 @@ public class AdminController extends HttpServlet {
         HttpSession session = request.getSession();
         session.setAttribute("successMessage", "Cài đặt hệ thống đã được cập nhật");
         response.sendRedirect(request.getContextPath() + "/admin/settings");
+    }
+    
+    // ==================== PRODUCT MANAGEMENT METHODS ====================
+    
+    /**
+     * Show product management page
+     */
+    private void showProductManagement(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        try {
+            // Get parameters
+            int page = 1;
+            int pageSize = 10;
+            String searchTerm = request.getParameter("search");
+            String categoryParam = request.getParameter("category");
+            String statusParam = request.getParameter("status");
+            
+            if (request.getParameter("page") != null) {
+                page = Integer.parseInt(request.getParameter("page"));
+            }
+            
+            Integer categoryId = null;
+            if (categoryParam != null && !categoryParam.isEmpty()) {
+                categoryId = Integer.parseInt(categoryParam);
+            }
+            
+            Boolean isActive = null;
+            if ("active".equals(statusParam)) {
+                isActive = true;
+            } else if ("inactive".equals(statusParam)) {
+                isActive = false;
+            }
+            
+            // Get data
+            List<Product> products = productService.getAllProducts(page, pageSize, searchTerm, categoryId, isActive);
+            int totalCount = productService.getTotalProductsCount(searchTerm, categoryId, isActive);
+            int totalPages = productService.getTotalPages(totalCount, pageSize);
+            
+            // Get dropdown data
+            List<Object[]> categories = productService.getCategories();
+            
+            // Set attributes
+            request.setAttribute("products", products);
+            request.setAttribute("currentPage", page);
+            request.setAttribute("totalPages", totalPages);
+            request.setAttribute("totalCount", totalCount);
+            request.setAttribute("pageSize", pageSize);
+            request.setAttribute("searchTerm", searchTerm);
+            request.setAttribute("selectedCategory", categoryId);
+            request.setAttribute("selectedStatus", statusParam);
+            request.setAttribute("categories", categories);
+            
+            request.getRequestDispatcher("/views/admin/product-list.jsp").forward(request, response);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi tải danh sách sản phẩm: " + e.getMessage());
+            request.getRequestDispatcher("/views/common/error.jsp").forward(request, response);
+        }
+    }
+    
+    /**
+     * Show product view
+     */
+    private void showProductView(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        try {
+            int productId = Integer.parseInt(request.getParameter("id"));
+            Product product = productService.getProductById(productId);
+            
+            if (product == null) {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy sản phẩm");
+                return;
+            }
+            
+            request.setAttribute("product", product);
+            request.getRequestDispatcher("/views/admin/product-view.jsp").forward(request, response);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Lỗi khi tải chi tiết sản phẩm: " + e.getMessage());
+            request.getRequestDispatcher("/views/common/error.jsp").forward(request, response);
+        }
     }
 }
