@@ -1,6 +1,9 @@
 package model;
 
-
+/**
+ * Setting model class for system configuration
+ * @author DrDYNew
+ */
 public class Setting {
     private int settingID;
     private String type;
@@ -70,6 +73,7 @@ public class Setting {
         isActive = active;
     }
 
+    @Override
     public String toString() {
         return "Setting{" +
                 "settingID=" + settingID +

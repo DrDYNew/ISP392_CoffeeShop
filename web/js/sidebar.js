@@ -1,37 +1,41 @@
 // Sidebar Navigation Functions
-function toggleInventoryMenu(element) {
+
+// General toggle menu function for all menus
+function toggleMenu(element) {
     var menu = element.nextElementSibling;
-    var icon = element.querySelector('.fa-angle-left');
+    var icon = element.querySelector('.fa-angle-left, .fa-angle-down');
     
-    if (menu.style.display === 'none' || menu.style.display === '') {
+    if (menu && (menu.style.display === 'none' || menu.style.display === '')) {
         menu.style.display = 'block';
-        icon.classList.add('fa-angle-down');
-        icon.classList.remove('fa-angle-left');
+        if (icon) {
+            icon.classList.add('fa-angle-down');
+            icon.classList.remove('fa-angle-left');
+        }
         element.parentElement.classList.add('active');
-    } else {
+    } else if (menu) {
         menu.style.display = 'none';
-        icon.classList.add('fa-angle-left');
-        icon.classList.remove('fa-angle-down');
+        if (icon) {
+            icon.classList.add('fa-angle-left');
+            icon.classList.remove('fa-angle-down');
+        }
         element.parentElement.classList.remove('active');
     }
 }
 
-function togglePurchaseMenu(element) {
-    var menu = element.nextElementSibling;
-    var icon = element.querySelector('.fa-angle-left');
-    
-    if (menu.style.display === 'none' || menu.style.display === '') {
-        menu.style.display = 'block';
-        icon.classList.add('fa-angle-down');
-        icon.classList.remove('fa-angle-left');
-        element.parentElement.classList.add('active');
-    } else {
-        menu.style.display = 'none';
-        icon.classList.add('fa-angle-left');
-        icon.classList.remove('fa-angle-down');
-        element.parentElement.classList.remove('active');
-    }
+// Đảm bảo function có sẵn globally
+window.toggleMenu = toggleMenu;
+
+function toggleInventoryMenu(element) {
+    toggleMenu(element);
 }
+
+function togglePurchaseMenu(element) {
+    toggleMenu(element);
+}
+
+// Đảm bảo tất cả functions có sẵn globally
+window.toggleInventoryMenu = toggleInventoryMenu;
+window.togglePurchaseMenu = togglePurchaseMenu;
 
 // Set active menu based on current URL
 document.addEventListener('DOMContentLoaded', function() {

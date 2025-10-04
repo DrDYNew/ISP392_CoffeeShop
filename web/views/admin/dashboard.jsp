@@ -9,8 +9,8 @@
     <title>Admin Dashboard - Coffee Shop Management</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
-    <!-- Bootstrap 3.3.6 -->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap.min.css">
+    <!-- Bootstrap 3.3.6 từ CDN -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
     <!-- Ionicons -->
@@ -21,8 +21,12 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/dist/css/skins/_all-skins.min.css">
     <!-- Morris charts -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/plugins/morris/morris.css">
+    <!-- Sidebar improvements -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar-improvements.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- jQuery từ CDN - load trước tiên -->
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
     
     <style>
         .info-box {
@@ -567,14 +571,85 @@
 </div>
 <!-- ./wrapper -->
 
-<!-- jQuery 2.2.3 -->
-<script src="${pageContext.request.contextPath}/plugins/jQuery/jquery-2.2.3.min.js"></script>
-<!-- Bootstrap 3.3.6 -->
-<script src="${pageContext.request.contextPath}/bootstrap/js/bootstrap.min.js"></script>
-<!-- AdminLTE App -->
-<script src="${pageContext.request.contextPath}/dist/js/app.min.js"></script>
+<!-- jQuery 2.2.3 từ CDN -->
+<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+<!-- Bootstrap 3.3.6 từ CDN -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<!-- Chart.js cho biểu đồ -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
+<!-- AdminLTE App (nếu có) -->
+<script>
+// Define toggleMenu function immediately để tránh lỗi undefined
+function toggleMenu(element) {
+    var menu = element.nextElementSibling;
+    var icon = element.querySelector('.fa-angle-left, .fa-angle-down');
+    
+    if (menu && (menu.style.display === 'none' || menu.style.display === '')) {
+        menu.style.display = 'block';
+        if (icon) {
+            icon.classList.add('fa-angle-down');
+            icon.classList.remove('fa-angle-left');
+        }
+        element.parentElement.classList.add('active');
+    } else if (menu) {
+        menu.style.display = 'none';
+        if (icon) {
+            icon.classList.add('fa-angle-left');
+            icon.classList.remove('fa-angle-down');
+        }
+        element.parentElement.classList.remove('active');
+    }
+}
+
+function toggleInventoryMenu(element) {
+    toggleMenu(element);
+}
+
+function togglePurchaseMenu(element) {
+    toggleMenu(element);
+}
+
+// Đặt functions vào window object
+window.toggleMenu = toggleMenu;
+window.toggleInventoryMenu = toggleInventoryMenu;
+window.togglePurchaseMenu = togglePurchaseMenu;
+
+console.log('Toggle functions defined in dashboard');
+</script>
+
+<!-- Custom Sidebar Script -->
+<script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
 
 <script>
+    // Override nếu cần thiết
+    if (typeof toggleMenu === 'undefined') {
+        function toggleMenu(element) {
+            var menu = element.nextElementSibling;
+            var icon = element.querySelector('.fa-angle-left, .fa-angle-down');
+            
+            if (menu && (menu.style.display === 'none' || menu.style.display === '')) {
+                menu.style.display = 'block';
+                if (icon) {
+                    icon.classList.add('fa-angle-down');
+                    icon.classList.remove('fa-angle-left');
+                }
+                element.parentElement.classList.add('active');
+            } else if (menu) {
+                menu.style.display = 'none';
+                if (icon) {
+                    icon.classList.add('fa-angle-left');
+                    icon.classList.remove('fa-angle-down');
+                }
+                element.parentElement.classList.remove('active');
+            }
+        }
+        
+        // Đặt functions vào window object
+        window.toggleMenu = toggleMenu;
+        window.toggleInventoryMenu = toggleMenu;
+        window.togglePurchaseMenu = toggleMenu;
+    }
+
     // User Role Distribution Chart
     const userRoleCtx = document.getElementById('userRoleChart').getContext('2d');
     const userRoleChart = new Chart(userRoleCtx, {
@@ -733,6 +808,9 @@
         console.log('Charts would be refreshed with new data');
     }, 300000); // 5 minutes
 </script>
+
+<!-- Include sidebar JavaScript -->
+<script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
 
 </body>
 </html>

@@ -8,7 +8,7 @@
         <!-- Sidebar user panel -->
         <div class="user-panel">
             <div class="pull-left image">
-                <img src="${pageContext.request.contextPath}/dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
+                <img src="https://via.placeholder.com/160x160/00a65a/ffffff/png?text=User" class="img-circle" alt="User Image">
             </div>
             <div class="pull-left info">
                 <p>${sessionScope.user.fullName != null ? sessionScope.user.fullName : 'User'}</p>
@@ -75,9 +75,9 @@
                         </span>
                     </a>
                     <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
-                        <li><a href="javascript:void(0)" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Danh sách nhân viên</a></li>
-                        <li><a href="javascript:void(0)" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Thêm nhân viên</a></li>
-                        <li><a href="javascript:void(0)" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Hồ sơ nhân viên</a></li>
+                        <li><a href="${pageContext.request.contextPath}/hr/employees" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Danh sách nhân viên</a></li>
+                        <li><a href="${pageContext.request.contextPath}/hr/employees?action=create" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Thêm nhân viên</a></li>
+                        <li><a href="${pageContext.request.contextPath}/hr/employees?action=profile" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Hồ sơ nhân viên</a></li>
                     </ul>
                 </li>
                 
@@ -90,9 +90,9 @@
                         </span>
                     </a>
                     <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
-                        <li><a href="javascript:void(0)" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Đăng tin tuyển dụng</a></li>
-                        <li><a href="javascript:void(0)" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Quản lý ứng viên</a></li>
-                        <li><a href="javascript:void(0)" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Lịch phỏng vấn</a></li>
+                        <li><a href="${pageContext.request.contextPath}/hr/recruitment?action=job-posting" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Đăng tin tuyển dụng</a></li>
+                        <li><a href="${pageContext.request.contextPath}/hr/recruitment?action=candidates" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Quản lý ứng viên</a></li>
+                        <li><a href="${pageContext.request.contextPath}/hr/recruitment?action=interviews" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Lịch phỏng vấn</a></li>
                     </ul>
                 </li>
                 
@@ -105,20 +105,20 @@
                         </span>
                     </a>
                     <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
-                        <li><a href="javascript:void(0)" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Sắp xếp ca làm</a></li>
-                        <li><a href="javascript:void(0)" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Chấm công</a></li>
-                        <li><a href="javascript:void(0)" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Xin nghỉ phép</a></li>
+                        <li><a href="${pageContext.request.contextPath}/hr/schedule?action=shifts" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Sắp xếp ca làm</a></li>
+                        <li><a href="${pageContext.request.contextPath}/hr/schedule?action=attendance" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Chấm công</a></li>
+                        <li><a href="${pageContext.request.contextPath}/hr/schedule?action=leave-request" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Xin nghỉ phép</a></li>
                     </ul>
                 </li>
                 
                 <li>
-                    <a href="javascript:void(0)" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                    <a href="${pageContext.request.contextPath}/hr/payroll" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                         <i class="fa fa-money"></i> <span>Bảng lương</span>
                     </a>
                 </li>
                 
                 <li>
-                    <a href="javascript:void(0)" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                    <a href="${pageContext.request.contextPath}/hr/reports" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                         <i class="fa fa-line-chart"></i> <span>Báo cáo HR</span>
                     </a>
                 </li>
@@ -201,6 +201,19 @@
                 
                 <li class="treeview">
                     <a href="javascript:void(0)" onclick="toggleMenu(this)" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                        <i class="fa fa-cube"></i>
+                        <span>Quản lý sản phẩm</span>
+                        <span class="pull-right-container" style="float: right;">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
+                        <li><a href="${pageContext.request.contextPath}/admin/products" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Danh sách sản phẩm</a></li>
+                    </ul>
+                </li>
+                
+                <li class="treeview">
+                    <a href="javascript:void(0)" onclick="toggleMenu(this)" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                         <i class="fa fa-cogs"></i>
                         <span>Quản trị hệ thống</span>
                         <span class="pull-right-container" style="float: right;">
@@ -208,8 +221,9 @@
                         </span>
                     </a>
                     <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
-                        <li><a href="${pageContext.request.contextPath}/user" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Quản lý người dùng</a></li>
-                        <li><a href="${pageContext.request.contextPath}/admin/setting" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Quản lý cài đặt</a></li>
+                        <li><a href="${pageContext.request.contextPath}/admin/settings" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Cài đặt hệ thống</a></li>
+                        <li><a href="${pageContext.request.contextPath}/admin/settings?action=backup" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Sao lưu dữ liệu</a></li>
+                        <li><a href="${pageContext.request.contextPath}/admin/settings?action=logs" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Nhật ký hệ thống</a></li>
                     </ul>
                 </li>
                 
@@ -223,3 +237,73 @@
     </section>
     <!-- /.sidebar -->
 </aside>
+
+<script>
+// Đảm bảo toggleMenu function luôn có sẵn
+function toggleMenu(element) {
+    var menu = element.nextElementSibling;
+    var icon = element.querySelector('.fa-angle-left, .fa-angle-down');
+    
+    if (menu && (menu.style.display === 'none' || menu.style.display === '')) {
+        menu.style.display = 'block';
+        if (icon) {
+            icon.classList.add('fa-angle-down');
+            icon.classList.remove('fa-angle-left');
+        }
+        element.parentElement.classList.add('active');
+    } else if (menu) {
+        menu.style.display = 'none';
+        if (icon) {
+            icon.classList.add('fa-angle-left');
+            icon.classList.remove('fa-angle-down');
+        }
+        element.parentElement.classList.remove('active');
+    }
+}
+
+function toggleInventoryMenu(element) {
+    toggleMenu(element);
+}
+
+function togglePurchaseMenu(element) {
+    toggleMenu(element);
+}
+
+// Đặt functions vào window object để có thể truy cập globally
+if (typeof window !== 'undefined') {
+    window.toggleMenu = toggleMenu;
+    window.toggleInventoryMenu = toggleInventoryMenu;
+    window.togglePurchaseMenu = togglePurchaseMenu;
+}
+
+// Đợi DOM load xong rồi set active menu
+document.addEventListener('DOMContentLoaded', function() {
+    var currentPath = window.location.pathname;
+    var menuItems = document.querySelectorAll('.sidebar-menu a');
+    
+    menuItems.forEach(function(item) {
+        var href = item.getAttribute('href');
+        if (href && href !== 'javascript:void(0)' && currentPath.includes(href.split('?')[0])) {
+            item.parentElement.classList.add('active');
+            
+            // If it's a submenu item, expand the parent menu
+            var parentTreeview = item.closest('.treeview');
+            if (parentTreeview) {
+                var parentMenu = parentTreeview.querySelector('.treeview-menu');
+                var parentIcon = parentTreeview.querySelector('.fa-angle-left');
+                
+                if (parentMenu) {
+                    parentMenu.style.display = 'block';
+                    if (parentIcon) {
+                        parentIcon.classList.add('fa-angle-down');
+                        parentIcon.classList.remove('fa-angle-left');
+                    }
+                    parentTreeview.classList.add('active');
+                }
+            }
+        }
+    });
+});
+
+console.log('Sidebar toggle functions loaded successfully');
+</script>

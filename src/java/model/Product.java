@@ -12,6 +12,10 @@ public class Product {
     private int supplierID;
     private boolean isActive;
     private Timestamp createdAt;
+    
+    // Additional fields for display purposes
+    private String categoryName;
+    private String supplierName;
 
     // Default constructor
     public Product() {
@@ -104,6 +108,22 @@ public class Product {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
     }
 
     public String toString() {
