@@ -19,7 +19,7 @@ import org.mindrot.jbcrypt.BCrypt;
  *
  * @author DrDYNew
  */
-public class UserDAO extends DBContext {
+public class UserDAO extends BaseDAO {
     
     /**
      * Get all users with pagination and filtering

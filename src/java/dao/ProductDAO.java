@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.math.BigDecimal;
 
-public class ProductDAO {
+public class ProductDAO extends BaseDAO{
     
     /**
      * Get all products with pagination
@@ -31,7 +31,7 @@ public class ProductDAO {
         
         sql += "ORDER BY p.ProductID DESC LIMIT ? OFFSET ?";
         
-        try (Connection conn = DBContext.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             int paramIndex = 1;
             
@@ -90,7 +90,7 @@ public class ProductDAO {
             sql += "AND p.IsActive = ? ";
         }
         
-        try (Connection conn = DBContext.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             int paramIndex = 1;
             
@@ -126,7 +126,7 @@ public class ProductDAO {
                     "LEFT JOIN Suppliers sup ON p.SupplierID = sup.SupplierID " +
                     "WHERE p.ProductID = ?";
         
-        try (Connection conn = DBContext.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ResultSet rs = ps.executeQuery();
@@ -160,7 +160,7 @@ public class ProductDAO {
         String sql = "INSERT INTO Products (ProductName, Description, CategoryID, Price, SupplierID, IsActive) " +
                     "VALUES (?, ?, ?, ?, ?, ?)";
         
-        try (Connection conn = DBContext.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, product.getProductName());
             ps.setString(2, product.getDescription());
@@ -183,7 +183,7 @@ public class ProductDAO {
         String sql = "UPDATE Products SET ProductName = ?, Description = ?, CategoryID = ?, " +
                     "Price = ?, SupplierID = ?, IsActive = ? WHERE ProductID = ?";
         
-        try (Connection conn = DBContext.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, product.getProductName());
             ps.setString(2, product.getDescription());
@@ -206,7 +206,7 @@ public class ProductDAO {
     public boolean deleteProduct(int productId) {
         String sql = "UPDATE Products SET IsActive = FALSE WHERE ProductID = ?";
         
-        try (Connection conn = DBContext.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             return ps.executeUpdate() > 0;
@@ -223,7 +223,7 @@ public class ProductDAO {
         List<Object[]> categories = new ArrayList<>();
         String sql = "SELECT SettingID, Value FROM Setting WHERE Type = 'Category' AND IsActive = TRUE ORDER BY Value";
         
-        try (Connection conn = DBContext.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
@@ -242,7 +242,7 @@ public class ProductDAO {
         List<Object[]> suppliers = new ArrayList<>();
         String sql = "SELECT SupplierID, SupplierName FROM Suppliers WHERE IsActive = TRUE ORDER BY SupplierName";
         
-        try (Connection conn = DBContext.getConnection();
+        try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {

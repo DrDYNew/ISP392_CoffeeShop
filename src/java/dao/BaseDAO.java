@@ -11,7 +11,7 @@ import java.sql.SQLException;
  *
  * @author DrDYNew
  */
-public class DBContext {
+    public class BaseDAO {
 
     private static final String URL = "jdbc:postgresql://localhost:5432/CoffeeDB";
     private static final String USER = "postgres";
@@ -31,7 +31,7 @@ public class DBContext {
         return null;
     }
      public static void main(String[] args) {
-        Connection conn = DBContext.getConnection();
+        Connection conn = BaseDAO.getConnection();
         if (conn != null) {
             System.out.println("✅ Kết nối PostgreSQL thành công!");
         } else {

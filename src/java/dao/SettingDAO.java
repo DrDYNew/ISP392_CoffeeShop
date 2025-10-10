@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Data Access Object for Setting
  */
-public class SettingDAO extends DBContext {
+public class SettingDAO extends BaseDAO {
     
     /**
      * Get all settings
