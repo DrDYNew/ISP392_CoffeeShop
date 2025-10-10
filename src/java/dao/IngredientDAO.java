@@ -20,7 +20,7 @@ import java.math.BigDecimal;
  * DAO class for Ingredient management
  * @author DrDYNew
  */
-public class IngredientDAO extends DBContext {
+public class IngredientDAO extends BaseDAO {
     
     /**
      * Get all ingredients with pagination and filtering

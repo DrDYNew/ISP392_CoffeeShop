@@ -8,6 +8,8 @@
             <file>file:/C:/Code/ISP392_CoffeeShop/src/java/services/AuthService.java</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/web/views/admin/setting-list.jsp</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/web/views/admin/dashboard.jsp</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/BaseDAO.java</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/SettingDAO.java</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/web/dist/css/AdminHeaderBar.css</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/web/views/common/profile-edit.jsp</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/web/views/compoment/sidebar.jsp</file>
@@ -17,6 +19,7 @@
             <file>file:/C:/Code/ISP392_CoffeeShop/web/views/admin/setting-form.jsp</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/web/views/admin/product-list.jsp</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/IngredientController.java</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/ProductDAO.java</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/src/java/services/IngredientService.java</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/AuthDAO.java</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/web/views/inventory-staff/ingredient-list.jsp</file>

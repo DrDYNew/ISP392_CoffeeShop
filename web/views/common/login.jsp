@@ -38,9 +38,17 @@
         
         <!-- Success Message -->
         <c:if test="${not empty param.message}">
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i>
+                ${param.message}
+            </div>
+        </c:if>
+        
+        <!-- Info Message -->
+        <c:if test="${not empty message}">
             <div class="alert alert-info">
                 <i class="fas fa-info-circle"></i>
-                ${param.message}
+                ${message}
             </div>
         </c:if>
         
@@ -103,7 +111,7 @@
         
         <!-- Additional Links -->
         <div class="forgot-password">
-            <a href="#" onclick="showForgotPasswordInfo()">
+            <a href="${pageContext.request.contextPath}/forgot-password">
                 <i class="fas fa-question-circle"></i>
                 Quên mật khẩu?
             </a>

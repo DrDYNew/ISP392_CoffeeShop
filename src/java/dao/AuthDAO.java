@@ -16,7 +16,7 @@ import org.mindrot.jbcrypt.BCrypt;
  *
  * @author DrDYNew
  */
-public class AuthDAO extends DBContext {
+public class AuthDAO extends BaseDAO {
     
     /**
      * Authenticate user by email and password

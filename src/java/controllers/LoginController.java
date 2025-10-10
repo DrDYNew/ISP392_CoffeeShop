@@ -42,6 +42,10 @@ public class LoginController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws ServletException, IOException {
+        System.out.println("=== LOGIN CONTROLLER DEBUG ===");
+        System.out.println("Path: " + request.getServletPath());
+        System.out.println("Message param: " + request.getParameter("message"));
+        
         String path = request.getServletPath();
         
         if ("/logout".equals(path)) {
@@ -57,12 +61,14 @@ public class LoginController extends HttpServlet {
         // Check if user is already logged in
         HttpSession session = request.getSession(false);
         if (session != null && session.getAttribute("user") != null) {
+            System.out.println("User already logged in, redirecting to dashboard");
             // User is already logged in, redirect to dashboard
             redirectToDashboard(request, response, (User) session.getAttribute("user"));
             return;
         }
         
         // Show login page
+        System.out.println("Forwarding to login.jsp");
         request.getRequestDispatcher("/views/common/login.jsp").forward(request, response);
     }
 
