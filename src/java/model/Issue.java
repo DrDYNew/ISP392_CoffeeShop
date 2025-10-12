@@ -6,21 +6,30 @@ import java.sql.Timestamp;
 public class Issue {
     private int issueID;
     private int ingredientID;
+    private String description;  // Mô tả vấn đề
     private BigDecimal quantity;
     private int statusID;
     private int createdBy;
     private Integer confirmedBy;
     private Timestamp createdAt;
+    
+    // Additional fields for display
+    private String ingredientName;
+    private String statusName;
+    private String createdByName;
+    private String confirmedByName;
+    private String unitName;
 
     // Default constructor
     public Issue() {
     }
 
     // Constructor with all fields
-    public Issue(int issueID, int ingredientID, BigDecimal quantity, int statusID, 
+    public Issue(int issueID, int ingredientID, String description, BigDecimal quantity, int statusID, 
                 int createdBy, Integer confirmedBy, Timestamp createdAt) {
         this.issueID = issueID;
         this.ingredientID = ingredientID;
+        this.description = description;
         this.quantity = quantity;
         this.statusID = statusID;
         this.createdBy = createdBy;
@@ -29,9 +38,10 @@ public class Issue {
     }
 
     // Constructor without ID and timestamp (for insert operations)
-    public Issue(int ingredientID, BigDecimal quantity, int statusID, 
+    public Issue(int ingredientID, String description, BigDecimal quantity, int statusID, 
                 int createdBy, Integer confirmedBy) {
         this.ingredientID = ingredientID;
+        this.description = description;
         this.quantity = quantity;
         this.statusID = statusID;
         this.createdBy = createdBy;
@@ -94,11 +104,61 @@ public class Issue {
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
+    
+    public String getDescription() {
+        return description;
+    }
 
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getIngredientName() {
+        return ingredientName;
+    }
+
+    public void setIngredientName(String ingredientName) {
+        this.ingredientName = ingredientName;
+    }
+
+    public String getStatusName() {
+        return statusName;
+    }
+
+    public void setStatusName(String statusName) {
+        this.statusName = statusName;
+    }
+
+    public String getCreatedByName() {
+        return createdByName;
+    }
+
+    public void setCreatedByName(String createdByName) {
+        this.createdByName = createdByName;
+    }
+
+    public String getConfirmedByName() {
+        return confirmedByName;
+    }
+
+    public void setConfirmedByName(String confirmedByName) {
+        this.confirmedByName = confirmedByName;
+    }
+
+    public String getUnitName() {
+        return unitName;
+    }
+
+    public void setUnitName(String unitName) {
+        this.unitName = unitName;
+    }
+
+    @Override
     public String toString() {
         return "Issue{" +
                 "issueID=" + issueID +
                 ", ingredientID=" + ingredientID +
+                ", description='" + description + '\'' +
                 ", quantity=" + quantity +
                 ", statusID=" + statusID +
                 ", createdBy=" + createdBy +

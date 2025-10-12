@@ -155,6 +155,20 @@
                     </ul>
                 </li>
                 
+                <li class="treeview">
+                    <a href="javascript:void(0)" onclick="toggleIssueMenu(this)" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                        <i class="fa fa-exclamation-triangle"></i>
+                        <span>Vấn đề nguyên liệu</span>
+                        <span class="pull-right-container" style="float: right;">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
+                        <li><a href="${pageContext.request.contextPath}/issue?action=list" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Danh sách vấn đề</a></li>
+                        <li><a href="${pageContext.request.contextPath}/issue?action=create" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Thêm vấn đề mới</a></li>
+                    </ul>
+                </li>
+                
                 <li>
                     <a href="${pageContext.request.contextPath}/supplier" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                         <i class="fa fa-truck"></i> <span>Nhà cung cấp</span>
@@ -298,11 +312,16 @@ function togglePurchaseMenu(element) {
     toggleMenu(element);
 }
 
+function toggleIssueMenu(element) {
+    toggleMenu(element);
+}
+
 // Đặt functions vào window object để có thể truy cập globally
 if (typeof window !== 'undefined') {
     window.toggleMenu = toggleMenu;
     window.toggleInventoryMenu = toggleInventoryMenu;
     window.togglePurchaseMenu = togglePurchaseMenu;
+    window.toggleIssueMenu = toggleIssueMenu;
 }
 
 // Đợi DOM load xong rồi set active menu
