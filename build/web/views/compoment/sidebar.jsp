@@ -249,9 +249,8 @@
                         </span>
                     </a>
                     <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
-                        <li><a href="${pageContext.request.contextPath}/admin/settings" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Cài đặt hệ thống</a></li>
-                        <li><a href="${pageContext.request.contextPath}/admin/settings?action=backup" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Sao lưu dữ liệu</a></li>
-                        <li><a href="${pageContext.request.contextPath}/admin/settings?action=logs" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Nhật ký hệ thống</a></li>
+                        <li><a href="${pageContext.request.contextPath}/admin/setting" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Quản lý Setting</a></li>
+                        <li><a href="${pageContext.request.contextPath}/admin/setting?action=create" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Thêm Setting mới</a></li>
                     </ul>
                 </li>
                 
