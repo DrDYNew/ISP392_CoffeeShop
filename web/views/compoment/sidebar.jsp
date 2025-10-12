@@ -185,6 +185,12 @@
                 </li>
                 
                 <li>
+                    <a href="${pageContext.request.contextPath}/barista/issues" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                        <i class="fa fa-exclamation-triangle"></i> <span>Vấn đề nguyên liệu</span>
+                    </a>
+                </li>
+                
+                <li>
                     <a href="${pageContext.request.contextPath}/barista/menu" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                         <i class="fa fa-list"></i> <span>Menu</span>
                     </a>

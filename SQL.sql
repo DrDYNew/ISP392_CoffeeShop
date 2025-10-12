@@ -136,6 +136,7 @@ CREATE TABLE Issues (
     StatusID INT,  -- Tham chiếu Setting(Type='IssueStatus')
     CreatedBy INT NOT NULL,
     ConfirmedBy INT,
+    RejectionReason VARCHAR(500),  -- Lý do từ chối xử lý (nếu có)
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (IngredientID) REFERENCES Ingredients(IngredientID),
     FOREIGN KEY (CreatedBy) REFERENCES Users(UserID),
@@ -152,6 +153,7 @@ CREATE TABLE Orders (
     ShopID INT NOT NULL,
     CreatedBy INT NOT NULL,
     StatusID INT,   -- Tham chiếu Setting(Type='OrderStatus')
+    CancellationReason VARCHAR(500),  -- Lý do hủy đơn (nếu có)
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ShopID) REFERENCES Shops(ShopID),
     FOREIGN KEY (CreatedBy) REFERENCES Users(UserID),
@@ -241,7 +243,7 @@ INSERT INTO Users (FullName, Email, PasswordHash, Phone, Address, RoleID, IsActi
 ('Nguyễn Văn Hùng', 'inventory.hn@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', '0934567890', '321 Đường Hoàn Kiếm, Hà Nội', 3, TRUE),
 ('Phạm Thị Linh', 'employee01@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0945678901', '654 Đường Cách Mạng Tháng 8, Q10, TP.HCM', 3, TRUE),
 ('Hoàng Minh Tú', 'employee02@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0956789012', '987 Đường Trần Phú, Q5, TP.HCM', 3, TRUE),
-('Vũ Thị Nam', 'cashier01@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0967890123', '147 Đường Lý Tự Trọng, Q1, TP.HCM', 4, TRUE),
+('Vũ Thị Nam', 'cashier01@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', '0967890123', '147 Đường Lý Tự Trọng, Q1, TP.HCM', 4, TRUE),
 ('Đỗ Văn Phong', 'cashier02@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0978901234', '258 Đường Võ Thị Sáu, Q3, TP.HCM', 4, TRUE);
 
 ---

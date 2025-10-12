@@ -11,6 +11,19 @@ import java.util.List;
 public class SettingDAO extends BaseDAO {
     
     /**
+     * Map ResultSet to Setting object
+     */
+    private Setting mapResultSetToSetting(ResultSet rs) throws SQLException {
+        Setting setting = new Setting();
+        setting.setSettingID(rs.getInt("SettingID"));
+        setting.setType(rs.getString("Type"));
+        setting.setValue(rs.getString("Value"));
+        setting.setDescription(rs.getString("Description"));
+        setting.setActive(rs.getBoolean("IsActive"));
+        return setting;
+    }
+    
+    /**
      * Get all settings
      * @return List of all settings
      */
@@ -23,13 +36,7 @@ public class SettingDAO extends BaseDAO {
              ResultSet rs = ps.executeQuery()) {
             
             while (rs.next()) {
-                Setting setting = new Setting();
-                setting.setSettingID(rs.getInt("SettingID"));
-                setting.setType(rs.getString("Type"));
-                setting.setValue(rs.getString("Value"));
-                setting.setDescription(rs.getString("Description"));
-                setting.setActive(rs.getBoolean("IsActive"));
-                settings.add(setting);
+                settings.add(mapResultSetToSetting(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -54,13 +61,7 @@ public class SettingDAO extends BaseDAO {
             ResultSet rs = ps.executeQuery();
             
             while (rs.next()) {
-                Setting setting = new Setting();
-                setting.setSettingID(rs.getInt("SettingID"));
-                setting.setType(rs.getString("Type"));
-                setting.setValue(rs.getString("Value"));
-                setting.setDescription(rs.getString("Description"));
-                setting.setActive(rs.getBoolean("IsActive"));
-                settings.add(setting);
+                settings.add(mapResultSetToSetting(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -84,13 +85,7 @@ public class SettingDAO extends BaseDAO {
             ResultSet rs = ps.executeQuery();
             
             if (rs.next()) {
-                Setting setting = new Setting();
-                setting.setSettingID(rs.getInt("SettingID"));
-                setting.setType(rs.getString("Type"));
-                setting.setValue(rs.getString("Value"));
-                setting.setDescription(rs.getString("Description"));
-                setting.setActive(rs.getBoolean("IsActive"));
-                return setting;
+                return mapResultSetToSetting(rs);
             }
         } catch (SQLException e) {
             e.printStackTrace();

@@ -95,4 +95,71 @@ public class IssueService {
     public int[] getIssueStatsByStatus() {
         return issueDAO.getIssueStatsByStatus();
     }
+    
+    /**
+     * Update issue status
+     * @param issueID Issue ID
+     * @param statusID New status ID
+     * @return Error message if failed, null if successful
+     */
+    public String updateIssueStatus(int issueID, int statusID) {
+        // Check if issue exists
+        Issue existingIssue = issueDAO.getIssueById(issueID);
+        if (existingIssue == null) {
+            return "Không tìm thấy sự cố";
+        }
+        
+        // Update status
+        if (issueDAO.updateIssueStatus(issueID, statusID)) {
+            return null; // Success
+        } else {
+            return "Lỗi hệ thống khi cập nhật trạng thái";
+        }
+    }
+    
+    /**
+     * Resolve issue (set status to Resolved)
+     * @param issueID Issue ID
+     * @return Error message if failed, null if successful
+     */
+    public String resolveIssue(int issueID) {
+        // Check if issue exists
+        Issue existingIssue = issueDAO.getIssueById(issueID);
+        if (existingIssue == null) {
+            return "Không tìm thấy sự cố";
+        }
+        
+        // Resolve the issue
+        if (issueDAO.resolveIssue(issueID)) {
+            return null; // Success
+        } else {
+            return "Lỗi hệ thống khi giải quyết sự cố";
+        }
+    }
+    
+    /**
+     * Reject issue with reason
+     * @param issueID Issue ID
+     * @param rejectionReason Reason for rejection
+     * @return Error message if failed, null if successful
+     */
+    public String rejectIssue(int issueID, String rejectionReason) {
+        // Validate rejection reason
+        if (rejectionReason == null || rejectionReason.trim().isEmpty()) {
+            return "Vui lòng nhập lý do từ chối";
+        }
+        
+        // Check if issue exists
+        Issue existingIssue = issueDAO.getIssueById(issueID);
+        if (existingIssue == null) {
+            return "Không tìm thấy sự cố";
+        }
+        
+        // Reject the issue
+        if (issueDAO.rejectIssue(issueID, rejectionReason.trim())) {
+            return null; // Success
+        } else {
+            return "Lỗi hệ thống khi từ chối sự cố";
+        }
+    }
 }
