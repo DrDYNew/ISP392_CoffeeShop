@@ -106,6 +106,7 @@ CREATE TABLE PurchaseOrders (
     SupplierID INT NOT NULL,
     CreatedBy INT NOT NULL,
     StatusID INT,   -- Tham chiếu Setting(Type='POStatus')
+    RejectReason VARCHAR(500),   -- Lý do từ chối/hủy đơn hàng
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (ShopID) REFERENCES Shops(ShopID),
     FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID),
@@ -119,7 +120,7 @@ CREATE TABLE PurchaseOrderDetails (
     IngredientID INT NOT NULL,
     Quantity DECIMAL(10,2) NOT NULL,
     ReceivedQuantity DECIMAL(10,2) DEFAULT 0,
-    FOREIGN KEY (POID) REFERENCES PurchaseOrders(POID),
+    FOREIGN KEY (POID) REFERENCES PurchaseOrders(POID) ON DELETE CASCADE,
     FOREIGN KEY (IngredientID) REFERENCES Ingredients(IngredientID)
 );
 
@@ -233,10 +234,10 @@ INSERT INTO Suppliers (SupplierName, ContactName, Email, Phone, Address, IsActiv
 -- 3. Thêm dữ liệu cho bảng Users (RoleID references SettingID for Role)
 -- Role IDs: HR=1, Admin=2, Inventory=3, Barista=4
 INSERT INTO Users (FullName, Email, PasswordHash, Phone, Address, RoleID, IsActive) VALUES
-('Nguyễn Thị Hồng', 'hr@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0901234567', '123 Đường Lê Lợi, Q1, TP.HCM', 1, TRUE),
-('Trần Minh Quân', 'admin@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0912345678', '456 Đường Nguyễn Huệ, Q1, TP.HCM', 2, TRUE),
-('Lê Thị Mai', 'inventory.hcm@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0923456789', '789 Đường Điện Biên Phủ, Q3, TP.HCM', 3, TRUE),
-('Nguyễn Văn Hùng', 'inventory.hn@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0934567890', '321 Đường Hoàn Kiếm, Hà Nội', 3, TRUE),
+('Nguyễn Thị Hồng', 'hr@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', '0901234567', '123 Đường Lê Lợi, Q1, TP.HCM', 1, TRUE),
+('Trần Minh Quân', 'admin@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', '0912345678', '456 Đường Nguyễn Huệ, Q1, TP.HCM', 2, TRUE),
+('Lê Thị Mai', 'inventory.hcm@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', '0923456789', '789 Đường Điện Biên Phủ, Q3, TP.HCM', 3, TRUE),
+('Nguyễn Văn Hùng', 'inventory.hn@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', '0934567890', '321 Đường Hoàn Kiếm, Hà Nội', 3, TRUE),
 ('Phạm Thị Linh', 'employee01@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0945678901', '654 Đường Cách Mạng Tháng 8, Q10, TP.HCM', 3, TRUE),
 ('Hoàng Minh Tú', 'employee02@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0956789012', '987 Đường Trần Phú, Q5, TP.HCM', 3, TRUE),
 ('Vũ Thị Nam', 'cashier01@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0967890123', '147 Đường Lý Tự Trọng, Q1, TP.HCM', 4, TRUE),
