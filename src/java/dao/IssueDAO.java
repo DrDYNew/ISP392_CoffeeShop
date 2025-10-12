@@ -281,6 +281,90 @@ public class IssueDAO extends BaseDAO {
     }
     
     /**
+     * Update issue status
+     * @param issueID Issue ID
+     * @param statusID New status ID
+     * @return true if successful
+     */
+    public boolean updateIssueStatus(int issueID, int statusID) {
+        String sql = "UPDATE Issues SET StatusID = ? WHERE IssueID = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, statusID);
+            ps.setInt(2, issueID);
+            
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    /**
+     * Resolve issue (set status to Resolved)
+     * @param issueID Issue ID
+     * @return true if successful
+     */
+    public boolean resolveIssue(int issueID) {
+        String getStatusSQL = "SELECT SettingID FROM Setting WHERE Type = 'IssueStatus' AND Value = 'Resolved'";
+        String updateSQL = "UPDATE Issues SET StatusID = ? WHERE IssueID = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement psStatus = conn.prepareStatement(getStatusSQL);
+             PreparedStatement psUpdate = conn.prepareStatement(updateSQL)) {
+            
+            // Get Resolved status ID
+            ResultSet rs = psStatus.executeQuery();
+            if (rs.next()) {
+                int resolvedStatusID = rs.getInt("SettingID");
+                
+                // Update issue
+                psUpdate.setInt(1, resolvedStatusID);
+                psUpdate.setInt(2, issueID);
+                
+                return psUpdate.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    /**
+     * Reject issue with reason
+     * @param issueID Issue ID
+     * @param rejectionReason Reason for rejection
+     * @return true if successful
+     */
+    public boolean rejectIssue(int issueID, String rejectionReason) {
+        String getStatusSQL = "SELECT SettingID FROM Setting WHERE Type = 'IssueStatus' AND Value = 'Rejected'";
+        String updateSQL = "UPDATE Issues SET StatusID = ?, RejectionReason = ? WHERE IssueID = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement psStatus = conn.prepareStatement(getStatusSQL);
+             PreparedStatement psUpdate = conn.prepareStatement(updateSQL)) {
+            
+            // Get Rejected status ID
+            ResultSet rs = psStatus.executeQuery();
+            if (rs.next()) {
+                int rejectedStatusID = rs.getInt("SettingID");
+                
+                // Update issue
+                psUpdate.setInt(1, rejectedStatusID);
+                psUpdate.setString(2, rejectionReason);
+                psUpdate.setInt(3, issueID);
+                
+                return psUpdate.executeUpdate() > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    /**
      * Get issue statistics by status
      * @return Array of counts [Reported, Under Investigation, Resolved, Rejected]
      */

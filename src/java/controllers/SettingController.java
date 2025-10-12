@@ -53,6 +53,9 @@ public class SettingController extends HttpServlet {
                     case "view":
                         viewSetting(request, response);
                         break;
+                    case "delete":
+                        deleteSetting(request, response);
+                        break;
                     default:
                         listSettings(request, response);
                         break;
@@ -87,9 +90,6 @@ public class SettingController extends HttpServlet {
                     break;
                 case "update":
                     updateSetting(request, response);
-                    break;
-                case "delete":
-                    deleteSetting(request, response);
                     break;
                 default:
                     response.sendRedirect(request.getContextPath() + "/admin/setting");
@@ -299,7 +299,12 @@ public class SettingController extends HttpServlet {
     private void deleteSetting(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String settingIdParam = request.getParameter("settingId");
+        String settingIdParam = request.getParameter("id");
+        
+        if (settingIdParam == null || settingIdParam.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/admin/setting");
+            return;
+        }
         
         try {
             int settingId = Integer.parseInt(settingIdParam);
@@ -315,10 +320,10 @@ public class SettingController extends HttpServlet {
                 request.getSession().setAttribute("errorMessage", error);
             }
             
-            response.sendRedirect(request.getContextPath() + "admin/setting");
+            response.sendRedirect(request.getContextPath() + "/admin/setting");
             
         } catch (NumberFormatException e) {
-            response.sendRedirect(request.getContextPath() + "admin/setting");
+            response.sendRedirect(request.getContextPath() + "/admin/setting");
         }
     }
 }

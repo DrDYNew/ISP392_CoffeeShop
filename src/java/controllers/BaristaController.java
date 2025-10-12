@@ -5,11 +5,17 @@
 package controllers;
 
 import model.User;
+import model.Issue;
+import model.Setting;
+import services.IssueService;
+import services.OrderService;
+import services.SettingService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.math.BigDecimal;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -24,9 +30,16 @@ import jakarta.servlet.http.HttpSession;
 @WebServlet(name = "BaristaController", urlPatterns = {"/barista/*"})
 public class BaristaController extends HttpServlet {
 
+    private IssueService issueService;
+    private OrderService orderService;
+    private SettingService settingService;
+
     @Override
     public void init() throws ServletException {
         super.init();
+        issueService = new IssueService();
+        orderService = new OrderService();
+        settingService = new SettingService();
     }
 
     @Override
@@ -61,6 +74,15 @@ public class BaristaController extends HttpServlet {
                     break;
                 case "/orders":
                     showOrders(request, response);
+                    break;
+                case "/order-details":
+                    showOrderDetails(request, response);
+                    break;
+                case "/issues":
+                    showIssues(request, response);
+                    break;
+                case "/issue-details":
+                    showIssueDetails(request, response);
                     break;
                 case "/menu":
                     showMenu(request, response);
@@ -105,7 +127,10 @@ public class BaristaController extends HttpServlet {
         try {
             switch (pathInfo) {
                 case "/orders":
-                    handleOrderAction(request, response, action);
+                    handleOrderAction(request, response, action, currentUser);
+                    break;
+                case "/issues":
+                    handleIssueAction(request, response, action, currentUser);
                     break;
                 default:
                     showDashboard(request, response);
@@ -153,19 +178,6 @@ public class BaristaController extends HttpServlet {
     }
 
     /**
-     * Show orders management page
-     */
-    private void showOrders(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
-        // TODO: Load orders from database
-        List<Map<String, Object>> allOrders = createMockOrders();
-        request.setAttribute("orders", allOrders);
-        
-        request.getRequestDispatcher("/views/barista/orders.jsp").forward(request, response);
-    }
-
-    /**
      * Show menu page
      */
     private void showMenu(HttpServletRequest request, HttpServletResponse response)
@@ -187,42 +199,6 @@ public class BaristaController extends HttpServlet {
         // TODO: Load schedule from database
         request.setAttribute("message", "Trang lịch làm việc đang được phát triển");
         request.getRequestDispatcher("/views/common/under-construction.jsp").forward(request, response);
-    }
-
-    /**
-     * Handle order actions (start, complete, etc.)
-     */
-    private void handleOrderAction(HttpServletRequest request, HttpServletResponse response, String action)
-            throws ServletException, IOException {
-        
-        String orderId = request.getParameter("orderId");
-        HttpSession session = request.getSession();
-        
-        if (orderId == null || orderId.isEmpty()) {
-            session.setAttribute("errorMessage", "ID đơn hàng không hợp lệ");
-            response.sendRedirect(request.getContextPath() + "/barista/orders");
-            return;
-        }
-        
-        switch (action) {
-            case "start":
-                // TODO: Update order status to "preparing"
-                session.setAttribute("successMessage", "Đã bắt đầu pha chế đơn hàng #" + orderId);
-                break;
-            case "complete":
-                // TODO: Update order status to "completed"
-                session.setAttribute("successMessage", "Đã hoàn thành đơn hàng #" + orderId);
-                break;
-            case "cancel":
-                // TODO: Update order status to "cancelled"
-                session.setAttribute("successMessage", "Đã hủy đơn hàng #" + orderId);
-                break;
-            default:
-                session.setAttribute("errorMessage", "Hành động không hợp lệ");
-                break;
-        }
-        
-        response.sendRedirect(request.getContextPath() + "/barista/dashboard");
     }
 
     /**
@@ -299,5 +275,320 @@ public class BaristaController extends HttpServlet {
         menu.add(item4);
         
         return menu;
+    }
+    
+    /**
+     * Show order list with real data
+     */
+    private void showOrders(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        // Get pagination parameters
+        int page = 1;
+        int pageSize = 15;
+        
+        String pageParam = request.getParameter("page");
+        if (pageParam != null && !pageParam.isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+                if (page < 1) page = 1;
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+        }
+        
+        // Get filter parameters
+        String statusParam = request.getParameter("status");
+        Integer statusFilter = null;
+        if (statusParam != null && !statusParam.isEmpty()) {
+            try {
+                statusFilter = Integer.parseInt(statusParam);
+            } catch (NumberFormatException e) {
+                // Ignore invalid status
+            }
+        }
+        
+        // Get orders with details
+        List<Map<String, Object>> orders = orderService.getOrdersWithDetails(page, pageSize, statusFilter, null);
+        int totalOrders = orderService.getTotalOrderCount(statusFilter, null);
+        int totalPages = (int) Math.ceil((double) totalOrders / pageSize);
+        
+        // Get order statuses for filter
+        List<Setting> orderStatuses = settingService.getSettingsByType("OrderStatus");
+        
+        // Set attributes
+        request.setAttribute("orders", orders);
+        request.setAttribute("currentPage", page);
+        request.setAttribute("totalPages", totalPages);
+        request.setAttribute("totalOrders", totalOrders);
+        request.setAttribute("statusFilter", statusFilter);
+        request.setAttribute("orderStatuses", orderStatuses);
+        
+        // Forward to JSP
+        request.getRequestDispatcher("/views/barista/order-list.jsp").forward(request, response);
+    }
+    
+    /**
+     * Show order details
+     */
+    private void showOrderDetails(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        String orderIdParam = request.getParameter("id");
+        if (orderIdParam == null || orderIdParam.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/barista/orders");
+            return;
+        }
+        
+        try {
+            int orderID = Integer.parseInt(orderIdParam);
+            
+            // Get order with details
+            Map<String, Object> order = orderService.getOrderWithDetailsById(orderID);
+            if (order == null) {
+                request.setAttribute("error", "Không tìm thấy đơn hàng");
+                request.getRequestDispatcher("/views/common/error.jsp").forward(request, response);
+                return;
+            }
+            
+            // Get order details with product info
+            List<Map<String, Object>> orderDetails = orderService.getOrderDetailsWithProduct(orderID);
+            
+            // Calculate total
+            BigDecimal total = orderService.calculateOrderTotal(orderID);
+            
+            // Get order statuses
+            List<Setting> orderStatuses = settingService.getSettingsByType("OrderStatus");
+            
+            // Set attributes
+            request.setAttribute("order", order);
+            request.setAttribute("orderDetails", orderDetails);
+            request.setAttribute("total", total);
+            request.setAttribute("orderStatuses", orderStatuses);
+            
+            // Forward to JSP
+            request.getRequestDispatcher("/views/barista/order-details.jsp").forward(request, response);
+            
+        } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/barista/orders");
+        }
+    }
+    
+    /**
+     * Show issues list
+     */
+    private void showIssues(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        // Get pagination parameters
+        int page = 1;
+        int pageSize = 10;
+        
+        String pageParam = request.getParameter("page");
+        if (pageParam != null && !pageParam.isEmpty()) {
+            try {
+                page = Integer.parseInt(pageParam);
+                if (page < 1) page = 1;
+            } catch (NumberFormatException e) {
+                page = 1;
+            }
+        }
+        
+        // Get filter parameters
+        String statusParam = request.getParameter("status");
+        Integer statusFilter = null;
+        if (statusParam != null && !statusParam.isEmpty()) {
+            try {
+                statusFilter = Integer.parseInt(statusParam);
+            } catch (NumberFormatException e) {
+                // Ignore invalid status
+            }
+        }
+        
+        // Get issues
+        IssueService.IssueResult result = issueService.getAllIssues(page, pageSize, statusFilter, null, null);
+        
+        // Get issue statuses for filter
+        List<Setting> issueStatuses = settingService.getSettingsByType("IssueStatus");
+        
+        // Set attributes
+        request.setAttribute("issues", result.getIssues());
+        request.setAttribute("currentPage", result.getCurrentPage());
+        request.setAttribute("totalPages", result.getTotalPages());
+        request.setAttribute("totalIssues", result.getTotalCount());
+        request.setAttribute("statusFilter", statusFilter);
+        request.setAttribute("issueStatuses", issueStatuses);
+        
+        // Forward to JSP
+        request.getRequestDispatcher("/views/barista/issue-list.jsp").forward(request, response);
+    }
+    
+    /**
+     * Show issue details
+     */
+    private void showIssueDetails(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        String issueIdParam = request.getParameter("id");
+        if (issueIdParam == null || issueIdParam.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/barista/issues");
+            return;
+        }
+        
+        try {
+            int issueID = Integer.parseInt(issueIdParam);
+            
+            // Get issue by ID
+            Issue issue = issueService.getIssueById(issueID);
+            if (issue == null) {
+                request.setAttribute("error", "Không tìm thấy báo cáo sự cố");
+                request.getRequestDispatcher("/views/common/error.jsp").forward(request, response);
+                return;
+            }
+            
+            // Get issue statuses
+            List<Setting> issueStatuses = settingService.getSettingsByType("IssueStatus");
+            
+            // Set attributes
+            request.setAttribute("issue", issue);
+            request.setAttribute("issueStatuses", issueStatuses);
+            
+            // Forward to JSP
+            request.getRequestDispatcher("/views/barista/issue-details.jsp").forward(request, response);
+            
+        } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/barista/issues");
+        }
+    }
+    
+    /**
+     * Handle order actions (update status, cancel)
+     */
+    private void handleOrderAction(HttpServletRequest request, HttpServletResponse response, 
+                                   String action, User currentUser)
+            throws ServletException, IOException {
+        
+        String orderIdParam = request.getParameter("id");
+        if (orderIdParam == null || orderIdParam.isEmpty()) {
+            request.getSession().setAttribute("errorMessage", "ID đơn hàng không hợp lệ");
+            response.sendRedirect(request.getContextPath() + "/barista/orders");
+            return;
+        }
+        
+        try {
+            int orderID = Integer.parseInt(orderIdParam);
+            
+            String error = null;
+            switch (action) {
+                case "updateStatus":
+                    String statusIdParam = request.getParameter("statusId");
+                    if (statusIdParam != null) {
+                        int statusID = Integer.parseInt(statusIdParam);
+                        error = orderService.updateOrderStatus(orderID, statusID);
+                        if (error == null) {
+                            request.getSession().setAttribute("successMessage", 
+                                "Cập nhật trạng thái đơn hàng thành công");
+                        }
+                    }
+                    break;
+                case "cancel":
+                    String cancellationReason = request.getParameter("cancellationReason");
+                    if (cancellationReason == null || cancellationReason.trim().isEmpty()) {
+                        error = "Vui lòng nhập lý do hủy đơn";
+                    } else {
+                        error = orderService.cancelOrder(orderID, cancellationReason.trim());
+                        if (error == null) {
+                            request.getSession().setAttribute("successMessage", "Hủy đơn hàng thành công");
+                        }
+                    }
+                    break;
+                default:
+                    error = "Hành động không hợp lệ";
+                    break;
+            }
+            
+            if (error != null) {
+                request.getSession().setAttribute("errorMessage", error);
+            }
+            
+            // Redirect back to order details
+            response.sendRedirect(request.getContextPath() + "/barista/order-details?id=" + orderID);
+            
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("errorMessage", "Dữ liệu không hợp lệ");
+            response.sendRedirect(request.getContextPath() + "/barista/orders");
+        }
+    }
+    
+    /**
+     * Handle issue actions (review, agree)
+     */
+    private void handleIssueAction(HttpServletRequest request, HttpServletResponse response,
+                                   String action, User currentUser)
+            throws ServletException, IOException {
+        
+        String issueIdParam = request.getParameter("id");
+        if (issueIdParam == null || issueIdParam.isEmpty()) {
+            request.getSession().setAttribute("errorMessage", "ID sự cố không hợp lệ");
+            response.sendRedirect(request.getContextPath() + "/barista/issues");
+            return;
+        }
+        
+        try {
+            int issueID = Integer.parseInt(issueIdParam);
+            
+            Issue issue = issueService.getIssueById(issueID);
+            if (issue == null) {
+                request.getSession().setAttribute("errorMessage", "Không tìm thấy sự cố");
+                response.sendRedirect(request.getContextPath() + "/barista/issues");
+                return;
+            }
+            
+            String error = null;
+            switch (action) {
+                case "updateStatus":
+                    String statusIdParam = request.getParameter("statusId");
+                    if (statusIdParam != null) {
+                        int statusID = Integer.parseInt(statusIdParam);
+                        error = issueService.updateIssueStatus(issueID, statusID);
+                        if (error == null) {
+                            request.getSession().setAttribute("successMessage", 
+                                "Cập nhật trạng thái sự cố thành công");
+                        }
+                    }
+                    break;
+                case "resolve":
+                    error = issueService.resolveIssue(issueID);
+                    if (error == null) {
+                        request.getSession().setAttribute("successMessage", "Đã giải quyết sự cố thành công");
+                    }
+                    break;
+                case "reject":
+                    String rejectionReason = request.getParameter("rejectionReason");
+                    if (rejectionReason == null || rejectionReason.trim().isEmpty()) {
+                        error = "Vui lòng nhập lý do từ chối";
+                    } else {
+                        error = issueService.rejectIssue(issueID, rejectionReason.trim());
+                        if (error == null) {
+                            request.getSession().setAttribute("successMessage", "Đã từ chối xử lý sự cố");
+                        }
+                    }
+                    break;
+                default:
+                    error = "Hành động không hợp lệ";
+                    break;
+            }
+            
+            if (error != null) {
+                request.getSession().setAttribute("errorMessage", error);
+            }
+            
+            // Redirect back to issue details
+            response.sendRedirect(request.getContextPath() + "/barista/issue-details?id=" + issueID);
+            
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("errorMessage", "Dữ liệu không hợp lệ");
+            response.sendRedirect(request.getContextPath() + "/barista/issues");
+        }
     }
 }

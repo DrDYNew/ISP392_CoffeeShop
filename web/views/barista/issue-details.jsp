@@ -1,0 +1,308 @@
+<%@page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Chi tiết báo cáo sự cố - Coffee Shop Management</title>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <!-- Bootstrap 3.3.6 -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/bootstrap/css/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!-- AdminLTE -->
+    <link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/dist/css/AdminLTE.min.css">
+    <link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/dist/css/skins/_all-skins.min.css">
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+
+    <!-- Include Header -->
+    <%@include file="../compoment/header.jsp" %>
+    
+    <!-- Include Sidebar -->
+    <%@include file="../compoment/sidebar.jsp" %>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <!-- Content Header -->
+        <section class="content-header">
+            <h1>
+                Chi tiết báo cáo sự cố
+                <small>Sự cố #${issue.issueID}</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="${pageContext.request.contextPath}/barista/dashboard"><i class="fa fa-dashboard"></i> Trang chủ</a></li>
+                <li><a href="${pageContext.request.contextPath}/barista/issues">Báo cáo sự cố</a></li>
+                <li class="active">Chi tiết</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="row">
+                <div class="col-md-8">
+                    <!-- Issue Details Box -->
+                    <div class="box box-warning">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">
+                                <i class="fa fa-exclamation-triangle"></i>
+                                Thông tin sự cố #${issue.issueID}
+                            </h3>
+                        </div>
+                        
+                        <div class="box-body">
+                            <!-- Success/Error Messages -->
+                            <c:if test="${not empty sessionScope.successMessage}">
+                                <div class="alert alert-success alert-dismissible">
+                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                    <i class="icon fa fa-check"></i> ${sessionScope.successMessage}
+                                </div>
+                                <c:remove var="successMessage" scope="session"/>
+                            </c:if>
+                            
+                            <c:if test="${not empty sessionScope.errorMessage}">
+                                <div class="alert alert-danger alert-dismissible">
+                                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                                    <i class="icon fa fa-ban"></i> ${sessionScope.errorMessage}
+                                </div>
+                                <c:remove var="errorMessage" scope="session"/>
+                            </c:if>
+                            
+                            <table class="table table-bordered">
+                                <tr>
+                                    <th width="30%">Mã sự cố:</th>
+                                    <td>#${issue.issueID}</td>
+                                </tr>
+                                <tr>
+                                    <th>Nguyên liệu:</th>
+                                    <td><strong>${issue.ingredientName}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Số lượng bị ảnh hưởng:</th>
+                                    <td><strong class="text-danger">${issue.quantity} ${issue.unitName}</strong></td>
+                                </tr>
+                                <tr>
+                                    <th>Trạng thái:</th>
+                                    <td>
+                                        <span class="label label-${issue.statusName == 'Reported' ? 'warning' : 
+                                                                     issue.statusName == 'Under Investigation' ? 'info' :
+                                                                     issue.statusName == 'Resolved' ? 'success' : 'danger'}">
+                                            ${issue.statusName}
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Người báo cáo:</th>
+                                    <td>${issue.createdByName}</td>
+                                </tr>
+                                <tr>
+                                    <th>Người xác nhận:</th>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${issue.confirmedByName != null}">
+                                                ${issue.confirmedByName}
+                                            </c:when>
+                                            <c:otherwise>
+                                                <em class="text-muted">Chưa được xác nhận</em>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th>Thời gian báo cáo:</th>
+                                    <td><fmt:formatDate value="${issue.createdAt}" pattern="dd/MM/yyyy HH:mm:ss"/></td>
+                                </tr>
+                            </table>
+                            
+                            <!-- Description -->
+                            <div class="form-group">
+                                <label><i class="fa fa-file-text"></i> Mô tả chi tiết:</label>
+                                <div class="well well-sm">
+                                    ${issue.description}
+                                </div>
+                            </div>
+                            
+                            <!-- Alert based on status -->
+                            <c:if test="${issue.statusName == 'Reported'}">
+                                <div class="alert alert-warning">
+                                    <h4><i class="fa fa-warning"></i> Lưu ý:</h4>
+                                    Sự cố này đang chờ được xem xét và xác nhận. Vui lòng kiểm tra và xác nhận nếu bạn có thẩm quyền.
+                                </div>
+                            </c:if>
+                            
+                            <c:if test="${issue.statusName == 'Under Investigation'}">
+                                <div class="alert alert-info">
+                                    <h4><i class="fa fa-search"></i> Đang điều tra:</h4>
+                                    Sự cố đang được điều tra và xử lý. Vui lòng theo dõi để có thông tin cập nhật.
+                                </div>
+                            </c:if>
+                            
+                            <c:if test="${issue.statusName == 'Resolved'}">
+                                <div class="alert alert-success">
+                                    <h4><i class="fa fa-check-circle"></i> Đã giải quyết:</h4>
+                                    Sự cố này đã được giải quyết thành công.
+                                </div>
+                            </c:if>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <!-- Actions Box -->
+                    <div class="box box-success">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Thao tác</h3>
+                        </div>
+                        
+                        <div class="box-body">
+                            <!-- Action Buttons -->
+                            <c:if test="${issue.statusName != 'Resolved' && issue.statusName != 'Rejected'}">
+                                <!-- Update to Under Investigation -->
+                                <c:if test="${issue.statusName == 'Reported'}">
+                                    <form method="post" action="${pageContext.request.contextPath}/barista/issues?action=updateStatus">
+                                        <input type="hidden" name="id" value="${issue.issueID}">
+                                        <c:forEach var="status" items="${issueStatuses}">
+                                            <c:if test="${status.value == 'Under Investigation'}">
+                                                <input type="hidden" name="statusId" value="${status.settingID}">
+                                            </c:if>
+                                        </c:forEach>
+                                        <button type="submit" class="btn btn-primary btn-block">
+                                            <i class="fa fa-search"></i> Bắt đầu điều tra
+                                        </button>
+                                    </form>
+                                    <hr>
+                                </c:if>
+                                
+                                <!-- Resolve or Reject (when Under Investigation) -->
+                                <c:if test="${issue.statusName == 'Under Investigation'}">
+                                    <!-- Resolve Button -->
+                                    <form method="post" action="${pageContext.request.contextPath}/barista/issues?action=resolve">
+                                        <input type="hidden" name="id" value="${issue.issueID}">
+                                        <button type="submit" class="btn btn-success btn-block">
+                                            <i class="fa fa-check-circle"></i> Giải quyết xong
+                                        </button>
+                                    </form>
+                                    
+                                    <hr>
+                                    
+                                    <!-- Reject Button (with modal) -->
+                                    <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#rejectIssueModal">
+                                        <i class="fa fa-times-circle"></i> Từ chối xử lý
+                                    </button>
+                                    
+                                    <hr>
+                                </c:if>
+                            </c:if>
+                            
+                            <c:if test="${issue.statusName == 'Resolved' || issue.statusName == 'Rejected'}">
+                                <div class="alert alert-info">
+                                    <i class="fa fa-info-circle"></i>
+                                    Sự cố đã ${issue.statusName == 'Resolved' ? 'được giải quyết' : 'bị từ chối'}, không thể thay đổi trạng thái.
+                                </div>
+                                <hr>
+                            </c:if>
+                            
+                            <a href="${pageContext.request.contextPath}/barista/issues" class="btn btn-default btn-block">
+                                <i class="fa fa-arrow-left"></i> Quay lại danh sách
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Additional Info Box -->
+                    <div class="box box-info">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Thông tin bổ sung</h3>
+                        </div>
+                        <div class="box-body">
+                            <p><strong>Loại sự cố:</strong> Nguyên liệu bị hỏng/lỗi</p>
+                            <p><strong>Độ ưu tiên:</strong> 
+                                <span class="label ${issue.quantity > 10 ? 'label-danger' : 
+                                                     issue.quantity > 5 ? 'label-warning' : 'label-info'}">
+                                    ${issue.quantity > 10 ? 'Cao' : issue.quantity > 5 ? 'Trung bình' : 'Thấp'}
+                                </span>
+                            </p>
+                            <hr>
+                            <p class="text-muted">
+                                <small>
+                                    <i class="fa fa-info-circle"></i>
+                                    Hãy liên hệ với quản lý kho để xử lý sự cố này nếu cần thiết.
+                                </small>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <!-- Include Footer -->
+    <%@include file="../compoment/footer.jsp" %>
+
+</div>
+
+<!-- Reject Issue Modal -->
+<div class="modal fade" id="rejectIssueModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="post" action="${pageContext.request.contextPath}/barista/issues?action=reject">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title">
+                        <i class="fa fa-times-circle text-danger"></i> Từ chối xử lý sự cố #${issue.issueID}
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" name="id" value="${issue.issueID}">
+                    
+                    <div class="form-group">
+                        <label for="rejectionReason">Lý do từ chối: <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="rejectionReason" name="rejectionReason" 
+                                  rows="4" required placeholder="Vui lòng nhập lý do từ chối xử lý sự cố..."></textarea>
+                        <span class="help-block">Ví dụ: Không đủ thẩm quyền, sự cố không thuộc phạm vi xử lý, vv.</span>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <i class="fa fa-warning"></i> 
+                        <strong>Lưu ý:</strong> Sự cố sẽ chuyển sang trạng thái "Rejected" và không thể thay đổi sau đó.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-times"></i> Đóng
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fa fa-check"></i> Xác nhận từ chối
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- jQuery 2.2.3 -->
+<script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+<!-- Bootstrap 3.3.6 JS -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<!-- AdminLTE App -->
+<script src="https://adminlte.io/themes/AdminLTE/dist/js/app.min.js"></script>
+
+<script>
+// Debug modal
+$(document).ready(function() {
+    console.log('jQuery loaded:', typeof jQuery !== 'undefined');
+    console.log('Bootstrap loaded:', typeof $.fn.modal !== 'undefined');
+    
+    // Ensure modal works
+    $('#rejectIssueModal').on('show.bs.modal', function (e) {
+        console.log('Modal is showing');
+    });
+});
+</script>
+
+</body>
+</html>
