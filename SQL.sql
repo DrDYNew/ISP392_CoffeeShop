@@ -131,6 +131,7 @@ CREATE TABLE PurchaseOrderDetails (
 CREATE TABLE Issues (
     IssueID SERIAL PRIMARY KEY,
     IngredientID INT NOT NULL,
+    Description VARCHAR(500),  -- Mô tả chi tiết vấn đề
     Quantity DECIMAL(10,2) NOT NULL,
     StatusID INT,  -- Tham chiếu Setting(Type='IssueStatus')
     CreatedBy INT NOT NULL,
@@ -360,12 +361,13 @@ INSERT INTO PurchaseOrderDetails (POID, IngredientID, Quantity, ReceivedQuantity
 
 ---
 -- 9. Thêm dữ liệu cho bảng Issues (StatusID references SettingID for IssueStatus)
--- IssueStatus IDs: Reported=23, Under Investigation=24, Resolved=25, Rejected=26
-INSERT INTO Issues (IngredientID, Quantity, StatusID, CreatedBy, ConfirmedBy) VALUES
-(1, 2.50, 25, 5, 3),     -- Cà phê Arabica bị ẩm mốc - Resolved (Barista report, Inventory confirm)
-(4, 5.00, 23, 6, NULL),  -- Sữa tươi hết hạn - Reported (Barista report)
-(7, 1.00, 24, 5, 4),     -- Đường bị vón cục - Under Investigation (Barista report, Inventory investigate)
-(13, 3.00, 25, 7, 3);    -- Bột mì bị mọt - Resolved (Barista report, Inventory confirm)
+-- IssueStatus IDs: Reported=24, Under Investigation=25, Resolved=26, Rejected=27
+INSERT INTO Issues (IngredientID, Description, Quantity, StatusID, CreatedBy, ConfirmedBy) VALUES
+(1, 'Cà phê Arabica bị ẩm mốc, có mùi lạ không thể sử dụng', 2.50, 26, 5, 3),     -- Resolved
+(4, 'Sữa tươi đã hết hạn sử dụng 2 ngày, cần xử lý gấp', 5.00, 24, 6, NULL),      -- Reported
+(7, 'Đường trắng bị vón cục do để nơi ẩm ướt', 1.00, 25, 5, 4),                   -- Under Investigation
+(13, 'Bột mì phát hiện có mọt, cần loại bỏ toàn bộ', 3.00, 26, 7, 3),             -- Resolved
+(6, 'Kem tươi bị tách nước, không đủ độ sánh', 2.00, 24, 6, NULL);                -- Reported
 
 ---
 -- 10. Thêm dữ liệu cho bảng Orders (StatusID references SettingID for OrderStatus)
