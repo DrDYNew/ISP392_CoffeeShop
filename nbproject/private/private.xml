@@ -3,49 +3,10 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/inventory-staff/ingredient-form.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/common/profile-view.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/services/AuthService.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/admin/setting-list.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/admin/dashboard.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/BaseDAO.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/SettingDAO.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/dist/css/AdminHeaderBar.css</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/common/profile-edit.jsp</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/web/views/compoment/sidebar.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/UserDAO.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/BaristaController.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/UserController.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/admin/setting-form.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/admin/product-list.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/IngredientController.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/ProductDAO.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/services/IngredientService.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/AuthDAO.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/inventory-staff/ingredient-list.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/LoginController.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/inventory-staff/ingredient-details.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/dist/css/AdminLTE.min.css</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/dist/css/AdminLTE.css</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/model/PurchaseOrderDetail.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/InventoryDashboardController.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/js/sidebar.js</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/admin/product-view.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/AdminController.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/ProfileController.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/hr/user-list.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/model/PurchaseOrder.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/WEB-INF/web.xml</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/SettingController.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/hr/user-form.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/model/Setting.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/hr/dashboard.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/TestController.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/compoment/header.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/js/inventory-dashboard.js</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/common/login.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/IngredientDAO.java</file>
             <file>file:/C:/Code/ISP392_CoffeeShop/web/test-sidebar.jsp</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/PurchaseOrderController.java</file>
         </group>
     </open-files>
 </project-private>
