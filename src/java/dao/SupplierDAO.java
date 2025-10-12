@@ -138,4 +138,45 @@ public class SupplierDAO extends BaseDAO {
         }
         return false;
     }
+
+    /**
+     * Search suppliers by name, contact name, email or phone
+     */
+    public List<Supplier> searchSuppliers(String keyword) {
+        List<Supplier> list = new ArrayList<>();
+        String sql = "SELECT * FROM Suppliers WHERE IsActive = TRUE AND " +
+                    "(LOWER(SupplierName) LIKE LOWER(?) OR " +
+                    "LOWER(ContactName) LIKE LOWER(?) OR " +
+                    "LOWER(Email) LIKE LOWER(?) OR " +
+                    "Phone LIKE ?) " +
+                    "ORDER BY SupplierName";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            String searchPattern = "%" + keyword + "%";
+            ps.setString(1, searchPattern);
+            ps.setString(2, searchPattern);
+            ps.setString(3, searchPattern);
+            ps.setString(4, searchPattern);
+            
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                Supplier supplier = new Supplier();
+                supplier.setSupplierID(rs.getInt("SupplierID"));
+                supplier.setSupplierName(rs.getString("SupplierName"));
+                supplier.setContactName(rs.getString("ContactName"));
+                supplier.setEmail(rs.getString("Email"));
+                supplier.setPhone(rs.getString("Phone"));
+                supplier.setAddress(rs.getString("Address"));
+                supplier.setActive(rs.getBoolean("IsActive"));
+                supplier.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                list.add(supplier);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 }

@@ -447,4 +447,46 @@ public class IngredientDAO extends BaseDAO {
         
         return false;
     }
+    
+    /**
+     * Get ingredients by supplier ID
+     */
+    public List<Ingredient> getIngredientsBySupplier(int supplierId) {
+        List<Ingredient> ingredients = new ArrayList<>();
+        String sql = "SELECT i.IngredientID, i.Name, i.UnitID, i.StockQuantity, " +
+                    "i.SupplierID, i.IsActive, i.CreatedAt, " +
+                    "u.Value as UnitName, s.SupplierName as SupplierName " +
+                    "FROM Ingredients i " +
+                    "LEFT JOIN Setting u ON i.UnitID = u.SettingID AND u.Type = 'Unit' " +
+                    "LEFT JOIN Suppliers s ON i.SupplierID = s.SupplierID " +
+                    "WHERE i.SupplierID = ? " +
+                    "ORDER BY i.Name";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, supplierId);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                Ingredient ingredient = new Ingredient();
+                ingredient.setIngredientID(rs.getInt("IngredientID"));
+                ingredient.setName(rs.getString("Name"));
+                ingredient.setUnitID(rs.getInt("UnitID"));
+                ingredient.setStockQuantity(rs.getBigDecimal("StockQuantity"));
+                ingredient.setSupplierID(rs.getInt("SupplierID"));
+                ingredient.setActive(rs.getBoolean("IsActive"));
+                ingredient.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                ingredient.setUnitName(rs.getString("UnitName"));
+                ingredient.setSupplierName(rs.getString("SupplierName"));
+                
+                ingredients.add(ingredient);
+            }
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return ingredients;
+    }
 }

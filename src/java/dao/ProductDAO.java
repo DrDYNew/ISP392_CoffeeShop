@@ -253,4 +253,45 @@ public class ProductDAO extends BaseDAO{
         }
         return suppliers;
     }
+    
+    /**
+     * Get products by supplier ID
+     */
+    public List<Product> getProductsBySupplier(int supplierId) {
+        List<Product> products = new ArrayList<>();
+        String sql = "SELECT p.*, s1.Value as CategoryName, sup.SupplierName " +
+                    "FROM Products p " +
+                    "LEFT JOIN Setting s1 ON p.CategoryID = s1.SettingID " +
+                    "LEFT JOIN Suppliers sup ON p.SupplierID = sup.SupplierID " +
+                    "WHERE p.SupplierID = ? " +
+                    "ORDER BY p.ProductName";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, supplierId);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                Product product = new Product();
+                product.setProductID(rs.getInt("ProductID"));
+                product.setProductName(rs.getString("ProductName"));
+                product.setDescription(rs.getString("Description"));
+                product.setCategoryID(rs.getInt("CategoryID"));
+                product.setPrice(rs.getBigDecimal("Price"));
+                product.setSupplierID(rs.getInt("SupplierID"));
+                product.setActive(rs.getBoolean("IsActive"));
+                product.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                
+                // Set additional display fields
+                product.setCategoryName(rs.getString("CategoryName"));
+                product.setSupplierName(rs.getString("SupplierName"));
+                
+                products.add(product);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return products;
+    }
 }
