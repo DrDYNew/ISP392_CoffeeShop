@@ -8,6 +8,7 @@ public class PurchaseOrder {
     private int supplierID;
     private int createdBy;
     private int statusID;
+    private String rejectReason;
     private Timestamp createdAt;
 
     // Default constructor
@@ -16,12 +17,13 @@ public class PurchaseOrder {
 
     // Constructor with all fields
     public PurchaseOrder(int poID, int shopID, int supplierID, int createdBy, 
-                        int statusID, Timestamp createdAt) {
+                        int statusID, String rejectReason, Timestamp createdAt) {
         this.poID = poID;
         this.shopID = shopID;
         this.supplierID = supplierID;
         this.createdBy = createdBy;
         this.statusID = statusID;
+        this.rejectReason = rejectReason;
         this.createdAt = createdAt;
     }
 
@@ -82,6 +84,14 @@ public class PurchaseOrder {
         this.createdAt = createdAt;
     }
 
+    public String getRejectReason() {
+        return rejectReason;
+    }
+
+    public void setRejectReason(String rejectReason) {
+        this.rejectReason = rejectReason;
+    }
+
     public String toString() {
         return "PurchaseOrder{" +
                 "poID=" + poID +
@@ -89,6 +99,7 @@ public class PurchaseOrder {
                 ", supplierID=" + supplierID +
                 ", createdBy=" + createdBy +
                 ", statusID=" + statusID +
+                ", rejectReason='" + rejectReason + '\'' +
                 ", createdAt=" + createdAt +
                 '}';
     }
