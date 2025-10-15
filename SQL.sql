@@ -44,6 +44,7 @@ CREATE TABLE Users (
     PasswordHash VARCHAR(255) NOT NULL,
     Phone VARCHAR(20),
     Address VARCHAR(255),
+    AvatarUrl VARCHAR(500),  -- URL ảnh đại diện
     RoleID INT NOT NULL,  -- Tham chiếu Setting(Type='Role')
     IsActive BOOLEAN DEFAULT TRUE,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -71,6 +72,7 @@ CREATE TABLE Products (
     ProductID SERIAL PRIMARY KEY,
     ProductName VARCHAR(100) NOT NULL,
     Description VARCHAR(255),
+    ImageUrl VARCHAR(500),     -- URL ảnh sản phẩm
     CategoryID INT NOT NULL,   -- Tham chiếu Setting(Type='Category')
     Price DECIMAL(10,2) NOT NULL,
     SupplierID INT,            -- Nhà cung cấp

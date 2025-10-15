@@ -66,12 +66,26 @@
                 <ul class="nav navbar-nav">
                     <li class="dropdown user user-menu">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <img src="https://via.placeholder.com/160x160/00a65a/ffffff/png?text=${sessionScope.user.fullName.substring(0,1)}" class="user-image" alt="User Image">
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.user.avatarUrl}">
+                                    <img src="${pageContext.request.contextPath}${sessionScope.user.avatarUrl}" class="user-image" alt="User Image">
+                                </c:when>
+                                <c:otherwise>
+                                    <img src="https://via.placeholder.com/160x160/00a65a/ffffff/png?text=${sessionScope.user.fullName.substring(0,1)}" class="user-image" alt="User Image">
+                                </c:otherwise>
+                            </c:choose>
                             <span class="hidden-xs">${sessionScope.user.fullName}</span>
                         </a>
                         <ul class="dropdown-menu">
                             <li class="user-header">
-                                <img src="https://via.placeholder.com/160x160/00a65a/ffffff/png?text=${sessionScope.user.fullName.substring(0,1)}" class="img-circle" alt="User Image">
+                                <c:choose>
+                                    <c:when test="${not empty sessionScope.user.avatarUrl}">
+                                        <img src="${pageContext.request.contextPath}${sessionScope.user.avatarUrl}" class="img-circle" alt="User Image">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <img src="https://via.placeholder.com/160x160/00a65a/ffffff/png?text=${sessionScope.user.fullName.substring(0,1)}" class="img-circle" alt="User Image">
+                                    </c:otherwise>
+                                </c:choose>
                                 <p>
                                     ${sessionScope.user.fullName}
                                     <small>Thành viên từ ${sessionScope.user.createdAt != null ? sessionScope.user.createdAt : 'N/A'}</small>

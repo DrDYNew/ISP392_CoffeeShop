@@ -33,7 +33,7 @@ public class UserDAO extends BaseDAO {
         List<User> users = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT u.UserID, u.FullName, u.Email, u.PasswordHash, u.Phone, ");
-        sql.append("u.Address, u.RoleID, u.IsActive, u.CreatedAt, s.Value as RoleName ");
+        sql.append("u.Address, u.AvatarUrl, u.RoleID, u.IsActive, u.CreatedAt, s.Value as RoleName ");
         sql.append("FROM Users u ");
         sql.append("JOIN Setting s ON u.RoleID = s.SettingID ");
         sql.append("WHERE s.Type = 'Role' ");
@@ -74,6 +74,7 @@ public class UserDAO extends BaseDAO {
                 user.setPasswordHash(rs.getString("PasswordHash"));
                 user.setPhone(rs.getString("Phone"));
                 user.setAddress(rs.getString("Address"));
+                user.setAvatarUrl(rs.getString("AvatarUrl"));
                 user.setRoleID(rs.getInt("RoleID"));
                 user.setActive(rs.getBoolean("IsActive"));
                 user.setCreatedAt(rs.getTimestamp("CreatedAt"));
@@ -138,8 +139,8 @@ public class UserDAO extends BaseDAO {
      * @return true if successful, false otherwise
      */
     public boolean createUser(User user) {
-        String sql = "INSERT INTO Users (FullName, Email, PasswordHash, Phone, Address, RoleID, IsActive) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Users (FullName, Email, PasswordHash, Phone, Address, AvatarUrl, RoleID, IsActive) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -149,8 +150,9 @@ public class UserDAO extends BaseDAO {
             ps.setString(3, user.getPasswordHash());
             ps.setString(4, user.getPhone());
             ps.setString(5, user.getAddress());
-            ps.setInt(6, user.getRoleID());
-            ps.setBoolean(7, user.isActive());
+            ps.setString(6, user.getAvatarUrl());
+            ps.setInt(7, user.getRoleID());
+            ps.setBoolean(8, user.isActive());
             
             int affectedRows = ps.executeUpdate();
             
@@ -176,7 +178,7 @@ public class UserDAO extends BaseDAO {
      */
     public boolean updateUser(User user) {
         String sql = "UPDATE Users SET FullName = ?, Email = ?, Phone = ?, Address = ?, " +
-                    "RoleID = ?, IsActive = ? WHERE UserID = ?";
+                    "AvatarUrl = ?, RoleID = ?, IsActive = ? WHERE UserID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -185,9 +187,10 @@ public class UserDAO extends BaseDAO {
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getPhone());
             ps.setString(4, user.getAddress());
-            ps.setInt(5, user.getRoleID());
-            ps.setBoolean(6, user.isActive());
-            ps.setInt(7, user.getUserID());
+            ps.setString(5, user.getAvatarUrl());
+            ps.setInt(6, user.getRoleID());
+            ps.setBoolean(7, user.isActive());
+            ps.setInt(8, user.getUserID());
             
             return ps.executeUpdate() > 0;
             
@@ -250,7 +253,7 @@ public class UserDAO extends BaseDAO {
      */
     public User getUserById(int userID) {
         String sql = "SELECT u.UserID, u.FullName, u.Email, u.PasswordHash, u.Phone, " +
-                    "u.Address, u.RoleID, u.IsActive, u.CreatedAt, s.Value as RoleName " +
+                    "u.Address, u.AvatarUrl, u.RoleID, u.IsActive, u.CreatedAt, s.Value as RoleName " +
                     "FROM Users u " +
                     "JOIN Setting s ON u.RoleID = s.SettingID " +
                     "WHERE u.UserID = ? AND s.Type = 'Role'";
@@ -269,6 +272,7 @@ public class UserDAO extends BaseDAO {
                 user.setPasswordHash(rs.getString("PasswordHash"));
                 user.setPhone(rs.getString("Phone"));
                 user.setAddress(rs.getString("Address"));
+                user.setAvatarUrl(rs.getString("AvatarUrl"));
                 user.setRoleID(rs.getInt("RoleID"));
                 user.setActive(rs.getBoolean("IsActive"));
                 user.setCreatedAt(rs.getTimestamp("CreatedAt"));
@@ -322,7 +326,7 @@ public class UserDAO extends BaseDAO {
      */
     public User getUserByEmail(String email) {
         String sql = "SELECT u.UserID, u.FullName, u.Email, u.PasswordHash, u.Phone, " +
-                    "u.Address, u.RoleID, u.IsActive, u.CreatedAt, s.Value as RoleName " +
+                    "u.Address, u.AvatarUrl, u.RoleID, u.IsActive, u.CreatedAt, s.Value as RoleName " +
                     "FROM Users u " +
                     "JOIN Setting s ON u.RoleID = s.SettingID " +
                     "WHERE u.Email = ? AND s.Type = 'Role'";
@@ -341,6 +345,7 @@ public class UserDAO extends BaseDAO {
                 user.setPasswordHash(rs.getString("PasswordHash"));
                 user.setPhone(rs.getString("Phone"));
                 user.setAddress(rs.getString("Address"));
+                user.setAvatarUrl(rs.getString("AvatarUrl"));
                 user.setRoleID(rs.getInt("RoleID"));
                 user.setActive(rs.getBoolean("IsActive"));
                 user.setCreatedAt(rs.getTimestamp("CreatedAt"));
@@ -489,5 +494,29 @@ public class UserDAO extends BaseDAO {
      */
     public String hashPassword(String password) {
         return BCrypt.hashpw(password, BCrypt.gensalt());
+    }
+    
+    /**
+     * Update user avatar URL
+     * @param userID User ID
+     * @param avatarUrl New avatar URL
+     * @return true if successful, false otherwise
+     */
+    public boolean updateAvatar(int userID, String avatarUrl) {
+        String sql = "UPDATE Users SET AvatarUrl = ? WHERE UserID = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, avatarUrl);
+            ps.setInt(2, userID);
+            
+            return ps.executeUpdate() > 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return false;
     }
 }
