@@ -13,7 +13,9 @@ public class ProductDAO extends BaseDAO{
      */
     public List<Product> getAllProducts(int page, int pageSize, String searchTerm, Integer categoryId, Boolean isActive) {
         List<Product> products = new ArrayList<>();
-        String sql = "SELECT p.*, s1.Value as CategoryName, sup.SupplierName " +
+        String sql = "SELECT p.ProductID, p.ProductName, p.Description, p.ImageUrl, p.CategoryID, " +
+                    "p.Price, p.SupplierID, p.IsActive, p.CreatedAt, " +
+                    "s1.Value as CategoryName, sup.SupplierName " +
                     "FROM Products p " +
                     "LEFT JOIN Setting s1 ON p.CategoryID = s1.SettingID " +
                     "LEFT JOIN Suppliers sup ON p.SupplierID = sup.SupplierID " +
@@ -56,6 +58,7 @@ public class ProductDAO extends BaseDAO{
                 product.setProductID(rs.getInt("ProductID"));
                 product.setProductName(rs.getString("ProductName"));
                 product.setDescription(rs.getString("Description"));
+                product.setImageUrl(rs.getString("ImageUrl"));
                 product.setCategoryID(rs.getInt("CategoryID"));
                 product.setPrice(rs.getBigDecimal("Price"));
                 product.setSupplierID(rs.getInt("SupplierID"));
@@ -120,7 +123,9 @@ public class ProductDAO extends BaseDAO{
      * Get product by ID
      */
     public Product getProductById(int productId) {
-        String sql = "SELECT p.*, s1.Value as CategoryName, sup.SupplierName " +
+        String sql = "SELECT p.ProductID, p.ProductName, p.Description, p.ImageUrl, p.CategoryID, " +
+                    "p.Price, p.SupplierID, p.IsActive, p.CreatedAt, " +
+                    "s1.Value as CategoryName, sup.SupplierName " +
                     "FROM Products p " +
                     "LEFT JOIN Setting s1 ON p.CategoryID = s1.SettingID " +
                     "LEFT JOIN Suppliers sup ON p.SupplierID = sup.SupplierID " +
@@ -135,6 +140,7 @@ public class ProductDAO extends BaseDAO{
                 product.setProductID(rs.getInt("ProductID"));
                 product.setProductName(rs.getString("ProductName"));
                 product.setDescription(rs.getString("Description"));
+                product.setImageUrl(rs.getString("ImageUrl"));
                 product.setCategoryID(rs.getInt("CategoryID"));
                 product.setPrice(rs.getBigDecimal("Price"));
                 product.setSupplierID(rs.getInt("SupplierID"));
@@ -157,19 +163,27 @@ public class ProductDAO extends BaseDAO{
      * Create new product
      */
     public boolean createProduct(Product product) {
-        String sql = "INSERT INTO Products (ProductName, Description, CategoryID, Price, SupplierID, IsActive) " +
-                    "VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Products (ProductName, Description, ImageUrl, CategoryID, Price, SupplierID, IsActive) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, product.getProductName());
             ps.setString(2, product.getDescription());
-            ps.setInt(3, product.getCategoryID());
-            ps.setBigDecimal(4, product.getPrice());
-            ps.setInt(5, product.getSupplierID());
-            ps.setBoolean(6, product.isActive());
+            ps.setString(3, product.getImageUrl());
+            ps.setInt(4, product.getCategoryID());
+            ps.setBigDecimal(5, product.getPrice());
+            ps.setInt(6, product.getSupplierID());
+            ps.setBoolean(7, product.isActive());
             
-            return ps.executeUpdate() > 0;
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows > 0) {
+                ResultSet generatedKeys = ps.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    product.setProductID(generatedKeys.getInt(1));
+                }
+                return true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -180,18 +194,19 @@ public class ProductDAO extends BaseDAO{
      * Update product
      */
     public boolean updateProduct(Product product) {
-        String sql = "UPDATE Products SET ProductName = ?, Description = ?, CategoryID = ?, " +
+        String sql = "UPDATE Products SET ProductName = ?, Description = ?, ImageUrl = ?, CategoryID = ?, " +
                     "Price = ?, SupplierID = ?, IsActive = ? WHERE ProductID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, product.getProductName());
             ps.setString(2, product.getDescription());
-            ps.setInt(3, product.getCategoryID());
-            ps.setBigDecimal(4, product.getPrice());
-            ps.setInt(5, product.getSupplierID());
-            ps.setBoolean(6, product.isActive());
-            ps.setInt(7, product.getProductID());
+            ps.setString(3, product.getImageUrl());
+            ps.setInt(4, product.getCategoryID());
+            ps.setBigDecimal(5, product.getPrice());
+            ps.setInt(6, product.getSupplierID());
+            ps.setBoolean(7, product.isActive());
+            ps.setInt(8, product.getProductID());
             
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -293,5 +308,29 @@ public class ProductDAO extends BaseDAO{
             e.printStackTrace();
         }
         return products;
+    }
+    
+    /**
+     * Update product image URL
+     * @param productID Product ID
+     * @param imageUrl New image URL
+     * @return true if successful, false otherwise
+     */
+    public boolean updateProductImage(int productID, String imageUrl) {
+        String sql = "UPDATE Products SET ImageUrl = ? WHERE ProductID = ?";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setString(1, imageUrl);
+            ps.setInt(2, productID);
+            
+            return ps.executeUpdate() > 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return false;
     }
 }

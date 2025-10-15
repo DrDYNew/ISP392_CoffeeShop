@@ -7,6 +7,7 @@ public class Product {
     private int productID;
     private String productName;
     private String description;
+    private String imageUrl;
     private int categoryID;
     private BigDecimal price;
     private int supplierID;
@@ -22,11 +23,12 @@ public class Product {
     }
 
     // Constructor with all fields
-    public Product(int productID, String productName, String description, int categoryID, 
+    public Product(int productID, String productName, String description, String imageUrl, int categoryID, 
                   BigDecimal price, int supplierID, boolean isActive, Timestamp createdAt) {
         this.productID = productID;
         this.productName = productName;
         this.description = description;
+        this.imageUrl = imageUrl;
         this.categoryID = categoryID;
         this.price = price;
         this.supplierID = supplierID;
@@ -35,10 +37,11 @@ public class Product {
     }
 
     // Constructor without ID and timestamp (for insert operations)
-    public Product(String productName, String description, int categoryID, 
+    public Product(String productName, String description, String imageUrl, int categoryID, 
                   BigDecimal price, int supplierID, boolean isActive) {
         this.productName = productName;
         this.description = description;
+        this.imageUrl = imageUrl;
         this.categoryID = categoryID;
         this.price = price;
         this.supplierID = supplierID;
@@ -70,6 +73,14 @@ public class Product {
         this.description = description;
     }
 
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
     public int getCategoryID() {
         return categoryID;
     }
@@ -97,8 +108,17 @@ public class Product {
     public boolean isActive() {
         return isActive;
     }
+    
+    // Additional getter for JSP EL compatibility
+    public boolean getIsActive() {
+        return isActive;
+    }
 
     public void setActive(boolean active) {
+        isActive = active;
+    }
+    
+    public void setIsActive(boolean active) {
         isActive = active;
     }
 
@@ -131,6 +151,7 @@ public class Product {
                 "productID=" + productID +
                 ", productName='" + productName + '\'' +
                 ", description='" + description + '\'' +
+                ", imageUrl='" + imageUrl + '\'' +
                 ", categoryID=" + categoryID +
                 ", price=" + price +
                 ", supplierID=" + supplierID +

@@ -8,7 +8,9 @@
         <!-- Sidebar user panel -->
         <div class="user-panel">
             <div class="pull-left image">
-                <img src="https://via.placeholder.com/160x160/00a65a/ffffff/png?text=User" class="img-circle" alt="User Image">
+              
+                        <img src="https://ui-avatars.com/api/?name=${sessionScope.user.fullName}&size=160&background=00a65a&color=fff" class="img-circle" alt="User Image">
+                  
             </div>
             <div class="pull-left info">
                 <p>${sessionScope.user.fullName != null ? sessionScope.user.fullName : 'User'}</p>

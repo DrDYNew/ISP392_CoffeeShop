@@ -12,17 +12,27 @@ import java.io.IOException;
 import java.util.List;
 import java.math.BigDecimal;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.servlet.http.Part;
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 /**
  * AdminController handles admin-specific dashboard and functionalities
  * @author DrDYNew
  */
 @WebServlet(name = "AdminController", urlPatterns = {"/admin/*"})
+@MultipartConfig(
+    fileSizeThreshold = 1024 * 1024 * 1, // 1 MB
+    maxFileSize = 1024 * 1024 * 10,      // 10 MB
+    maxRequestSize = 1024 * 1024 * 15    // 15 MB
+)
 public class AdminController extends HttpServlet {
 
     private UserDAO userDAO;
@@ -74,6 +84,28 @@ public class AdminController extends HttpServlet {
                 case "/products/view":
                     showProductView(request, response);
                     break;
+                case "/products/new":
+                    showProductForm(request, response, null);
+                    break;
+                case "/products/edit":
+                    try {
+                        String idParam = request.getParameter("id");
+                        if (idParam == null || idParam.isEmpty()) {
+                            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu ID sản phẩm");
+                            return;
+                        }
+                        int editProductId = Integer.parseInt(idParam);
+                        Product editProduct = productService.getProductById(editProductId);
+                        if (editProduct == null) {
+                            response.sendError(HttpServletResponse.SC_NOT_FOUND, "Không tìm thấy sản phẩm");
+                            return;
+                        }
+                        showProductForm(request, response, editProduct);
+                    } catch (NumberFormatException e) {
+                        response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ID sản phẩm không hợp lệ");
+                        return;
+                    }
+                    break;
                 case "/settings":
                     showSystemSettings(request, response);
                     break;
@@ -118,6 +150,12 @@ public class AdminController extends HttpServlet {
 
         try {
             switch (pathInfo) {
+                case "/products/create":
+                    createProduct(request, response);
+                    break;
+                case "/products/update":
+                    updateProduct(request, response);
+                    break;
                 case "/settings":
                     updateSystemSettings(request, response);
                     break;
@@ -315,6 +353,228 @@ public class AdminController extends HttpServlet {
             e.printStackTrace();
             request.setAttribute("error", "Lỗi khi tải chi tiết sản phẩm: " + e.getMessage());
             request.getRequestDispatcher("/views/common/error.jsp").forward(request, response);
+        }
+    }
+    
+    /**
+     * Show product form (for create or edit)
+     */
+    private void showProductForm(HttpServletRequest request, HttpServletResponse response, Product product)
+            throws ServletException, IOException {
+        try {
+            System.out.println("=== showProductForm DEBUG ===");
+            System.out.println("Product: " + (product != null ? product.getProductID() : "null"));
+            
+            // Get dropdown data
+            List<Object[]> categories = productService.getCategories();
+            List<Object[]> suppliers = productService.getSuppliers();
+            
+            System.out.println("Categories count: " + (categories != null ? categories.size() : "null"));
+            System.out.println("Suppliers count: " + (suppliers != null ? suppliers.size() : "null"));
+            
+            // Check if data is loaded
+            if (categories == null || categories.isEmpty()) {
+                throw new Exception("Không thể tải danh mục sản phẩm");
+            }
+            
+            if (suppliers == null || suppliers.isEmpty()) {
+                throw new Exception("Không thể tải danh sách nhà cung cấp");
+            }
+            
+            request.setAttribute("categories", categories);
+            request.setAttribute("suppliers", suppliers);
+            request.setAttribute("product", product);
+            
+            System.out.println("Forwarding to product-form.jsp...");
+            request.getRequestDispatcher("/views/admin/product-form.jsp").forward(request, response);
+            
+        } catch (Exception e) {
+            System.err.println("ERROR in showProductForm: " + e.getMessage());
+            e.printStackTrace();
+            
+            HttpSession session = request.getSession();
+            session.setAttribute("errorMessage", "Lỗi khi tải form sản phẩm: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/admin/products");
+        }
+    }
+    
+    /**
+     * Create new product
+     */
+    private void createProduct(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        HttpSession session = request.getSession();
+        
+        try {
+            // Get form data
+            String productName = request.getParameter("productName");
+            String description = request.getParameter("description");
+            int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+            BigDecimal price = new BigDecimal(request.getParameter("price"));
+            int supplierId = Integer.parseInt(request.getParameter("supplierId"));
+            boolean isActive = "on".equals(request.getParameter("isActive"));
+            
+            // Handle image upload
+            String imageUrl = handleImageUpload(request);
+            
+            // Create product (without ID and timestamp)
+            Product product = new Product(productName, description, imageUrl, categoryId, price, supplierId, isActive);
+            boolean success = productService.createProduct(product);
+            
+            if (success) {
+                session.setAttribute("successMessage", "Tạo sản phẩm thành công!");
+                response.sendRedirect(request.getContextPath() + "/admin/products");
+            } else {
+                session.setAttribute("errorMessage", "Không thể tạo sản phẩm. Vui lòng thử lại.");
+                response.sendRedirect(request.getContextPath() + "/admin/products/new");
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            session.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/admin/products/new");
+        }
+    }
+    
+    /**
+     * Update existing product
+     */
+    private void updateProduct(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        HttpSession session = request.getSession();
+        
+        try {
+            // Get form data
+            int productId = Integer.parseInt(request.getParameter("productId"));
+            String productName = request.getParameter("productName");
+            String description = request.getParameter("description");
+            int categoryId = Integer.parseInt(request.getParameter("categoryId"));
+            BigDecimal price = new BigDecimal(request.getParameter("price"));
+            int supplierId = Integer.parseInt(request.getParameter("supplierId"));
+            boolean isActive = "on".equals(request.getParameter("isActive"));
+            
+            // Get existing product to check for old image
+            Product existingProduct = productService.getProductById(productId);
+            
+            // Handle image upload
+            String imageUrl = handleImageUpload(request);
+            if (imageUrl == null || imageUrl.isEmpty()) {
+                // No new image, keep old one
+                imageUrl = existingProduct.getImageUrl();
+            } else {
+                // New image uploaded, delete old one
+                deleteOldImage(existingProduct.getImageUrl());
+            }
+            
+            // Update product (set ID manually)
+            Product product = new Product(productName, description, imageUrl, categoryId, price, supplierId, isActive);
+            product.setProductID(productId);
+            boolean success = productService.updateProduct(product);
+            
+            if (success) {
+                session.setAttribute("successMessage", "Cập nhật sản phẩm thành công!");
+                response.sendRedirect(request.getContextPath() + "/admin/products/view?id=" + productId);
+            } else {
+                session.setAttribute("errorMessage", "Không thể cập nhật sản phẩm. Vui lòng thử lại.");
+                response.sendRedirect(request.getContextPath() + "/admin/products/edit?id=" + productId);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            session.setAttribute("errorMessage", "Lỗi: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/admin/products");
+        }
+    }
+    
+    /**
+     * Handle image upload and return the image URL
+     */
+    private String handleImageUpload(HttpServletRequest request) throws Exception {
+        Part imagePart = request.getPart("imageFile");
+        
+        if (imagePart == null || imagePart.getSize() == 0) {
+            return null;
+        }
+        
+        // Validate file type
+        String contentType = imagePart.getContentType();
+        if (!contentType.startsWith("image/")) {
+            throw new Exception("File phải là hình ảnh");
+        }
+        
+        // Get file extension
+        String originalFileName = Paths.get(imagePart.getSubmittedFileName()).getFileName().toString();
+        String fileExtension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        
+        // Validate extension
+        if (!fileExtension.matches("\\.(jpg|jpeg|png|gif)$")) {
+            throw new Exception("Chỉ hỗ trợ định dạng: jpg, jpeg, png, gif");
+        }
+        
+        // Generate unique filename
+        String uniqueFileName = UUID.randomUUID().toString() + fileExtension;
+        
+        // Get upload directory - use web folder instead of build folder
+        // This prevents images from being deleted on clean & build
+        String realPath = request.getServletContext().getRealPath("");
+        String webPath;
+        
+        if (realPath.contains("build")) {
+            // Running from build folder, save to web folder
+            webPath = realPath.substring(0, realPath.indexOf("build")) + "web";
+        } else {
+            // Already in web folder
+            webPath = realPath;
+        }
+        
+        String uploadPath = webPath + File.separator + "uploads" + File.separator + "products";
+        File uploadDir = new File(uploadPath);
+        if (!uploadDir.exists()) {
+            uploadDir.mkdirs();
+        }
+        
+        // Save file to web/uploads/products
+        String filePath = uploadPath + File.separator + uniqueFileName;
+        imagePart.write(filePath);
+        
+        // Also copy to build folder for immediate display (if different from web)
+        if (realPath.contains("build")) {
+            String buildUploadPath = realPath + File.separator + "uploads" + File.separator + "products";
+            File buildUploadDir = new File(buildUploadPath);
+            if (!buildUploadDir.exists()) {
+                buildUploadDir.mkdirs();
+            }
+            String buildFilePath = buildUploadPath + File.separator + uniqueFileName;
+            // Copy file from web to build
+            java.nio.file.Files.copy(
+                new File(filePath).toPath(),
+                new File(buildFilePath).toPath(),
+                java.nio.file.StandardCopyOption.REPLACE_EXISTING
+            );
+        }
+        
+        // Return relative URL (without contextPath)
+        return "/uploads/products/" + uniqueFileName;
+    }
+    
+    /**
+     * Delete old image file from server
+     */
+    private void deleteOldImage(String imageUrl) {
+        if (imageUrl == null || imageUrl.isEmpty()) {
+            return;
+        }
+        
+        try {
+            String realPath = getServletContext().getRealPath("") + imageUrl.replace("/", File.separator);
+            File file = new File(realPath);
+            if (file.exists()) {
+                file.delete();
+            }
+        } catch (Exception e) {
+            System.err.println("Error deleting old image: " + e.getMessage());
         }
     }
 }

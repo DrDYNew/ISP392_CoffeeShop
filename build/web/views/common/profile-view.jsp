@@ -65,45 +65,8 @@
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
-    <!-- Main Header -->
-    <header class="main-header">
-        <a href="${pageContext.request.contextPath}/" class="logo">
-            <span class="logo-mini"><b>CS</b></span>
-            <span class="logo-lg"><b>Coffee</b>Shop</span>
-        </a>
-        <nav class="navbar navbar-static-top">
-            <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-                <span class="sr-only">Toggle navigation</span>
-            </a>
-            <div class="navbar-custom-menu">
-                <ul class="nav navbar-nav">
-                    <li class="dropdown user user-menu">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <span class="hidden-xs">${sessionScope.user.fullName}</span>
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li class="user-header">
-                                <p>
-                                    ${sessionScope.user.fullName}
-                                    <small>Thành viên từ ${sessionScope.user.createdAt != null ? sessionScope.user.createdAt : 'N/A'}</small>
-                                </p>
-                            </li>
-                            <li class="user-footer">
-                                <div class="pull-left">
-                                    <a href="${pageContext.request.contextPath}/profile" class="btn btn-default btn-flat">Profile</a>
-                                </div>
-                                <div class="pull-right">
-                                    <a href="${pageContext.request.contextPath}/login?action=logout" class="btn btn-default btn-flat">Đăng xuất</a>
-                                </div>
-                            </li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+       <jsp:include page="../compoment/header.jsp" />
 
-    <!-- Include Sidebar -->
     <jsp:include page="../compoment/sidebar.jsp" />
 
     <!-- Content Wrapper -->
@@ -150,8 +113,17 @@
                     <div class="box profile-card">
                         <!-- Profile Header -->
                         <div class="profile-header">
-                            <img src="https://via.placeholder.com/120x120/ffffff/667eea/png?text=${profileUser.fullName.substring(0,1)}" 
-                                 alt="Profile Picture" class="profile-img">
+                            <c:choose>
+                                <c:when test="${not empty profileUser.avatarUrl}">
+                                    <img src="${pageContext.request.contextPath}${profileUser.avatarUrl}" 
+                                         alt="Profile Picture" class="profile-img"
+                                         onerror="if(!this.dataset.error){this.dataset.error='1';this.src='https://via.placeholder.com/120x120/ffffff/667eea?text=${profileUser.fullName.substring(0,1)}';}">
+                                </c:when>
+                                <c:otherwise>
+                                    <img src="https://via.placeholder.com/120x120/ffffff/667eea?text=${profileUser.fullName.substring(0,1)}" 
+                                         alt="Profile Picture" class="profile-img">
+                                </c:otherwise>
+                            </c:choose>
                             <h3>${profileUser.fullName}</h3>
                             <p><i class="fa fa-envelope"></i> ${profileUser.email}</p>
                             <p><i class="fa fa-user-tag"></i> ${sessionScope.roleName}</p>
@@ -230,6 +202,7 @@
 <!-- Bootstrap JS từ CDN -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
+<script>
 <script>
 // Auto hide alerts after 5 seconds
 setTimeout(function() {

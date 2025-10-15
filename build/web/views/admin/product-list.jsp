@@ -273,6 +273,11 @@
             <div class="box">
                 <div class="box-header">
                     <h3 class="box-title">Danh sách sản phẩm</h3>
+                    <div class="box-tools pull-right">
+                        <a href="${pageContext.request.contextPath}/admin/products/new" class="btn btn-success btn-sm">
+                            <i class="fa fa-plus"></i> Tạo mới sản phẩm
+                        </a>
+                    </div>
                 </div>
                 
                 <!-- Filters -->
@@ -328,6 +333,7 @@
                                 <thead>
                                     <tr>
                                         <th>ID</th>
+                                        <th>Hình ảnh</th>
                                         <th>Tên sản phẩm</th>
                                         <th>Danh mục</th>
                                         <th>Giá</th>
@@ -341,6 +347,21 @@
                                     <c:forEach var="product" items="${products}">
                                         <tr>
                                             <td>${product.productID}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${not empty product.imageUrl}">
+                                                        <img src="${pageContext.request.contextPath}${product.imageUrl}" 
+                                                             alt="${product.productName}"
+                                                             style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"
+                                                             onerror="if(!this.dataset.error){this.dataset.error='1';this.style.display='none';}">
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <div style="width: 50px; height: 50px; background: #ddd; display: flex; align-items: center; justify-content: center; border-radius: 4px;">
+                                                            <i class="fa fa-image" style="color: #999;"></i>
+                                                        </div>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
                                             <td>
                                                 <strong>${product.productName}</strong>
                                                 <c:if test="${not empty product.description}">
@@ -385,8 +406,12 @@
                                             </td>
                                             <td>
                                                 <a href="${pageContext.request.contextPath}/admin/products/view?id=${product.productID}" 
-                                                   class="btn btn-info btn-sm" title="Xem chi tiết">
-                                                    <i class="fa fa-eye"></i>
+                                                   class="btn btn-info btn-xs" title="Xem chi tiết">
+                                                    <i class="fa fa-eye"></i> Xem
+                                                </a>
+                                                <a href="${pageContext.request.contextPath}/admin/products/edit?id=${product.productID}" 
+                                                   class="btn btn-warning btn-xs" title="Chỉnh sửa">
+                                                    <i class="fa fa-edit"></i> Sửa
                                                 </a>
                                             </td>
                                         </tr>
@@ -430,6 +455,11 @@
     </div>
 </div>
 
-
+<!-- jQuery 2.2.3 -->
+<script src="${pageContext.request.contextPath}/plugins/jQuery/jquery-2.2.3.min.js"></script>
+<!-- Bootstrap 3.3.6 -->
+<script src="${pageContext.request.contextPath}/bootstrap/js/bootstrap.min.js"></script>
+<!-- AdminLTE App -->
+<script src="${pageContext.request.contextPath}/dist/js/app.min.js"></script>
 </body>
 </html>

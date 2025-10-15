@@ -9,6 +9,7 @@ public class User {
     private String passwordHash;
     private String phone;
     private String address;
+    private String avatarUrl;
     private int roleID;
     private boolean isActive;
     private Timestamp createdAt;
@@ -19,13 +20,14 @@ public class User {
 
     // Constructor with all fields
     public User(int userID, String fullName, String email, String passwordHash, 
-               String phone, String address, int roleID, boolean isActive, Timestamp createdAt) {
+               String phone, String address, String avatarUrl, int roleID, boolean isActive, Timestamp createdAt) {
         this.userID = userID;
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
         this.phone = phone;
         this.address = address;
+        this.avatarUrl = avatarUrl;
         this.roleID = roleID;
         this.isActive = isActive;
         this.createdAt = createdAt;
@@ -33,12 +35,13 @@ public class User {
 
     // Constructor without ID and timestamp (for insert operations)
     public User(String fullName, String email, String passwordHash, 
-               String phone, String address, int roleID, boolean isActive) {
+               String phone, String address, String avatarUrl, int roleID, boolean isActive) {
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
         this.phone = phone;
         this.address = address;
+        this.avatarUrl = avatarUrl;
         this.roleID = roleID;
         this.isActive = isActive;
     }
@@ -92,6 +95,14 @@ public class User {
         this.address = address;
     }
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
     public int getRoleID() {
         return roleID;
     }
@@ -124,6 +135,7 @@ public class User {
                 ", passwordHash='" + passwordHash + '\'' +
                 ", phone='" + phone + '\'' +
                 ", address='" + address + '\'' +
+                ", avatarUrl='" + avatarUrl + '\'' +
                 ", roleID=" + roleID +
                 ", isActive=" + isActive +
                 ", createdAt=" + createdAt +

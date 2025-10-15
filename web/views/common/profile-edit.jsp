@@ -51,12 +51,26 @@
                 <ul class="nav navbar-nav">
                     <li class="dropdown user user-menu">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <img src="https://via.placeholder.com/160x160/00a65a/ffffff/png?text=${sessionScope.user.fullName.substring(0,1)}" class="user-image" alt="User Image">
+                            <c:choose>
+                                <c:when test="${not empty sessionScope.user.avatarUrl}">
+                                    <img src="${pageContext.request.contextPath}${sessionScope.user.avatarUrl}" class="user-image" alt="User Image">
+                                </c:when>
+                                <c:otherwise>
+                                    <img src="https://via.placeholder.com/160x160/00a65a/ffffff/png?text=${sessionScope.user.fullName.substring(0,1)}" class="user-image" alt="User Image">
+                                </c:otherwise>
+                            </c:choose>
                             <span class="hidden-xs">${sessionScope.user.fullName}</span>
                         </a>
                         <ul class="dropdown-menu">
                             <li class="user-header">
-                                <img src="https://via.placeholder.com/160x160/00a65a/ffffff/png?text=${sessionScope.user.fullName.substring(0,1)}" class="img-circle" alt="User Image">
+                                <c:choose>
+                                    <c:when test="${not empty sessionScope.user.avatarUrl}">
+                                        <img src="${pageContext.request.contextPath}${sessionScope.user.avatarUrl}" class="img-circle" alt="User Image">
+                                    </c:when>
+                                    <c:otherwise>
+                                        <img src="https://via.placeholder.com/160x160/00a65a/ffffff/png?text=${sessionScope.user.fullName.substring(0,1)}" class="img-circle" alt="User Image">
+                                    </c:otherwise>
+                                </c:choose>
                                 <p>
                                     ${sessionScope.user.fullName}
                                     <small>Thành viên từ ${sessionScope.user.createdAt != null ? sessionScope.user.createdAt : 'N/A'}</small>
@@ -122,6 +136,30 @@
                                 <div class="col-md-12">
                                     <h3><i class="fa fa-user"></i> Thông tin cá nhân</h3>
                                     <hr>
+                                </div>
+                            </div>
+                            
+                            <!-- Avatar Upload Section -->
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="form-group text-center">
+                                        <label>Ảnh đại diện</label>
+                                        <div style="margin: 15px 0;">
+                                            <c:choose>
+                                                <c:when test="${not empty profileUser.avatarUrl}">
+                                                    <img id="avatarPreview" src="${pageContext.request.contextPath}${profileUser.avatarUrl}" 
+                                                         class="img-circle" alt="Avatar" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #ddd;">
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <img id="avatarPreview" src="https://via.placeholder.com/150/00a65a/ffffff/png?text=${profileUser.fullName.substring(0,1)}" 
+                                                         class="img-circle" alt="Avatar" style="width: 150px; height: 150px; object-fit: cover; border: 3px solid #ddd;">
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#uploadAvatarModal">
+                                            <i class="fa fa-camera"></i> Đổi ảnh đại diện
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             
@@ -197,6 +235,47 @@
     </div>
 </div>
 
+<!-- Upload Avatar Modal -->
+<div class="modal fade" id="uploadAvatarModal" tabindex="-1" role="dialog" aria-labelledby="uploadAvatarModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form action="${pageContext.request.contextPath}/profile" method="post" enctype="multipart/form-data" id="avatarUploadForm">
+                <input type="hidden" name="action" value="upload-avatar">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="uploadAvatarModalLabel">
+                        <i class="fa fa-camera"></i> Tải lên ảnh đại diện
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="avatarFile">Chọn ảnh (JPG, PNG, GIF - Tối đa 10MB)</label>
+                        <input type="file" class="form-control" id="avatarFile" name="avatarFile" 
+                               accept="image/jpeg,image/png,image/gif" required>
+                    </div>
+                    <div class="form-group text-center">
+                        <label>Xem trước:</label>
+                        <div id="avatarPreviewContainer" style="margin: 10px 0;">
+                            <img id="avatarPreviewModal" src="" alt="Preview" 
+                                 style="max-width: 200px; max-height: 200px; display: none; border: 2px solid #ddd; border-radius: 5px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">
+                        <i class="fa fa-times"></i> Hủy
+                    </button>
+                    <button type="submit" class="btn btn-primary" id="uploadAvatarBtn">
+                        <i class="fa fa-upload"></i> Tải lên
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Bootstrap JS từ CDN -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 
@@ -225,6 +304,57 @@ $(document).ready(function() {
         // Remove any non-digit characters except +, -, (), space
         value = value.replace(/[^\d+\-\s()]/g, '');
         $(this).val(value);
+    });
+    
+    // Avatar file preview
+    $('#avatarFile').on('change', function(e) {
+        var file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            var validTypes = ['image/jpeg', 'image/png', 'image/gif'];
+            if (validTypes.indexOf(file.type) === -1) {
+                alert('Chỉ chấp nhận file ảnh JPG, PNG hoặc GIF');
+                $(this).val('');
+                $('#avatarPreviewModal').hide();
+                return;
+            }
+            
+            // Validate file size (10MB)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('Kích thước file không được vượt quá 10MB');
+                $(this).val('');
+                $('#avatarPreviewModal').hide();
+                return;
+            }
+            
+            // Show preview
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#avatarPreviewModal').attr('src', e.target.result).show();
+            };
+            reader.readAsDataURL(file);
+        } else {
+            $('#avatarPreviewModal').hide();
+        }
+    });
+    
+    // Reset modal when closed
+    $('#uploadAvatarModal').on('hidden.bs.modal', function () {
+        $('#avatarFile').val('');
+        $('#avatarPreviewModal').hide();
+    });
+    
+    // Handle avatar upload form submission
+    $('#avatarUploadForm').on('submit', function(e) {
+        var file = $('#avatarFile')[0].files[0];
+        if (!file) {
+            alert('Vui lòng chọn file ảnh');
+            e.preventDefault();
+            return false;
+        }
+        
+        // Show loading state
+        $('#uploadAvatarBtn').prop('disabled', true).html('<i class="fa fa-spinner fa-spin"></i> Đang tải lên...');
     });
 });
 </script>

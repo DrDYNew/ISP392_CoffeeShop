@@ -235,6 +235,30 @@
                         </div>
                         
                         <div class="info-item">
+                            <div class="info-label">Hình ảnh:</div>
+                            <div class="info-value">
+                                <c:choose>
+                                    <c:when test="${not empty product.imageUrl}">
+                                        <div style="margin-top: 10px;">
+                                            <img src="${pageContext.request.contextPath}${product.imageUrl}" 
+                                                 alt="${product.productName}"
+                                                 style="max-width: 300px; max-height: 300px; border: 1px solid #ddd; border-radius: 4px; padding: 5px;"
+                                                 onerror="if(!this.dataset.error){this.dataset.error='1';this.style.display='none';this.parentElement.innerHTML='<div style=\'width:200px;height:200px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;border:1px dashed #ccc;border-radius:4px;\'><div style=\'text-align:center;color:#999;\'><i class=\'fa fa-image fa-3x\'></i><p>Không thể tải hình ảnh</p></div></div>';}">
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div style="width: 200px; height: 200px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; border: 1px dashed #ccc; border-radius: 4px;">
+                                            <div style="text-align: center; color: #999;">
+                                                <i class="fa fa-image fa-3x"></i>
+                                                <p>Không có hình ảnh</p>
+                                            </div>
+                                        </div>
+                                    </c:otherwise>
+                                </c:choose>
+                            </div>
+                        </div>
+                        
+                        <div class="info-item">
                             <div class="info-label">Danh mục:</div>
                             <div class="info-value">
                                 <c:choose>
@@ -310,6 +334,9 @@
                     
                     <!-- Action Buttons -->
                     <div style="text-align: center; margin-top: 20px;">
+                        <a href="${pageContext.request.contextPath}/admin/products/edit?id=${product.productID}" class="btn btn-warning">
+                            <i class="fa fa-edit"></i> Chỉnh sửa
+                        </a>
                         <a href="${pageContext.request.contextPath}/admin/products" class="btn btn-primary">
                             <i class="fa fa-list"></i> Quay lại danh sách
                         </a>
