@@ -32,9 +32,9 @@ public class UserDAO extends BaseDAO {
     public List<User> getAllUsers(int page, int pageSize, Integer roleFilter, String searchKeyword) {
         List<User> users = new ArrayList<>();
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT u.UserID, u.FullName, u.Email, u.PasswordHash, u.Phone, ");
+        sql.append("SELECT u.UserID, u.FullName, u.Email, u.PasswordHash, u.Gender, u.Phone, ");
         sql.append("u.Address, u.AvatarUrl, u.RoleID, u.IsActive, u.CreatedAt, s.Value as RoleName ");
-        sql.append("FROM Users u ");
+        sql.append("FROM \"User\" u ");
         sql.append("JOIN Setting s ON u.RoleID = s.SettingID ");
         sql.append("WHERE s.Type = 'Role' ");
         
@@ -72,6 +72,7 @@ public class UserDAO extends BaseDAO {
                 user.setFullName(rs.getString("FullName"));
                 user.setEmail(rs.getString("Email"));
                 user.setPasswordHash(rs.getString("PasswordHash"));
+                user.setGender(rs.getString("Gender"));
                 user.setPhone(rs.getString("Phone"));
                 user.setAddress(rs.getString("Address"));
                 user.setAvatarUrl(rs.getString("AvatarUrl"));
@@ -97,7 +98,7 @@ public class UserDAO extends BaseDAO {
      */
     public int getTotalUsersCount(Integer roleFilter, String searchKeyword) {
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT COUNT(*) FROM Users u ");
+        sql.append("SELECT COUNT(*) FROM \"User\" u ");
         sql.append("JOIN Setting s ON u.RoleID = s.SettingID ");
         sql.append("WHERE s.Type = 'Role' ");
         
@@ -139,8 +140,8 @@ public class UserDAO extends BaseDAO {
      * @return true if successful, false otherwise
      */
     public boolean createUser(User user) {
-        String sql = "INSERT INTO Users (FullName, Email, PasswordHash, Phone, Address, AvatarUrl, RoleID, IsActive) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO \"User\" (FullName, Email, PasswordHash, Gender, Phone, Address, AvatarUrl, RoleID, IsActive) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -148,11 +149,12 @@ public class UserDAO extends BaseDAO {
             ps.setString(1, user.getFullName());
             ps.setString(2, user.getEmail());
             ps.setString(3, user.getPasswordHash());
-            ps.setString(4, user.getPhone());
-            ps.setString(5, user.getAddress());
-            ps.setString(6, user.getAvatarUrl());
-            ps.setInt(7, user.getRoleID());
-            ps.setBoolean(8, user.isActive());
+            ps.setString(4, user.getGender());
+            ps.setString(5, user.getPhone());
+            ps.setString(6, user.getAddress());
+            ps.setString(7, user.getAvatarUrl());
+            ps.setInt(8, user.getRoleID());
+            ps.setBoolean(9, user.isActive());
             
             int affectedRows = ps.executeUpdate();
             
@@ -177,7 +179,7 @@ public class UserDAO extends BaseDAO {
      * @return true if successful, false otherwise
      */
     public boolean updateUser(User user) {
-        String sql = "UPDATE Users SET FullName = ?, Email = ?, Phone = ?, Address = ?, " +
+        String sql = "UPDATE \"User\" SET FullName = ?, Email = ?, Gender = ?, Phone = ?, Address = ?, " +
                     "AvatarUrl = ?, RoleID = ?, IsActive = ? WHERE UserID = ?";
         
         try (Connection conn = getConnection();
@@ -185,12 +187,13 @@ public class UserDAO extends BaseDAO {
             
             ps.setString(1, user.getFullName());
             ps.setString(2, user.getEmail());
-            ps.setString(3, user.getPhone());
-            ps.setString(4, user.getAddress());
-            ps.setString(5, user.getAvatarUrl());
-            ps.setInt(6, user.getRoleID());
-            ps.setBoolean(7, user.isActive());
-            ps.setInt(8, user.getUserID());
+            ps.setString(3, user.getGender());
+            ps.setString(4, user.getPhone());
+            ps.setString(5, user.getAddress());
+            ps.setString(6, user.getAvatarUrl());
+            ps.setInt(7, user.getRoleID());
+            ps.setBoolean(8, user.isActive());
+            ps.setInt(9, user.getUserID());
             
             return ps.executeUpdate() > 0;
             
@@ -208,7 +211,7 @@ public class UserDAO extends BaseDAO {
      * @return true if successful, false otherwise
      */
     public boolean updatePassword(int userID, String newPasswordHash) {
-        String sql = "UPDATE Users SET PasswordHash = ? WHERE UserID = ?";
+        String sql = "UPDATE \"User\" SET PasswordHash = ? WHERE UserID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -231,7 +234,7 @@ public class UserDAO extends BaseDAO {
      * @return true if successful, false otherwise
      */
     public boolean deleteUser(int userID) {
-        String sql = "UPDATE Users SET IsActive = false WHERE UserID = ?";
+        String sql = "UPDATE \"User\" SET IsActive = false WHERE UserID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -252,9 +255,9 @@ public class UserDAO extends BaseDAO {
      * @return User object or null if not found
      */
     public User getUserById(int userID) {
-        String sql = "SELECT u.UserID, u.FullName, u.Email, u.PasswordHash, u.Phone, " +
+        String sql = "SELECT u.UserID, u.FullName, u.Email, u.PasswordHash, u.Gender, u.Phone, " +
                     "u.Address, u.AvatarUrl, u.RoleID, u.IsActive, u.CreatedAt, s.Value as RoleName " +
-                    "FROM Users u " +
+                    "FROM \"User\" u " +
                     "JOIN Setting s ON u.RoleID = s.SettingID " +
                     "WHERE u.UserID = ? AND s.Type = 'Role'";
         
@@ -270,6 +273,7 @@ public class UserDAO extends BaseDAO {
                 user.setFullName(rs.getString("FullName"));
                 user.setEmail(rs.getString("Email"));
                 user.setPasswordHash(rs.getString("PasswordHash"));
+                user.setGender(rs.getString("Gender"));
                 user.setPhone(rs.getString("Phone"));
                 user.setAddress(rs.getString("Address"));
                 user.setAvatarUrl(rs.getString("AvatarUrl"));
@@ -294,7 +298,7 @@ public class UserDAO extends BaseDAO {
      * @return true if email exists, false otherwise
      */
     public boolean isEmailExists(String email, Integer excludeUserID) {
-        String sql = "SELECT COUNT(*) FROM Users WHERE Email = ?";
+        String sql = "SELECT COUNT(*) FROM \"User\" WHERE Email = ?";
         if (excludeUserID != null) {
             sql += " AND UserID != ?";
         }
@@ -325,9 +329,9 @@ public class UserDAO extends BaseDAO {
      * @return User object if found, null otherwise
      */
     public User getUserByEmail(String email) {
-        String sql = "SELECT u.UserID, u.FullName, u.Email, u.PasswordHash, u.Phone, " +
+        String sql = "SELECT u.UserID, u.FullName, u.Email, u.PasswordHash, u.Gender, u.Phone, " +
                     "u.Address, u.AvatarUrl, u.RoleID, u.IsActive, u.CreatedAt, s.Value as RoleName " +
-                    "FROM Users u " +
+                    "FROM \"User\" u " +
                     "JOIN Setting s ON u.RoleID = s.SettingID " +
                     "WHERE u.Email = ? AND s.Type = 'Role'";
         
@@ -343,6 +347,7 @@ public class UserDAO extends BaseDAO {
                 user.setFullName(rs.getString("FullName"));
                 user.setEmail(rs.getString("Email"));
                 user.setPasswordHash(rs.getString("PasswordHash"));
+                user.setGender(rs.getString("Gender"));
                 user.setPhone(rs.getString("Phone"));
                 user.setAddress(rs.getString("Address"));
                 user.setAvatarUrl(rs.getString("AvatarUrl"));
@@ -470,7 +475,7 @@ public class UserDAO extends BaseDAO {
      * @return true if successful, false otherwise
      */
     public boolean updateUserPassword(int userId, String newPasswordHash) {
-        String sql = "UPDATE Users SET PasswordHash = ? WHERE UserID = ?";
+        String sql = "UPDATE \"User\" SET PasswordHash = ? WHERE UserID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -503,7 +508,7 @@ public class UserDAO extends BaseDAO {
      * @return true if successful, false otherwise
      */
     public boolean updateAvatar(int userID, String avatarUrl) {
-        String sql = "UPDATE Users SET AvatarUrl = ? WHERE UserID = ?";
+        String sql = "UPDATE \"User\" SET AvatarUrl = ? WHERE UserID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

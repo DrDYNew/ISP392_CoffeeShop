@@ -274,6 +274,23 @@
                                     </div>
                                 </div>
 
+                                <!-- Gender Field -->
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="form-group">
+                                            <label for="gender">Giới tính <span class="text-danger">*</span></label>
+                                            <div class="input-group">
+                                                <span class="input-group-addon"><i class="fa fa-venus-mars"></i></span>
+                                                <select class="form-control" id="gender" name="gender" required>
+                                                    <option value="">-- Chọn giới tính --</option>
+                                                    <option value="Nam" ${user != null && user.gender == 'Nam' ? 'selected' : ''}>Nam</option>
+                                                    <option value="Nữ" ${user != null && user.gender == 'Nữ' ? 'selected' : ''}>Nữ</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Status Section (only for edit) -->
                                 <c:if test="${action == 'edit'}">
                                     <div class="row">

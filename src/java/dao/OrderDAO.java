@@ -24,7 +24,7 @@ public class OrderDAO extends BaseDAO {
      */
     public List<Order> getAllOrders(int page, int pageSize) {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT * FROM Orders ORDER BY CreatedAt DESC LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM \"Order\" ORDER BY CreatedAt DESC LIMIT ? OFFSET ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -54,7 +54,7 @@ public class OrderDAO extends BaseDAO {
      */
     public List<Order> getAllOrders() {
         List<Order> list = new ArrayList<>();
-        String sql = "SELECT * FROM Orders ORDER BY CreatedAt DESC";
+        String sql = "SELECT * FROM \"Order\" ORDER BY CreatedAt DESC";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -90,9 +90,9 @@ public class OrderDAO extends BaseDAO {
         StringBuilder sql = new StringBuilder();
         sql.append("SELECT o.OrderID, o.ShopID, o.CreatedBy, o.StatusID, o.CreatedAt, ");
         sql.append("sh.ShopName, u.FullName as CreatedByName, st.Value as StatusName ");
-        sql.append("FROM Orders o ");
-        sql.append("LEFT JOIN Shops sh ON o.ShopID = sh.ShopID ");
-        sql.append("LEFT JOIN Users u ON o.CreatedBy = u.UserID ");
+        sql.append("FROM \"Order\" o ");
+        sql.append("LEFT JOIN Shop sh ON o.ShopID = sh.ShopID ");
+        sql.append("LEFT JOIN \"User\" u ON o.CreatedBy = u.UserID ");
         sql.append("LEFT JOIN Setting st ON o.StatusID = st.SettingID ");
         sql.append("WHERE 1=1 ");
         
@@ -143,7 +143,7 @@ public class OrderDAO extends BaseDAO {
      * @return Total count
      */
     public int getTotalOrderCount(Integer statusFilter, Integer shopFilter) {
-        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM Orders WHERE 1=1 ");
+        StringBuilder sql = new StringBuilder("SELECT COUNT(*) FROM \"Order\" WHERE 1=1 ");
         
         List<Object> params = new ArrayList<>();
         if (statusFilter != null) {
@@ -178,7 +178,7 @@ public class OrderDAO extends BaseDAO {
      * @return Order object or null
      */
     public Order getOrderById(int orderID) {
-        String sql = "SELECT * FROM Orders WHERE OrderID = ?";
+        String sql = "SELECT * FROM \"Order\" WHERE OrderID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -209,9 +209,9 @@ public class OrderDAO extends BaseDAO {
     public Map<String, Object> getOrderWithDetailsById(int orderID) {
         String sql = "SELECT o.OrderID, o.ShopID, o.CreatedBy, o.StatusID, o.CreatedAt, " +
                     "sh.ShopName, u.FullName as CreatedByName, st.Value as StatusName " +
-                    "FROM Orders o " +
-                    "LEFT JOIN Shops sh ON o.ShopID = sh.ShopID " +
-                    "LEFT JOIN Users u ON o.CreatedBy = u.UserID " +
+                    "FROM \"Order\" o " +
+                    "LEFT JOIN Shop sh ON o.ShopID = sh.ShopID " +
+                    "LEFT JOIN \"User\" u ON o.CreatedBy = u.UserID " +
                     "LEFT JOIN Setting st ON o.StatusID = st.SettingID " +
                     "WHERE o.OrderID = ?";
         
@@ -245,7 +245,7 @@ public class OrderDAO extends BaseDAO {
      * @return Generated order ID or -1 if failed
      */
     public int insertOrder(Order order) {
-        String sql = "INSERT INTO Orders (ShopID, CreatedBy, StatusID) VALUES (?, ?, ?) RETURNING OrderID";
+        String sql = "INSERT INTO \"Order\" (ShopID, CreatedBy, StatusID) VALUES (?, ?, ?) RETURNING OrderID";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -270,7 +270,7 @@ public class OrderDAO extends BaseDAO {
      * @return true if successful
      */
     public boolean updateOrder(Order order) {
-        String sql = "UPDATE Orders SET ShopID = ?, StatusID = ? WHERE OrderID = ?";
+        String sql = "UPDATE \"Order\" SET ShopID = ?, StatusID = ? WHERE OrderID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -293,7 +293,7 @@ public class OrderDAO extends BaseDAO {
      * @return true if successful
      */
     public boolean updateOrderStatus(int orderID, int statusID) {
-        String sql = "UPDATE Orders SET StatusID = ? WHERE OrderID = ?";
+        String sql = "UPDATE \"Order\" SET StatusID = ? WHERE OrderID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -316,7 +316,7 @@ public class OrderDAO extends BaseDAO {
      * @return true if successful
      */
     public boolean cancelOrder(int orderID, int statusID, String cancellationReason) {
-        String sql = "UPDATE Orders SET StatusID = ?, CancellationReason = ? WHERE OrderID = ?";
+        String sql = "UPDATE \"Order\" SET StatusID = ?, CancellationReason = ? WHERE OrderID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -338,7 +338,7 @@ public class OrderDAO extends BaseDAO {
      * @return true if successful
      */
     public boolean deleteOrder(int orderID) {
-        String sql = "DELETE FROM Orders WHERE OrderID = ?";
+        String sql = "DELETE FROM \"Order\" WHERE OrderID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -360,7 +360,7 @@ public class OrderDAO extends BaseDAO {
      */
     public List<OrderDetail> getOrderDetails(int orderID) {
         List<OrderDetail> list = new ArrayList<>();
-        String sql = "SELECT * FROM OrderDetails WHERE OrderID = ?";
+        String sql = "SELECT * FROM OrderDetail WHERE OrderID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -392,8 +392,8 @@ public class OrderDAO extends BaseDAO {
         List<Map<String, Object>> details = new ArrayList<>();
         String sql = "SELECT od.OrderDetailID, od.OrderID, od.ProductID, od.Quantity, od.Price, " +
                     "p.ProductName, p.Description, c.Value as CategoryName " +
-                    "FROM OrderDetails od " +
-                    "LEFT JOIN Products p ON od.ProductID = p.ProductID " +
+                    "FROM OrderDetail od " +
+                    "LEFT JOIN Product p ON od.ProductID = p.ProductID " +
                     "LEFT JOIN Setting c ON p.CategoryID = c.SettingID " +
                     "WHERE od.OrderID = ?";
         
@@ -433,7 +433,7 @@ public class OrderDAO extends BaseDAO {
      * @return true if successful
      */
     public boolean insertOrderDetail(OrderDetail detail) {
-        String sql = "INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Price) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO OrderDetail (OrderID, ProductID, Quantity, Price) VALUES (?, ?, ?, ?)";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -456,7 +456,7 @@ public class OrderDAO extends BaseDAO {
      * @return true if successful
      */
     public boolean updateOrderDetail(OrderDetail detail) {
-        String sql = "UPDATE OrderDetails SET ProductID = ?, Quantity = ?, Price = ? WHERE OrderDetailID = ?";
+        String sql = "UPDATE OrderDetail SET ProductID = ?, Quantity = ?, Price = ? WHERE OrderDetailID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -479,7 +479,7 @@ public class OrderDAO extends BaseDAO {
      * @return true if successful
      */
     public boolean deleteOrderDetail(int orderDetailID) {
-        String sql = "DELETE FROM OrderDetails WHERE OrderDetailID = ?";
+        String sql = "DELETE FROM OrderDetail WHERE OrderDetailID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -498,7 +498,7 @@ public class OrderDAO extends BaseDAO {
      * @return Total amount
      */
     public BigDecimal calculateOrderTotal(int orderID) {
-        String sql = "SELECT SUM(Quantity * Price) as Total FROM OrderDetails WHERE OrderID = ?";
+        String sql = "SELECT SUM(Quantity * Price) as Total FROM OrderDetail WHERE OrderID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

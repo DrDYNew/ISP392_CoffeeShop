@@ -15,7 +15,7 @@ public class SupplierDAO extends BaseDAO {
      */
     public List<Supplier> getAllSuppliers() {
         List<Supplier> list = new ArrayList<>();
-        String sql = "SELECT * FROM Suppliers WHERE IsActive = TRUE ORDER BY SupplierName";
+        String sql = "SELECT * FROM Supplier WHERE IsActive = TRUE ORDER BY SupplierName";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -44,7 +44,7 @@ public class SupplierDAO extends BaseDAO {
      * Get supplier by ID
      */
     public Supplier getSupplierById(int supplierID) {
-        String sql = "SELECT * FROM Suppliers WHERE SupplierID = ?";
+        String sql = "SELECT * FROM Supplier WHERE SupplierID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -74,7 +74,7 @@ public class SupplierDAO extends BaseDAO {
      * Insert new supplier
      */
     public int insertSupplier(Supplier supplier) {
-        String sql = "INSERT INTO Suppliers (SupplierName, ContactName, Email, Phone, Address, IsActive) " +
+        String sql = "INSERT INTO Supplier (SupplierName, ContactName, Email, Phone, Address, IsActive) " +
                     "VALUES (?, ?, ?, ?, ?, ?) RETURNING SupplierID";
         
         try (Connection conn = getConnection();
@@ -101,7 +101,7 @@ public class SupplierDAO extends BaseDAO {
      * Update supplier
      */
     public boolean updateSupplier(Supplier supplier) {
-        String sql = "UPDATE Suppliers SET SupplierName = ?, ContactName = ?, Email = ?, " +
+        String sql = "UPDATE Supplier SET SupplierName = ?, ContactName = ?, Email = ?, " +
                     "Phone = ?, Address = ?, IsActive = ? WHERE SupplierID = ?";
         
         try (Connection conn = getConnection();
@@ -126,7 +126,7 @@ public class SupplierDAO extends BaseDAO {
      * Delete supplier (soft delete - set IsActive to false)
      */
     public boolean deleteSupplier(int supplierID) {
-        String sql = "UPDATE Suppliers SET IsActive = FALSE WHERE SupplierID = ?";
+        String sql = "UPDATE Supplier SET IsActive = FALSE WHERE SupplierID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -144,7 +144,7 @@ public class SupplierDAO extends BaseDAO {
      */
     public List<Supplier> searchSuppliers(String keyword) {
         List<Supplier> list = new ArrayList<>();
-        String sql = "SELECT * FROM Suppliers WHERE IsActive = TRUE AND " +
+        String sql = "SELECT * FROM Supplier WHERE IsActive = TRUE AND " +
                     "(LOWER(SupplierName) LIKE LOWER(?) OR " +
                     "LOWER(ContactName) LIKE LOWER(?) OR " +
                     "LOWER(Email) LIKE LOWER(?) OR " +

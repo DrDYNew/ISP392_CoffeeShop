@@ -7,6 +7,7 @@ public class Shop {
     private String shopName;
     private String address;
     private String phone;
+    private Integer ownerID;
     private boolean isActive;
     private Timestamp createdAt;
 
@@ -15,21 +16,23 @@ public class Shop {
     }
 
     // Constructor with all fields
-    public Shop(int shopID, String shopName, String address, String phone, 
+    public Shop(int shopID, String shopName, String address, String phone, Integer ownerID,
                boolean isActive, Timestamp createdAt) {
         this.shopID = shopID;
         this.shopName = shopName;
         this.address = address;
         this.phone = phone;
+        this.ownerID = ownerID;
         this.isActive = isActive;
         this.createdAt = createdAt;
     }
 
     // Constructor without ID and timestamp (for insert operations)
-    public Shop(String shopName, String address, String phone, boolean isActive) {
+    public Shop(String shopName, String address, String phone, Integer ownerID, boolean isActive) {
         this.shopName = shopName;
         this.address = address;
         this.phone = phone;
+        this.ownerID = ownerID;
         this.isActive = isActive;
     }
 
@@ -66,6 +69,14 @@ public class Shop {
         this.phone = phone;
     }
 
+    public Integer getOwnerID() {
+        return ownerID;
+    }
+
+    public void setOwnerID(Integer ownerID) {
+        this.ownerID = ownerID;
+    }
+
     public boolean isActive() {
         return isActive;
     }
@@ -88,6 +99,7 @@ public class Shop {
                 ", shopName='" + shopName + '\'' +
                 ", address='" + address + '\'' +
                 ", phone='" + phone + '\'' +
+                ", ownerID=" + ownerID +
                 ", isActive=" + isActive +
                 ", createdAt=" + createdAt +
                 '}';

@@ -202,12 +202,15 @@ public class ProfileController extends HttpServlet {
         
         // Update user data
         try {
+            String gender = request.getParameter("gender");
+            
             User updatedUser = new User();
             updatedUser.setUserID(currentUser.getUserID());
             updatedUser.setFullName(fullName.trim());
             updatedUser.setEmail(email.trim());
             updatedUser.setPhone(phone != null ? phone.trim() : "");
             updatedUser.setAddress(address != null ? address.trim() : "");
+            updatedUser.setGender(gender != null ? gender.trim() : currentUser.getGender());
             updatedUser.setAvatarUrl(currentUser.getAvatarUrl()); // Keep current avatar
             updatedUser.setRoleID(currentUser.getRoleID());
             updatedUser.setActive(currentUser.isActive());

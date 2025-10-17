@@ -282,6 +282,25 @@
                                         </div>
                                     </div>
                                 </div>
+                                
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <h4><i class="fa fa-venus-mars"></i> Giới tính</h4>
+                                        <div class="well well-sm">
+                                            <c:choose>
+                                                <c:when test="${user.gender == 'Nam'}">
+                                                    <i class="fa fa-mars text-primary"></i> <strong>Nam</strong>
+                                                </c:when>
+                                                <c:when test="${user.gender == 'Nữ'}">
+                                                    <i class="fa fa-venus text-danger"></i> <strong>Nữ</strong>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <em class="text-muted">Chưa cập nhật giới tính</em>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

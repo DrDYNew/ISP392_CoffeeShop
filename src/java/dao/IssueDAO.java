@@ -36,12 +36,12 @@ public class IssueDAO extends BaseDAO {
         sql.append("st.Value as StatusName, ");
         sql.append("uc.FullName as CreatedByName, ");
         sql.append("uconf.FullName as ConfirmedByName ");
-        sql.append("FROM Issues i ");
-        sql.append("LEFT JOIN Ingredients ing ON i.IngredientID = ing.IngredientID ");
+        sql.append("FROM Issue i ");
+        sql.append("LEFT JOIN Ingredient ing ON i.IngredientID = ing.IngredientID ");
         sql.append("LEFT JOIN Setting u ON ing.UnitID = u.SettingID ");
         sql.append("LEFT JOIN Setting st ON i.StatusID = st.SettingID ");
-        sql.append("LEFT JOIN Users uc ON i.CreatedBy = uc.UserID ");
-        sql.append("LEFT JOIN Users uconf ON i.ConfirmedBy = uconf.UserID ");
+        sql.append("LEFT JOIN \"User\" uc ON i.CreatedBy = uc.UserID ");
+        sql.append("LEFT JOIN \"User\" uconf ON i.ConfirmedBy = uconf.UserID ");
         sql.append("WHERE 1=1 ");
         
         // Add filters
@@ -109,7 +109,7 @@ public class IssueDAO extends BaseDAO {
      */
     public int getTotalIssueCount(Integer statusFilter, Integer ingredientFilter, Integer createdByFilter) {
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT COUNT(*) FROM Issues WHERE 1=1 ");
+        sql.append("SELECT COUNT(*) FROM Issue WHERE 1=1 ");
         
         List<Object> params = new ArrayList<>();
         if (statusFilter != null) {
@@ -155,12 +155,12 @@ public class IssueDAO extends BaseDAO {
                     "st.Value as StatusName, " +
                     "uc.FullName as CreatedByName, " +
                     "uconf.FullName as ConfirmedByName " +
-                    "FROM Issues i " +
-                    "LEFT JOIN Ingredients ing ON i.IngredientID = ing.IngredientID " +
+                    "FROM Issue i " +
+                    "LEFT JOIN Ingredient ing ON i.IngredientID = ing.IngredientID " +
                     "LEFT JOIN Setting u ON ing.UnitID = u.SettingID " +
                     "LEFT JOIN Setting st ON i.StatusID = st.SettingID " +
-                    "LEFT JOIN Users uc ON i.CreatedBy = uc.UserID " +
-                    "LEFT JOIN Users uconf ON i.ConfirmedBy = uconf.UserID " +
+                    "LEFT JOIN \"User\" uc ON i.CreatedBy = uc.UserID " +
+                    "LEFT JOIN \"User\" uconf ON i.ConfirmedBy = uconf.UserID " +
                     "WHERE i.IssueID = ?";
         
         try (Connection conn = getConnection();
@@ -201,7 +201,7 @@ public class IssueDAO extends BaseDAO {
      * @return Generated issue ID, or -1 if failed
      */
     public int createIssue(Issue issue) {
-        String sql = "INSERT INTO Issues (IngredientID, Description, Quantity, StatusID, CreatedBy, ConfirmedBy) " +
+        String sql = "INSERT INTO Issue (IngredientID, Description, Quantity, StatusID, CreatedBy, ConfirmedBy) " +
                     "VALUES (?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = getConnection();
@@ -237,7 +237,7 @@ public class IssueDAO extends BaseDAO {
      * @return true if successful, false otherwise
      */
     public boolean updateIssue(Issue issue) {
-        String sql = "UPDATE Issues SET IngredientID = ?, Description = ?, Quantity = ?, " +
+        String sql = "UPDATE Issue SET IngredientID = ?, Description = ?, Quantity = ?, " +
                     "StatusID = ?, ConfirmedBy = ? WHERE IssueID = ?";
         
         try (Connection conn = getConnection();
@@ -267,7 +267,7 @@ public class IssueDAO extends BaseDAO {
      * @return true if successful, false otherwise
      */
     public boolean deleteIssue(int issueID) {
-        String sql = "DELETE FROM Issues WHERE IssueID = ?";
+        String sql = "DELETE FROM Issue WHERE IssueID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -287,7 +287,7 @@ public class IssueDAO extends BaseDAO {
      * @return true if successful
      */
     public boolean updateIssueStatus(int issueID, int statusID) {
-        String sql = "UPDATE Issues SET StatusID = ? WHERE IssueID = ?";
+        String sql = "UPDATE Issue SET StatusID = ? WHERE IssueID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -309,7 +309,7 @@ public class IssueDAO extends BaseDAO {
      */
     public boolean resolveIssue(int issueID) {
         String getStatusSQL = "SELECT SettingID FROM Setting WHERE Type = 'IssueStatus' AND Value = 'Resolved'";
-        String updateSQL = "UPDATE Issues SET StatusID = ? WHERE IssueID = ?";
+        String updateSQL = "UPDATE Issue SET StatusID = ? WHERE IssueID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement psStatus = conn.prepareStatement(getStatusSQL);
@@ -340,7 +340,7 @@ public class IssueDAO extends BaseDAO {
      */
     public boolean rejectIssue(int issueID, String rejectionReason) {
         String getStatusSQL = "SELECT SettingID FROM Setting WHERE Type = 'IssueStatus' AND Value = 'Rejected'";
-        String updateSQL = "UPDATE Issues SET StatusID = ?, RejectionReason = ? WHERE IssueID = ?";
+        String updateSQL = "UPDATE Issue SET StatusID = ?, RejectionReason = ? WHERE IssueID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement psStatus = conn.prepareStatement(getStatusSQL);
@@ -371,7 +371,7 @@ public class IssueDAO extends BaseDAO {
     public int[] getIssueStatsByStatus() {
         int[] stats = new int[4]; // [Reported, Under Investigation, Resolved, Rejected]
         String sql = "SELECT st.Value as StatusName, COUNT(*) as Count " +
-                    "FROM Issues i " +
+                    "FROM Issue i " +
                     "JOIN Setting st ON i.StatusID = st.SettingID " +
                     "WHERE st.Type = 'IssueStatus' " +
                     "GROUP BY st.Value";

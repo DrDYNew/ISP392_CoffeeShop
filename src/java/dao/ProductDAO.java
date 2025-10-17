@@ -16,9 +16,9 @@ public class ProductDAO extends BaseDAO{
         String sql = "SELECT p.ProductID, p.ProductName, p.Description, p.ImageUrl, p.CategoryID, " +
                     "p.Price, p.SupplierID, p.IsActive, p.CreatedAt, " +
                     "s1.Value as CategoryName, sup.SupplierName " +
-                    "FROM Products p " +
+                    "FROM Product p " +
                     "LEFT JOIN Setting s1 ON p.CategoryID = s1.SettingID " +
-                    "LEFT JOIN Suppliers sup ON p.SupplierID = sup.SupplierID " +
+                    "LEFT JOIN Supplier sup ON p.SupplierID = sup.SupplierID " +
                     "WHERE 1=1 ";
         
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
@@ -81,7 +81,7 @@ public class ProductDAO extends BaseDAO{
      * Get total count of products for pagination
      */
     public int getTotalProductsCount(String searchTerm, Integer categoryId, Boolean isActive) {
-        String sql = "SELECT COUNT(*) FROM Products p WHERE 1=1 ";
+        String sql = "SELECT COUNT(*) FROM Product p WHERE 1=1 ";
         
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
             sql += "AND (LOWER(p.ProductName) LIKE LOWER(?) OR LOWER(p.Description) LIKE LOWER(?)) ";
@@ -126,9 +126,9 @@ public class ProductDAO extends BaseDAO{
         String sql = "SELECT p.ProductID, p.ProductName, p.Description, p.ImageUrl, p.CategoryID, " +
                     "p.Price, p.SupplierID, p.IsActive, p.CreatedAt, " +
                     "s1.Value as CategoryName, sup.SupplierName " +
-                    "FROM Products p " +
+                    "FROM Product p " +
                     "LEFT JOIN Setting s1 ON p.CategoryID = s1.SettingID " +
-                    "LEFT JOIN Suppliers sup ON p.SupplierID = sup.SupplierID " +
+                    "LEFT JOIN Supplier sup ON p.SupplierID = sup.SupplierID " +
                     "WHERE p.ProductID = ?";
         
         try (Connection conn = getConnection();
@@ -163,7 +163,7 @@ public class ProductDAO extends BaseDAO{
      * Create new product
      */
     public boolean createProduct(Product product) {
-        String sql = "INSERT INTO Products (ProductName, Description, ImageUrl, CategoryID, Price, SupplierID, IsActive) " +
+        String sql = "INSERT INTO Product (ProductName, Description, ImageUrl, CategoryID, Price, SupplierID, IsActive) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
         
         try (Connection conn = getConnection();
@@ -194,7 +194,7 @@ public class ProductDAO extends BaseDAO{
      * Update product
      */
     public boolean updateProduct(Product product) {
-        String sql = "UPDATE Products SET ProductName = ?, Description = ?, ImageUrl = ?, CategoryID = ?, " +
+        String sql = "UPDATE Product SET ProductName = ?, Description = ?, ImageUrl = ?, CategoryID = ?, " +
                     "Price = ?, SupplierID = ?, IsActive = ? WHERE ProductID = ?";
         
         try (Connection conn = getConnection();
@@ -219,7 +219,7 @@ public class ProductDAO extends BaseDAO{
      * Delete product (soft delete)
      */
     public boolean deleteProduct(int productId) {
-        String sql = "UPDATE Products SET IsActive = FALSE WHERE ProductID = ?";
+        String sql = "UPDATE Product SET IsActive = FALSE WHERE ProductID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -255,7 +255,7 @@ public class ProductDAO extends BaseDAO{
      */
     public List<Object[]> getSuppliers() {
         List<Object[]> suppliers = new ArrayList<>();
-        String sql = "SELECT SupplierID, SupplierName FROM Suppliers WHERE IsActive = TRUE ORDER BY SupplierName";
+        String sql = "SELECT SupplierID, SupplierName FROM Supplier WHERE IsActive = TRUE ORDER BY SupplierName";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -275,9 +275,9 @@ public class ProductDAO extends BaseDAO{
     public List<Product> getProductsBySupplier(int supplierId) {
         List<Product> products = new ArrayList<>();
         String sql = "SELECT p.*, s1.Value as CategoryName, sup.SupplierName " +
-                    "FROM Products p " +
+                    "FROM Product p " +
                     "LEFT JOIN Setting s1 ON p.CategoryID = s1.SettingID " +
-                    "LEFT JOIN Suppliers sup ON p.SupplierID = sup.SupplierID " +
+                    "LEFT JOIN Supplier sup ON p.SupplierID = sup.SupplierID " +
                     "WHERE p.SupplierID = ? " +
                     "ORDER BY p.ProductName";
         
@@ -317,7 +317,7 @@ public class ProductDAO extends BaseDAO{
      * @return true if successful, false otherwise
      */
     public boolean updateProductImage(int productID, String imageUrl) {
-        String sql = "UPDATE Products SET ImageUrl = ? WHERE ProductID = ?";
+        String sql = "UPDATE Product SET ImageUrl = ? WHERE ProductID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {

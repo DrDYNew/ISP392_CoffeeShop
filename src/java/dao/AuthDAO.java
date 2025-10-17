@@ -4,6 +4,8 @@
  */
 package dao;
 
+
+
 import model.User;
 import model.AuthResponse;
 import java.sql.Connection;
@@ -11,6 +13,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.mindrot.jbcrypt.BCrypt;
+
+import dao.BaseDAO;
+
 
 /**
  *
@@ -27,7 +32,7 @@ public class AuthDAO extends BaseDAO {
     public AuthResponse authenticateUser(String email, String password) {
         String sql = "SELECT u.UserID, u.FullName, u.Email, u.PasswordHash, u.Phone, " +
                     "u.Address, u.RoleID, u.IsActive, u.CreatedAt, s.Value as RoleName " +
-                    "FROM Users u " +
+                    "FROM \"User\" u " +
                     "JOIN Setting s ON u.RoleID = s.SettingID " +
                     "WHERE u.Email = ? AND u.IsActive = true AND s.Type = 'Role'";
         
@@ -97,7 +102,7 @@ public class AuthDAO extends BaseDAO {
     public User getUserByIdWithRole(int userID) {
         String sql = "SELECT u.UserID, u.FullName, u.Email, u.PasswordHash, u.Phone, " +
                     "u.Address, u.RoleID, u.IsActive, u.CreatedAt " +
-                    "FROM Users u " +
+                    "FROM \"User\" u " +
                     "WHERE u.UserID = ? AND u.IsActive = true";
         
         try (Connection conn = getConnection();

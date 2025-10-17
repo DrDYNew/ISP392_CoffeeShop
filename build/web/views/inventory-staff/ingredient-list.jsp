@@ -251,7 +251,7 @@
                                                                 </td>
                                                                 <td>
                                                                     <!-- Supplier name will be populated from database join -->
-                                                                    Supplier ${ingredient.supplierID}
+                                                                     ${ingredient.supplierName}
                                                                 </td>
                                                                 <td>
                                                                     <c:choose>

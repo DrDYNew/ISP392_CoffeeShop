@@ -7,6 +7,7 @@ public class User {
     private String fullName;
     private String email;
     private String passwordHash;
+    private String gender;
     private String phone;
     private String address;
     private String avatarUrl;
@@ -19,12 +20,13 @@ public class User {
     }
 
     // Constructor with all fields
-    public User(int userID, String fullName, String email, String passwordHash, 
+    public User(int userID, String fullName, String email, String passwordHash, String gender,
                String phone, String address, String avatarUrl, int roleID, boolean isActive, Timestamp createdAt) {
         this.userID = userID;
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
+        this.gender = gender;
         this.phone = phone;
         this.address = address;
         this.avatarUrl = avatarUrl;
@@ -34,11 +36,12 @@ public class User {
     }
 
     // Constructor without ID and timestamp (for insert operations)
-    public User(String fullName, String email, String passwordHash, 
+    public User(String fullName, String email, String passwordHash, String gender,
                String phone, String address, String avatarUrl, int roleID, boolean isActive) {
         this.fullName = fullName;
         this.email = email;
         this.passwordHash = passwordHash;
+        this.gender = gender;
         this.phone = phone;
         this.address = address;
         this.avatarUrl = avatarUrl;
@@ -77,6 +80,14 @@ public class User {
 
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 
     public String getPhone() {
@@ -133,6 +144,7 @@ public class User {
                 ", fullName='" + fullName + '\'' +
                 ", email='" + email + '\'' +
                 ", passwordHash='" + passwordHash + '\'' +
+                ", gender='" + gender + '\'' +
                 ", phone='" + phone + '\'' +
                 ", address='" + address + '\'' +
                 ", avatarUrl='" + avatarUrl + '\'' +

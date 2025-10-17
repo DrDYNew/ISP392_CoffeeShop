@@ -152,6 +152,23 @@
                             </div>
                             
                             <div class="info-item">
+                                <span class="info-label"><i class="fa fa-venus-mars"></i> Giới tính:</span>
+                                <span class="info-value">
+                                    <c:choose>
+                                        <c:when test="${profileUser.gender == 'Nam'}">
+                                            <i class="fa fa-mars text-primary"></i> Nam
+                                        </c:when>
+                                        <c:when test="${profileUser.gender == 'Nữ'}">
+                                            <i class="fa fa-venus text-danger"></i> Nữ
+                                        </c:when>
+                                        <c:otherwise>
+                                            Chưa cập nhật
+                                        </c:otherwise>
+                                    </c:choose>
+                                </span>
+                            </div>
+                            
+                            <div class="info-item">
                                 <span class="info-label"><i class="fa fa-user-tag"></i> Vai trò:</span>
                                 <span class="info-value">
                                     <span class="label label-primary">${sessionScope.roleName}</span>

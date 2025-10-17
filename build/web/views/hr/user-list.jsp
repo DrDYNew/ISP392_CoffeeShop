@@ -169,6 +169,7 @@
                                         <th>ID</th>
                                         <th>Họ tên</th>
                                         <th>Email</th>
+                                        <th>Giới tính</th>
                                         <th>Vai trò</th>
                                         <th>Trạng thái</th>
                                         <th>Ngày tạo</th>
@@ -179,7 +180,7 @@
                                     <c:choose>
                                         <c:when test="${empty users}">
                                             <tr>
-                                                <td colspan="7" class="text-center">
+                                                <td colspan="8" class="text-center">
                                                     <i class="fa fa-inbox fa-3x text-muted"></i>
                                                     <p class="text-muted">Không tìm thấy người dùng nào</p>
                                                 </td>
@@ -196,6 +197,19 @@
                                                         </c:if>
                                                     </td>
                                                     <td>${user.email}</td>
+                                                    <td>
+                                                        <c:choose>
+                                                            <c:when test="${user.gender == 'Nam'}">
+                                                                <i class="fa fa-mars text-primary"></i> Nam
+                                                            </c:when>
+                                                            <c:when test="${user.gender == 'Nữ'}">
+                                                                <i class="fa fa-venus text-danger"></i> Nữ
+                                                            </c:when>
+                                                            <c:otherwise>
+                                                                <span class="text-muted">N/A</span>
+                                                            </c:otherwise>
+                                                        </c:choose>
+                                                    </td>
                                                     <td>
                                                         <c:choose>
                                                             <c:when test="${user.roleID == 1}">

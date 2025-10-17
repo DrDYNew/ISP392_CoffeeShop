@@ -1,14 +1,20 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package dao;
 
-import model.PurchaseOrder;
-import model.PurchaseOrderDetail;
-import model.PurchaseOrderView;
+import model.Product;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.math.BigDecimal;
+import model.PurchaseOrder;
+import model.PurchaseOrderDetail;
+import model.PurchaseOrderView;
 /**
- * DAO for Purchase Order operations
+ *
+ * @author DrDYNew
  */
 public class PurchaseOrderDAO extends BaseDAO {
 
@@ -17,7 +23,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      */
     public List<PurchaseOrder> getAllPurchaseOrders(int page, int pageSize) {
         List<PurchaseOrder> list = new ArrayList<>();
-        String sql = "SELECT * FROM PurchaseOrders ORDER BY CreatedAt DESC LIMIT ? OFFSET ?";
+        String sql = "SELECT * FROM PurchaseOrder ORDER BY CreatedAt DESC LIMIT ? OFFSET ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -47,7 +53,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      */
     public List<PurchaseOrder> getAllPurchaseOrders() {
         List<PurchaseOrder> list = new ArrayList<>();
-        String sql = "SELECT * FROM PurchaseOrders ORDER BY CreatedAt DESC";
+        String sql = "SELECT * FROM PurchaseOrder ORDER BY CreatedAt DESC";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -79,10 +85,10 @@ public class PurchaseOrderDAO extends BaseDAO {
         String sql = "SELECT po.POID, po.ShopID, po.SupplierID, po.CreatedBy, po.StatusID, " +
                     "po.RejectReason, po.CreatedAt, " +
                     "sh.ShopName, sup.SupplierName, u.FullName as CreatedByName, s.Value as StatusName " +
-                    "FROM PurchaseOrders po " +
-                    "LEFT JOIN Shops sh ON po.ShopID = sh.ShopID " +
-                    "LEFT JOIN Suppliers sup ON po.SupplierID = sup.SupplierID " +
-                    "LEFT JOIN Users u ON po.CreatedBy = u.UserID " +
+                    "FROM PurchaseOrder po " +
+                    "LEFT JOIN Shop sh ON po.ShopID = sh.ShopID " +
+                    "LEFT JOIN Supplier sup ON po.SupplierID = sup.SupplierID " +
+                    "LEFT JOIN \"User\" u ON po.CreatedBy = u.UserID " +
                     "LEFT JOIN Setting s ON po.StatusID = s.SettingID AND s.Type = 'POStatus' " +
                     "ORDER BY po.CreatedAt DESC";
         
@@ -133,7 +139,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      * Get purchase order by ID
      */
     public PurchaseOrder getPurchaseOrderById(int poID) {
-        String sql = "SELECT * FROM PurchaseOrders WHERE POID = ?";
+        String sql = "SELECT * FROM PurchaseOrder WHERE POID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -162,7 +168,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      * Insert new purchase order
      */
     public int insertPurchaseOrder(PurchaseOrder po) {
-        String sql = "INSERT INTO PurchaseOrders (ShopID, SupplierID, CreatedBy, StatusID) VALUES (?, ?, ?, ?) RETURNING POID";
+        String sql = "INSERT INTO PurchaseOrder (ShopID, SupplierID, CreatedBy, StatusID) VALUES (?, ?, ?, ?) RETURNING POID";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -186,7 +192,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      * Update purchase order
      */
     public boolean updatePurchaseOrder(PurchaseOrder po) {
-        String sql = "UPDATE PurchaseOrders SET ShopID = ?, SupplierID = ?, StatusID = ? WHERE POID = ?";
+        String sql = "UPDATE PurchaseOrder SET ShopID = ?, SupplierID = ?, StatusID = ? WHERE POID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -207,7 +213,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      * Update purchase order status only
      */
     public boolean updatePurchaseOrderStatus(int poID, int statusID) {
-        String sql = "UPDATE PurchaseOrders SET StatusID = ? WHERE POID = ?";
+        String sql = "UPDATE PurchaseOrder SET StatusID = ? WHERE POID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -226,7 +232,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      * Update purchase order status with reject/cancel reason
      */
     public boolean updatePurchaseOrderStatusWithReason(int poID, int statusID, String reason) {
-        String sql = "UPDATE PurchaseOrders SET StatusID = ?, RejectReason = ? WHERE POID = ?";
+        String sql = "UPDATE PurchaseOrder SET StatusID = ?, RejectReason = ? WHERE POID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -246,7 +252,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      * Delete purchase order (and its details via cascade)
      */
     public boolean deletePurchaseOrder(int poID) {
-        String sql = "DELETE FROM PurchaseOrders WHERE POID = ?";
+        String sql = "DELETE FROM PurchaseOrder WHERE POID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -266,7 +272,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      */
     public List<PurchaseOrderDetail> getPurchaseOrderDetails(int poID) {
         List<PurchaseOrderDetail> list = new ArrayList<>();
-        String sql = "SELECT * FROM PurchaseOrderDetails WHERE POID = ?";
+        String sql = "SELECT * FROM PurchaseOrderDetail WHERE POID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -293,7 +299,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      * Insert purchase order detail
      */
     public boolean insertPurchaseOrderDetail(PurchaseOrderDetail detail) {
-        String sql = "INSERT INTO PurchaseOrderDetails (POID, IngredientID, Quantity, ReceivedQuantity) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO PurchaseOrderDetail (POID, IngredientID, Quantity, ReceivedQuantity) VALUES (?, ?, ?, ?)";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -314,7 +320,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      * Update purchase order detail
      */
     public boolean updatePurchaseOrderDetail(PurchaseOrderDetail detail) {
-        String sql = "UPDATE PurchaseOrderDetails SET IngredientID = ?, Quantity = ?, ReceivedQuantity = ? WHERE PODetailID = ?";
+        String sql = "UPDATE PurchaseOrderDetail SET IngredientID = ?, Quantity = ?, ReceivedQuantity = ? WHERE PODetailID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -335,7 +341,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      * Delete purchase order detail
      */
     public boolean deletePurchaseOrderDetail(int poDetailID) {
-        String sql = "DELETE FROM PurchaseOrderDetails WHERE PODetailID = ?";
+        String sql = "DELETE FROM PurchaseOrderDetail WHERE PODetailID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -352,7 +358,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      * Delete all details of a purchase order
      */
     public boolean deletePurchaseOrderDetailsByPOID(int poID) {
-        String sql = "DELETE FROM PurchaseOrderDetails WHERE POID = ?";
+        String sql = "DELETE FROM PurchaseOrderDetail WHERE POID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -369,7 +375,7 @@ public class PurchaseOrderDAO extends BaseDAO {
      * Get purchase order detail by ID
      */
     public PurchaseOrderDetail getPurchaseOrderDetailById(int poDetailID) {
-        String sql = "SELECT * FROM PurchaseOrderDetails WHERE PODetailID = ?";
+        String sql = "SELECT * FROM PurchaseOrderDetail WHERE PODetailID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -409,7 +415,7 @@ public class PurchaseOrderDAO extends BaseDAO {
             }
             
             // Update PO status to Approved
-            String updatePOSql = "UPDATE PurchaseOrders SET StatusID = ? WHERE POID = ?";
+            String updatePOSql = "UPDATE PurchaseOrder SET StatusID = ? WHERE POID = ?";
             PreparedStatement ps1 = conn.prepareStatement(updatePOSql);
             ps1.setInt(1, approvedStatusID);
             ps1.setInt(2, poID);

@@ -1,16 +1,4 @@
-﻿-- ============================================
--- DATABASE CREATION (Standalone command in most PostgreSQL environments)
--- ============================================
--- NOTE: In PostgreSQL, database creation is typically done outside the connection
--- or via a separate command.
--- CREATE DATABASE CoffeeDB WITH ENCODING 'UTF8' LC_COLLATE 'vi_VN.UTF-8' LC_CTYPE 'vi_VN.UTF-8' TEMPLATE template0;
--- \connect CoffeeDB
--- The following script assumes you are already connected to the 'CoffeeDB' database.
-
--- ============================================
--- 1. Bảng Setting (Category, Role, Unit, Status...)
--- ============================================
-CREATE TABLE Setting (
+﻿CREATE TABLE Setting (
     SettingID SERIAL PRIMARY KEY,
     Type VARCHAR(50) NOT NULL,   -- 'Role', 'Category', 'Unit', 'Status'
     Value VARCHAR(100) NOT NULL,
@@ -22,7 +10,7 @@ CREATE TABLE Setting (
 -- ============================================
 -- 2. Bảng Supplier
 -- ============================================
-CREATE TABLE Suppliers (
+CREATE TABLE Supplier (
     SupplierID SERIAL PRIMARY KEY,
     SupplierName VARCHAR(100) NOT NULL,
     ContactName VARCHAR(100),
@@ -37,11 +25,12 @@ CREATE TABLE Suppliers (
 -- ============================================
 -- 3. Bảng User
 -- ============================================
-CREATE TABLE Users (
+CREATE TABLE "User" (
     UserID SERIAL PRIMARY KEY,
     FullName VARCHAR(100) NOT NULL,
     Email VARCHAR(100) UNIQUE NOT NULL,
     PasswordHash VARCHAR(255) NOT NULL,
+    Gender VARCHAR(10) NOT NULL CHECK (Gender IN ('Nam', 'Nữ')),
     Phone VARCHAR(20),
     Address VARCHAR(255),
     AvatarUrl VARCHAR(500),  -- URL ảnh đại diện
@@ -55,20 +44,22 @@ CREATE TABLE Users (
 -- ============================================
 -- 4. Bảng Shop
 -- ============================================
-CREATE TABLE Shops (
+CREATE TABLE Shop (
     ShopID SERIAL PRIMARY KEY,
     ShopName VARCHAR(100) NOT NULL,
     Address VARCHAR(255),
     Phone VARCHAR(20),
+    OwnerID INT,  -- ID của chủ shop (tham chiếu User)
     IsActive BOOLEAN DEFAULT TRUE,
-    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (OwnerID) REFERENCES "User"(UserID)
 );
 
 ---
 -- ============================================
 -- 5. Bảng Product (sản phẩm bán)
 -- ============================================
-CREATE TABLE Products (
+CREATE TABLE Product (
     ProductID SERIAL PRIMARY KEY,
     ProductName VARCHAR(100) NOT NULL,
     Description VARCHAR(255),
@@ -79,14 +70,14 @@ CREATE TABLE Products (
     IsActive BOOLEAN DEFAULT TRUE,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (CategoryID) REFERENCES Setting(SettingID),
-    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID)
+    FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID)
 );
 
 ---
 -- ============================================
 -- 6. Bảng Ingredient (nguyên liệu)
 -- ============================================
-CREATE TABLE Ingredients (
+CREATE TABLE Ingredient (
     IngredientID SERIAL PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
     UnitID INT,   -- Tham chiếu Setting(Type='Unit')
@@ -95,14 +86,14 @@ CREATE TABLE Ingredients (
     IsActive BOOLEAN DEFAULT TRUE,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (UnitID) REFERENCES Setting(SettingID),
-    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID)
+    FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID)
 );
 
 ---
 -- ============================================
 -- 7. Bảng Purchase Order (PO - nhập hàng từ Supplier)
 -- ============================================
-CREATE TABLE PurchaseOrders (
+CREATE TABLE PurchaseOrder (
     POID SERIAL PRIMARY KEY,
     ShopID INT NOT NULL,
     SupplierID INT NOT NULL,
@@ -110,27 +101,27 @@ CREATE TABLE PurchaseOrders (
     StatusID INT,   -- Tham chiếu Setting(Type='POStatus')
     RejectReason VARCHAR(500),   -- Lý do từ chối/hủy đơn hàng
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ShopID) REFERENCES Shops(ShopID),
-    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID),
-    FOREIGN KEY (CreatedBy) REFERENCES Users(UserID),
+    FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
+    FOREIGN KEY (SupplierID) REFERENCES Supplier(SupplierID),
+    FOREIGN KEY (CreatedBy) REFERENCES "User"(UserID),
     FOREIGN KEY (StatusID) REFERENCES Setting(SettingID)
 );
 
-CREATE TABLE PurchaseOrderDetails (
+CREATE TABLE PurchaseOrderDetail (
     PODetailID SERIAL PRIMARY KEY,
     POID INT NOT NULL,
     IngredientID INT NOT NULL,
     Quantity DECIMAL(10,2) NOT NULL,
     ReceivedQuantity DECIMAL(10,2) DEFAULT 0,
-    FOREIGN KEY (POID) REFERENCES PurchaseOrders(POID) ON DELETE CASCADE,
-    FOREIGN KEY (IngredientID) REFERENCES Ingredients(IngredientID)
+    FOREIGN KEY (POID) REFERENCES PurchaseOrder(POID) ON DELETE CASCADE,
+    FOREIGN KEY (IngredientID) REFERENCES Ingredient(IngredientID)
 );
 
 ---
 -- ============================================
 -- 8. Bảng Issue (nguyên liệu hỏng/lỗi)
 -- ============================================
-CREATE TABLE Issues (
+CREATE TABLE Issue (
     IssueID SERIAL PRIMARY KEY,
     IngredientID INT NOT NULL,
     Description VARCHAR(500),  -- Mô tả chi tiết vấn đề
@@ -140,9 +131,9 @@ CREATE TABLE Issues (
     ConfirmedBy INT,
     RejectionReason VARCHAR(500),  -- Lý do từ chối xử lý (nếu có)
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (IngredientID) REFERENCES Ingredients(IngredientID),
-    FOREIGN KEY (CreatedBy) REFERENCES Users(UserID),
-    FOREIGN KEY (ConfirmedBy) REFERENCES Users(UserID),
+    FOREIGN KEY (IngredientID) REFERENCES Ingredient(IngredientID),
+    FOREIGN KEY (CreatedBy) REFERENCES "User"(UserID),
+    FOREIGN KEY (ConfirmedBy) REFERENCES "User"(UserID),
     FOREIGN KEY (StatusID) REFERENCES Setting(SettingID)
 );
 
@@ -150,26 +141,26 @@ CREATE TABLE Issues (
 -- ============================================
 -- 9. Bảng Order (khách đặt sản phẩm)
 -- ============================================
-CREATE TABLE Orders (
+CREATE TABLE "Order" (
     OrderID SERIAL PRIMARY KEY,
     ShopID INT NOT NULL,
     CreatedBy INT NOT NULL,
     StatusID INT,   -- Tham chiếu Setting(Type='OrderStatus')
     CancellationReason VARCHAR(500),  -- Lý do hủy đơn (nếu có)
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (ShopID) REFERENCES Shops(ShopID),
-    FOREIGN KEY (CreatedBy) REFERENCES Users(UserID),
+    FOREIGN KEY (ShopID) REFERENCES Shop(ShopID),
+    FOREIGN KEY (CreatedBy) REFERENCES "User"(UserID),
     FOREIGN KEY (StatusID) REFERENCES Setting(SettingID)
 );
 
-CREATE TABLE OrderDetails (
+CREATE TABLE OrderDetail (
     OrderDetailID SERIAL PRIMARY KEY,
     OrderID INT NOT NULL,
     ProductID INT NOT NULL,
     Quantity INT NOT NULL,
     Price DECIMAL(10,2) NOT NULL,
-    FOREIGN KEY (OrderID) REFERENCES Orders(OrderID),
-    FOREIGN KEY (ProductID) REFERENCES Products(ProductID)
+    FOREIGN KEY (OrderID) REFERENCES "Order"(OrderID),
+    FOREIGN KEY (ProductID) REFERENCES Product(ProductID)
 );
 
 ---
@@ -179,13 +170,13 @@ CREATE TABLE OrderDetails (
 
 -- 1. Thêm dữ liệu cho bảng Setting
 INSERT INTO Setting (Type, Value, Description, IsActive) VALUES
--- Roles
+-- Role
 ('Role', 'HR', 'Nhân sự - Quản lý nhân viên', TRUE),
 ('Role', 'Admin', 'Quản trị viên hệ thống', TRUE),
 ('Role', 'Inventory', 'Quản lý kho - Nhập xuất hàng', TRUE),
 ('Role', 'Barista', 'Pha chế - Nhân viên pha cà phê', TRUE),
 
--- Categories
+-- Categorie
 ('Category', 'Espresso', 'Các loại cà phê espresso', TRUE),
 ('Category', 'Cold Brew', 'Cà phê pha lạnh', TRUE),
 ('Category', 'Latte', 'Cà phê sữa nghệ thuật', TRUE),
@@ -194,7 +185,7 @@ INSERT INTO Setting (Type, Value, Description, IsActive) VALUES
 ('Category', 'Pastry', 'Bánh ngọt và bánh mì', TRUE),
 ('Category', 'Dessert', 'Tráng miệng', TRUE),
 
--- Units
+-- Unit
 ('Unit', 'kg', 'Kilogram', TRUE),
 ('Unit', 'g', 'Gram', TRUE),
 ('Unit', 'l', 'Lít', TRUE),
@@ -228,7 +219,7 @@ SELECT setval('setting_settingid_seq', (SELECT max(SettingID) FROM Setting));
 
 ---
 -- 2. Thêm dữ liệu cho bảng Suppliers
-INSERT INTO Suppliers (SupplierName, ContactName, Email, Phone, Address, IsActive) VALUES
+INSERT INTO Supplier (SupplierName, ContactName, Email, Phone, Address, IsActive) VALUES
 ('Công ty TNHH Cà phê Highlands', 'Nguyễn Văn An', 'contact@highlands.com.vn', '0901234567', '123 Đường Nguyễn Huệ, Q1, TP.HCM', TRUE),
 ('Trung Nguyên Coffee', 'Lê Thị Bình', 'sales@trungnguyencoffee.com', '0912345678', '456 Đường Lê Lợi, Q1, TP.HCM', TRUE),
 ('Công ty Sữa TH True Milk', 'Trần Minh Châu', 'wholesale@thmilk.vn', '0923456789', '789 Đường Điện Biên Phủ, Q3, TP.HCM', TRUE),
@@ -236,21 +227,21 @@ INSERT INTO Suppliers (SupplierName, ContactName, Email, Phone, Address, IsActiv
 ('Công ty Đường Biên Hòa', 'Hoàng Thị Lan', 'contact@bienhoasugar.com', '0945678901', '654 Đường Xô Viết Nghệ Tĩnh, Biên Hòa, Đồng Nai', TRUE);
 
 ---
--- 3. Thêm dữ liệu cho bảng Users (RoleID references SettingID for Role)
+-- 3. Thêm dữ liệu cho bảng User (RoleID references SettingID for Role)
 -- Role IDs: HR=1, Admin=2, Inventory=3, Barista=4
-INSERT INTO Users (FullName, Email, PasswordHash, Phone, Address, RoleID, IsActive) VALUES
-('Nguyễn Thị Hồng', 'hr@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', '0901234567', '123 Đường Lê Lợi, Q1, TP.HCM', 1, TRUE),
-('Trần Minh Quân', 'admin@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', '0912345678', '456 Đường Nguyễn Huệ, Q1, TP.HCM', 2, TRUE),
-('Lê Thị Mai', 'inventory.hcm@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', '0923456789', '789 Đường Điện Biên Phủ, Q3, TP.HCM', 3, TRUE),
-('Nguyễn Văn Hùng', 'inventory.hn@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', '0934567890', '321 Đường Hoàn Kiếm, Hà Nội', 3, TRUE),
-('Phạm Thị Linh', 'employee01@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0945678901', '654 Đường Cách Mạng Tháng 8, Q10, TP.HCM', 3, TRUE),
-('Hoàng Minh Tú', 'employee02@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0956789012', '987 Đường Trần Phú, Q5, TP.HCM', 3, TRUE),
-('Vũ Thị Nam', 'cashier01@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', '0967890123', '147 Đường Lý Tự Trọng, Q1, TP.HCM', 4, TRUE),
-('Đỗ Văn Phong', 'cashier02@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', '0978901234', '258 Đường Võ Thị Sáu, Q3, TP.HCM', 4, TRUE);
+INSERT INTO "User" (FullName, Email, PasswordHash, Gender, Phone, Address, RoleID, IsActive) VALUES
+('Nguyễn Thị Hồng', 'hr@gmail.com', 'dPE7sirzuvNVFo3p6WIQDA==:0c66ec1e102ebb1bd9c61e9f23f4fd3373c467777c3c3d1ea79f590f3cd983c9', 'Nữ', '0901234567', '123 Đường Lê Lợi, Q1, TP.HCM', 1, TRUE),
+('Trần Minh Quân', 'admin@gmail.com', 'dPE7sirzuvNVFo3p6WIQDA==:0c66ec1e102ebb1bd9c61e9f23f4fd3373c467777c3c3d1ea79f590f3cd983c9', 'Nam', '0912345678', '456 Đường Nguyễn Huệ, Q1, TP.HCM', 2, TRUE),
+('Lê Thị Mai', 'staff@gmail.com', 'dPE7sirzuvNVFo3p6WIQDA==:0c66ec1e102ebb1bd9c61e9f23f4fd3373c467777c3c3d1ea79f590f3cd983c9', 'Nữ', '0923456789', '789 Đường Điện Biên Phủ, Q3, TP.HCM', 3, TRUE),
+('Nguyễn Văn Hùng', 'inventory.hn@coffeelux.com', 'dPE7sirzuvNVFo3p6WIQDA==:0c66ec1e102ebb1bd9c61e9f23f4fd3373c467777c3c3d1ea79f590f3cd983c9', 'Nam', '0934567890', '321 Đường Hoàn Kiếm, Hà Nội', 3, TRUE),
+('Phạm Thị Linh', 'employee01@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', 'Nữ', '0945678901', '654 Đường Cách Mạng Tháng 8, Q10, TP.HCM', 3, TRUE),
+('Hoàng Minh Tú', 'employee02@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', 'Nam', '0956789012', '987 Đường Trần Phú, Q5, TP.HCM', 3, TRUE),
+('Vũ Thị Nam', 'barista@gmail.com', 'dPE7sirzuvNVFo3p6WIQDA==:0c66ec1e102ebb1bd9c61e9f23f4fd3373c467777c3c3d1ea79f590f3cd983c9', 'Nữ', '0967890123', '147 Đường Lý Tự Trọng, Q1, TP.HCM', 4, TRUE),
+('Đỗ Văn Phong', 'cashier02@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', 'Nam', '0978901234', '258 Đường Võ Thị Sáu, Q3, TP.HCM', 4, TRUE);
 
 ---
 -- 4. Thêm dữ liệu cho bảng Shops
-INSERT INTO Shops (ShopName, Address, Phone, IsActive) VALUES
+INSERT INTO Shop (ShopName, Address, Phone, IsActive) VALUES
 ('CoffeeLux - Chi nhánh Quận 1', '123 Đường Đồng Khởi, P. Bến Nghé, Q1, TP.HCM', '02838234567', TRUE),
 ('CoffeeLux - Chi nhánh Quận 3', '456 Đường Võ Văn Tần, P.6, Q3, TP.HCM', '02838345678', TRUE),
 ('CoffeeLux - Chi nhánh Hà Nội', '789 Đường Hoàn Kiếm, P. Hàng Trống, Q. Hoàn Kiếm, HN', '02438456789', TRUE),
@@ -259,7 +250,7 @@ INSERT INTO Shops (ShopName, Address, Phone, IsActive) VALUES
 ---
 -- 5. Thêm dữ liệu cho bảng Products (CategoryID references SettingID for Category, SupplierID references Suppliers)
 -- Category IDs: Espresso=5, Cold Brew=6, Latte=7, Frappuccino=8, Tea=9, Pastry=10, Dessert=11
-INSERT INTO Products (ProductName, Description, CategoryID, Price, SupplierID, IsActive) VALUES
+INSERT INTO Product (ProductName, Description, CategoryID, Price, SupplierID, IsActive) VALUES
 -- Espresso Products
 ('Americano', 'Cà phê đen truyền thống', 5, 35000.00, 1, TRUE),
 ('Espresso', 'Cà phê espresso đậm đà', 5, 30000.00, 1, TRUE),
@@ -294,7 +285,7 @@ INSERT INTO Products (ProductName, Description, CategoryID, Price, SupplierID, I
 ---
 -- 6. Thêm dữ liệu cho bảng Ingredients (UnitID references SettingID for Unit, SupplierID references Suppliers)
 -- Unit IDs: kg=12, g=13, l=14, ml=15, pack=16, bottle=17, bag=18
-INSERT INTO Ingredients (Name, UnitID, StockQuantity, SupplierID, IsActive) VALUES
+INSERT INTO Ingredient (Name, UnitID, StockQuantity, SupplierID, IsActive) VALUES
 -- Coffee beans and powder
 ('Cà phê Arabica hạt', 12, 50.00, 1, TRUE),      -- kg
 ('Cà phê Robusta hạt', 12, 30.00, 2, TRUE),      -- kg
@@ -331,7 +322,7 @@ INSERT INTO Ingredients (Name, UnitID, StockQuantity, SupplierID, IsActive) VALU
 ---
 -- 7. Thêm dữ liệu cho bảng PurchaseOrders (StatusID references SettingID for POStatus)
 -- POStatus IDs: Pending=19, Approved=20, Shipping=21, Received=22, Cancelled=23 (Note: Original script used 22, 21, 20, 19, 22. Adjusted to match IDs)
-INSERT INTO PurchaseOrders (ShopID, SupplierID, CreatedBy, StatusID) VALUES
+INSERT INTO PurchaseOrder (ShopID, SupplierID, CreatedBy, StatusID) VALUES
 (1, 1, 3, 22), -- Received - Created by Inventory HCM
 (1, 3, 3, 21), -- Shipping - Created by Inventory HCM
 (2, 2, 4, 20), -- Approved - Created by Inventory HN
@@ -339,7 +330,7 @@ INSERT INTO PurchaseOrders (ShopID, SupplierID, CreatedBy, StatusID) VALUES
 (4, 5, 3, 22); -- Received - Created by Inventory HCM
 
 -- 8. Thêm dữ liệu cho bảng PurchaseOrderDetails
-INSERT INTO PurchaseOrderDetails (POID, IngredientID, Quantity, ReceivedQuantity) VALUES
+INSERT INTO PurchaseOrderDetail (POID, IngredientID, Quantity, ReceivedQuantity) VALUES
 -- PO 1 (Received)
 (1, 1, 20.00, 20.00),    -- Cà phê Arabica
 (1, 4, 50.00, 50.00),    -- Sữa tươi
@@ -366,7 +357,7 @@ INSERT INTO PurchaseOrderDetails (POID, IngredientID, Quantity, ReceivedQuantity
 ---
 -- 9. Thêm dữ liệu cho bảng Issues (StatusID references SettingID for IssueStatus)
 -- IssueStatus IDs: Reported=24, Under Investigation=25, Resolved=26, Rejected=27
-INSERT INTO Issues (IngredientID, Description, Quantity, StatusID, CreatedBy, ConfirmedBy) VALUES
+INSERT INTO Issue (IngredientID, Description, Quantity, StatusID, CreatedBy, ConfirmedBy) VALUES
 (1, 'Cà phê Arabica bị ẩm mốc, có mùi lạ không thể sử dụng', 2.50, 26, 5, 3),     -- Resolved
 (4, 'Sữa tươi đã hết hạn sử dụng 2 ngày, cần xử lý gấp', 5.00, 24, 6, NULL),      -- Reported
 (7, 'Đường trắng bị vón cục do để nơi ẩm ướt', 1.00, 25, 5, 4),                   -- Under Investigation
@@ -376,7 +367,7 @@ INSERT INTO Issues (IngredientID, Description, Quantity, StatusID, CreatedBy, Co
 ---
 -- 10. Thêm dữ liệu cho bảng Orders (StatusID references SettingID for OrderStatus)
 -- OrderStatus IDs: New=27, Preparing=28, Ready=29, Completed=30, Cancelled=31
-INSERT INTO Orders (ShopID, CreatedBy, StatusID) VALUES
+INSERT INTO "Order" (ShopID, CreatedBy, StatusID) VALUES
 (1, 5, 30), -- Completed - Barista 01
 (1, 6, 29), -- Ready - Barista 02
 (2, 7, 28), -- Preparing - Barista 03
@@ -387,7 +378,7 @@ INSERT INTO Orders (ShopID, CreatedBy, StatusID) VALUES
 (1, 5, 29); -- Ready - Barista 01
 
 -- 11. Thêm dữ liệu cho bảng OrderDetails
-INSERT INTO OrderDetails (OrderID, ProductID, Quantity, Price) VALUES
+INSERT INTO OrderDetail (OrderID, ProductID, Quantity, Price) VALUES
 -- Order 1 (Completed)
 (1, 1, 2, 35000.00),     -- 2 Americano
 (1, 13, 1, 25000.00),    -- 1 Croissant

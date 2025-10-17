@@ -38,9 +38,9 @@ public class IngredientDAO extends BaseDAO {
         sql.append("SELECT i.IngredientID, i.Name, i.UnitID, i.StockQuantity, ");
         sql.append("i.SupplierID, i.IsActive, i.CreatedAt, ");
         sql.append("u.Value as UnitName, s.SupplierName as SupplierName ");
-        sql.append("FROM Ingredients i ");
+        sql.append("FROM Ingredient i ");
         sql.append("LEFT JOIN Setting u ON i.UnitID = u.SettingID AND u.Type = 'Unit' ");
-        sql.append("LEFT JOIN Suppliers s ON i.SupplierID = s.SupplierID ");
+        sql.append("LEFT JOIN Supplier s ON i.SupplierID = s.SupplierID ");
         sql.append("WHERE 1=1 ");
         
         // Add filters
@@ -103,7 +103,7 @@ public class IngredientDAO extends BaseDAO {
      */
     public int getTotalIngredientsCount(Integer supplierFilter, String searchKeyword, Boolean activeOnly) {
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT COUNT(*) FROM Ingredients i ");
+        sql.append("SELECT COUNT(*) FROM Ingredient i ");
         sql.append("WHERE 1=1 ");
         
         List<Object> params = new ArrayList<>();
@@ -148,9 +148,9 @@ public class IngredientDAO extends BaseDAO {
         String sql = "SELECT i.IngredientID, i.Name, i.UnitID, i.StockQuantity, " +
                     "i.SupplierID, i.IsActive, i.CreatedAt, " +
                     "u.Value as UnitName, s.SupplierName as SupplierName " +
-                    "FROM Ingredients i " +
+                    "FROM Ingredient i " +
                     "LEFT JOIN Setting u ON i.UnitID = u.SettingID AND u.Type = 'Unit' " +
-                    "LEFT JOIN Suppliers s ON i.SupplierID = s.SupplierID " +
+                    "LEFT JOIN Supplier s ON i.SupplierID = s.SupplierID " +
                     "WHERE i.IngredientID = ?";
         
         try (Connection conn = getConnection();
@@ -185,7 +185,7 @@ public class IngredientDAO extends BaseDAO {
      * @return Generated ingredient ID, or 0 if failed
      */
     public int createIngredient(Ingredient ingredient) {
-        String sql = "INSERT INTO Ingredients (Name, UnitID, StockQuantity, SupplierID, IsActive) " +
+        String sql = "INSERT INTO Ingredient (Name, UnitID, StockQuantity, SupplierID, IsActive) " +
                     "VALUES (?, ?, ?, ?, ?) RETURNING IngredientID";
         
         try (Connection conn = getConnection();
@@ -215,7 +215,7 @@ public class IngredientDAO extends BaseDAO {
      * @return true if successful, false otherwise
      */
     public boolean updateIngredient(Ingredient ingredient) {
-        String sql = "UPDATE Ingredients SET Name = ?, UnitID = ?, StockQuantity = ?, " +
+        String sql = "UPDATE Ingredient SET Name = ?, UnitID = ?, StockQuantity = ?, " +
                     "SupplierID = ?, IsActive = ? WHERE IngredientID = ?";
         
         try (Connection conn = getConnection();
@@ -243,7 +243,7 @@ public class IngredientDAO extends BaseDAO {
      * @return true if successful, false otherwise
      */
     public boolean deleteIngredient(int ingredientID) {
-        String sql = "UPDATE Ingredients SET IsActive = false WHERE IngredientID = ?";
+        String sql = "UPDATE Ingredient SET IsActive = false WHERE IngredientID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -299,7 +299,7 @@ public class IngredientDAO extends BaseDAO {
     public List<Supplier> getActiveSuppliers() {
         List<Supplier> suppliers = new ArrayList<>();
         String sql = "SELECT SupplierID, SupplierName, ContactName, Phone, Email, Address, IsActive, CreatedAt " +
-                    "FROM Suppliers " +
+                    "FROM Supplier " +
                     "WHERE IsActive = TRUE " +
                     "ORDER BY SupplierName";
         
@@ -337,7 +337,7 @@ public class IngredientDAO extends BaseDAO {
      */
     public boolean isIngredientNameExists(String name, Integer excludeIngredientID) {
         StringBuilder sql = new StringBuilder();
-        sql.append("SELECT COUNT(*) FROM Ingredients WHERE LOWER(Name) = LOWER(?) ");
+        sql.append("SELECT COUNT(*) FROM Ingredient WHERE LOWER(Name) = LOWER(?) ");
         
         if (excludeIngredientID != null) {
             sql.append("AND IngredientID != ? ");
@@ -382,11 +382,11 @@ public class IngredientDAO extends BaseDAO {
             i.CreatedAt, 
             u.Value AS UnitName, 
             s.SupplierName AS SupplierName
-        FROM Ingredients i
+        FROM Ingredient i
         LEFT JOIN Setting u 
             ON i.UnitID = u.SettingID 
             AND u.Type = 'Unit'
-        LEFT JOIN Suppliers s 
+        LEFT JOIN Supplier s 
             ON i.SupplierID = s.SupplierID
         WHERE i.IsActive = TRUE 
           AND i.StockQuantity < ?
@@ -431,7 +431,7 @@ public class IngredientDAO extends BaseDAO {
      * @return true if successful, false otherwise
      */
     public boolean updateStockQuantity(int ingredientID, BigDecimal newQuantity) {
-        String sql = "UPDATE Ingredients SET StockQuantity = ? WHERE IngredientID = ?";
+        String sql = "UPDATE Ingredient SET StockQuantity = ? WHERE IngredientID = ?";
         
         try (Connection conn = getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -456,9 +456,9 @@ public class IngredientDAO extends BaseDAO {
         String sql = "SELECT i.IngredientID, i.Name, i.UnitID, i.StockQuantity, " +
                     "i.SupplierID, i.IsActive, i.CreatedAt, " +
                     "u.Value as UnitName, s.SupplierName as SupplierName " +
-                    "FROM Ingredients i " +
+                    "FROM Ingredient i " +
                     "LEFT JOIN Setting u ON i.UnitID = u.SettingID AND u.Type = 'Unit' " +
-                    "LEFT JOIN Suppliers s ON i.SupplierID = s.SupplierID " +
+                    "LEFT JOIN Supplier s ON i.SupplierID = s.SupplierID " +
                     "WHERE i.SupplierID = ? " +
                     "ORDER BY i.Name";
         

@@ -216,6 +216,20 @@
                             
                             <div class="row">
                                 <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="gender">Giới tính <span class="text-danger">*</span></label>
+                                        <select class="form-control" id="gender" name="gender" required>
+                                            <option value="">-- Chọn giới tính --</option>
+                                            <option value="Nam" ${profileUser.gender == 'Nam' ? 'selected' : ''}>Nam</option>
+                                            <option value="Nữ" ${profileUser.gender == 'Nữ' ? 'selected' : ''}>Nữ</option>
+                                        </select>
+                                        <small class="help-block">Chọn giới tính của bạn</small>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-12">
                                     <hr>
                                     <div class="form-group text-center">
                                         <button type="submit" class="btn btn-primary btn-lg">

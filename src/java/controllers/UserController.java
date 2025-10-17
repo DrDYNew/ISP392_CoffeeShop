@@ -314,6 +314,7 @@ public class UserController extends HttpServlet {
         String password = request.getParameter("password");
         String phone = request.getParameter("phone");
         String address = request.getParameter("address");
+        String gender = request.getParameter("gender");
         String roleIdParam = request.getParameter("roleId");
         
         try {
@@ -325,6 +326,7 @@ public class UserController extends HttpServlet {
             user.setEmail(email);
             user.setPhone(phone);
             user.setAddress(address);
+            user.setGender(gender);
             user.setRoleID(roleId);
             
             // Create user
@@ -363,6 +365,7 @@ public class UserController extends HttpServlet {
         String email = request.getParameter("email");
         String phone = request.getParameter("phone");
         String address = request.getParameter("address");
+        String gender = request.getParameter("gender");
         String roleIdParam = request.getParameter("roleId");
         String isActiveParam = request.getParameter("isActive");
         
@@ -378,6 +381,7 @@ public class UserController extends HttpServlet {
             user.setEmail(email);
             user.setPhone(phone);
             user.setAddress(address);
+            user.setGender(gender);
             user.setRoleID(roleId);
             user.setActive(isActive);
             
