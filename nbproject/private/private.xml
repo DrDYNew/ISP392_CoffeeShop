@@ -3,13 +3,16 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/inventory-staff/ingredient-list.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/inventory-staff/ingredient-details.jsp</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/IngredientDAO.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/IngredientController.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/model/User.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/services/IngredientService.java</file>
-            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/model/Supplier.java</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/LoginController.java</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/HRShopController.java</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/PurchaseOrderDAO.java</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/web/index.jsp</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/SupplierDAO.java</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/web/views/inventory-staff/dashboard.jsp</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/ShopAPIController.java</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/BaseDAO.java</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/dao/ShopDAO.java</file>
+            <file>file:/C:/Code/ISP392_CoffeeShop/src/java/controllers/ShopController.java</file>
         </group>
     </open-files>
 </project-private>
