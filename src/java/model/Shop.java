@@ -8,6 +8,7 @@ public class Shop {
     private String address;
     private String phone;
     private Integer ownerID;
+    private String apiToken;
     private boolean isActive;
     private Timestamp createdAt;
 
@@ -17,22 +18,25 @@ public class Shop {
 
     // Constructor with all fields
     public Shop(int shopID, String shopName, String address, String phone, Integer ownerID,
-               boolean isActive, Timestamp createdAt) {
+               String apiToken, boolean isActive, Timestamp createdAt) {
         this.shopID = shopID;
         this.shopName = shopName;
         this.address = address;
         this.phone = phone;
         this.ownerID = ownerID;
+        this.apiToken = apiToken;
         this.isActive = isActive;
         this.createdAt = createdAt;
     }
 
     // Constructor without ID and timestamp (for insert operations)
-    public Shop(String shopName, String address, String phone, Integer ownerID, boolean isActive) {
+    public Shop(String shopName, String address, String phone, Integer ownerID, 
+               String apiToken, boolean isActive) {
         this.shopName = shopName;
         this.address = address;
         this.phone = phone;
         this.ownerID = ownerID;
+        this.apiToken = apiToken;
         this.isActive = isActive;
     }
 
@@ -77,6 +81,14 @@ public class Shop {
         this.ownerID = ownerID;
     }
 
+    public String getApiToken() {
+        return apiToken;
+    }
+
+    public void setApiToken(String apiToken) {
+        this.apiToken = apiToken;
+    }
+
     public boolean isActive() {
         return isActive;
     }
@@ -100,6 +112,7 @@ public class Shop {
                 ", address='" + address + '\'' +
                 ", phone='" + phone + '\'' +
                 ", ownerID=" + ownerID +
+                ", apiToken='" + apiToken + '\'' +
                 ", isActive=" + isActive +
                 ", createdAt=" + createdAt +
                 '}';

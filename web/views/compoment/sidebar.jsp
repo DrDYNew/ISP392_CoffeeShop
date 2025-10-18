@@ -44,6 +44,11 @@
                             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                         </a>
                     </c:when>
+                    <c:when test="${sessionScope.roleName == 'User'}">
+                        <a href="${pageContext.request.contextPath}/views/common/dashboard.jsp" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                            <i class="fa fa-dashboard"></i> <span>Dashboard</span>
+                        </a>
+                    </c:when>
                     <c:otherwise>
                         <a href="${pageContext.request.contextPath}/dashboard" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
                             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
@@ -120,9 +125,26 @@
                 </li>
                 
                 <li>
-                    <a href="${pageContext.request.contextPath}/hr/reports" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
-                        <i class="fa fa-line-chart"></i> <span>Báo cáo HR</span>
+                    <a href="${pageContext.request.contextPath}/hr/payroll" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                        <i class="fa fa-money"></i> <span>Bảng lương</span>
                     </a>
+                </li>
+            </c:if>
+            
+            <!-- User specific menu items -->
+            <c:if test="${sessionScope.roleName == 'User' || sessionScope.roleName == 'user'}">
+                <li class="treeview">
+                    <a href="javascript:void(0)" onclick="toggleMenu(this)" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                        <i class="fa fa-building"></i>
+                        <span>Thông tin Shop</span>
+                        <span class="pull-right-container" style="float: right;">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
+                        <li><a href="${pageContext.request.contextPath}/user/shop?action=list" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Danh sách Shop</a></li>
+                        <li><a href="${pageContext.request.contextPath}/user/shop?action=details" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Chi tiết Shop</a></li>
+                    </ul>
                 </li>
             </c:if>
             
@@ -231,6 +253,21 @@
                     </a>
                     <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
                         <li><a href="${pageContext.request.contextPath}/admin/products" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Danh sách sản phẩm</a></li>
+                    </ul>
+                </li>
+                
+                <li class="treeview">
+                    <a href="javascript:void(0)" onclick="toggleMenu(this)" style="padding: 12px 5px 12px 15px; display: block; color: #b8c7ce; text-decoration: none;">
+                        <i class="fa fa-store"></i>
+                        <span>Quản lý Shop</span>
+                        <span class="pull-right-container" style="float: right;">
+                            <i class="fa fa-angle-left pull-right"></i>
+                        </span>
+                    </a>
+                    <ul class="treeview-menu" style="display: none; list-style: none; margin: 0; padding: 0;">
+                        <li><a href="${pageContext.request.contextPath}/admin/shop?action=list" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Danh sách Shop</a></li>
+                        <li><a href="${pageContext.request.contextPath}/admin/shop?action=add" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-circle-o"></i> Thêm Shop mới</a></li>
+                        <li><a href="${pageContext.request.contextPath}/admin/master-token" style="color: #8aa4af; padding: 5px 5px 5px 35px; display: block; text-decoration: none;"><i class="fa fa-key"></i> Master API Token</a></li>
                     </ul>
                 </li>
                 

@@ -45,8 +45,8 @@
                                 </a>
                             </div>
                             <div class="pull-right">
-                                <a href="${pageContext.request.contextPath}/logout" class="btn btn-default btn-flat">
-                                    <i class="fa fa-sign-out"></i> Logut
+                                <a href="${pageContext.request.contextPath}/login?action=logout" class="btn btn-default btn-flat" onclick="return confirm('Bạn có chắc chắn muốn đăng xuất?')">
+                                    <i class="fa fa-sign-out"></i> Logout
                                 </a>
                             </div>
                         </li>

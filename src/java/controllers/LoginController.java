@@ -141,6 +141,9 @@ public class LoginController extends HttpServlet {
             case "barista":
                 response.sendRedirect(contextPath + "/views/barista/dashboard.jsp");
                 break;
+            case "user":
+                response.sendRedirect(contextPath + "/user/shop?action=list");
+                break;
             default:
                 // Default dashboard if role not recognized
                 response.sendRedirect(contextPath + "/views/common/dashboard.jsp");

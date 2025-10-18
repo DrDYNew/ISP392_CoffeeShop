@@ -50,6 +50,7 @@ CREATE TABLE Shop (
     Address VARCHAR(255),
     Phone VARCHAR(20),
     OwnerID INT,  -- ID của chủ shop (tham chiếu User)
+    APIToken VARCHAR(255) UNIQUE NOT NULL,  -- Token API để truy cập thông tin shop
     IsActive BOOLEAN DEFAULT TRUE,
     CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (OwnerID) REFERENCES "User"(UserID)
@@ -175,6 +176,7 @@ INSERT INTO Setting (Type, Value, Description, IsActive) VALUES
 ('Role', 'Admin', 'Quản trị viên hệ thống', TRUE),
 ('Role', 'Inventory', 'Quản lý kho - Nhập xuất hàng', TRUE),
 ('Role', 'Barista', 'Pha chế - Nhân viên pha cà phê', TRUE),
+('Role', 'User', 'Người dùng - Xem thông tin shop', TRUE),
 
 -- Categorie
 ('Category', 'Espresso', 'Các loại cà phê espresso', TRUE),
@@ -228,106 +230,107 @@ INSERT INTO Supplier (SupplierName, ContactName, Email, Phone, Address, IsActive
 
 ---
 -- 3. Thêm dữ liệu cho bảng User (RoleID references SettingID for Role)
--- Role IDs: HR=1, Admin=2, Inventory=3, Barista=4
+-- Role IDs: HR=1, Admin=2, Inventory=3, Barista=4, User=5
 INSERT INTO "User" (FullName, Email, PasswordHash, Gender, Phone, Address, RoleID, IsActive) VALUES
-('Nguyễn Thị Hồng', 'hr@gmail.com', 'dPE7sirzuvNVFo3p6WIQDA==:0c66ec1e102ebb1bd9c61e9f23f4fd3373c467777c3c3d1ea79f590f3cd983c9', 'Nữ', '0901234567', '123 Đường Lê Lợi, Q1, TP.HCM', 1, TRUE),
-('Trần Minh Quân', 'admin@gmail.com', 'dPE7sirzuvNVFo3p6WIQDA==:0c66ec1e102ebb1bd9c61e9f23f4fd3373c467777c3c3d1ea79f590f3cd983c9', 'Nam', '0912345678', '456 Đường Nguyễn Huệ, Q1, TP.HCM', 2, TRUE),
-('Lê Thị Mai', 'staff@gmail.com', 'dPE7sirzuvNVFo3p6WIQDA==:0c66ec1e102ebb1bd9c61e9f23f4fd3373c467777c3c3d1ea79f590f3cd983c9', 'Nữ', '0923456789', '789 Đường Điện Biên Phủ, Q3, TP.HCM', 3, TRUE),
-('Nguyễn Văn Hùng', 'inventory.hn@coffeelux.com', 'dPE7sirzuvNVFo3p6WIQDA==:0c66ec1e102ebb1bd9c61e9f23f4fd3373c467777c3c3d1ea79f590f3cd983c9', 'Nam', '0934567890', '321 Đường Hoàn Kiếm, Hà Nội', 3, TRUE),
-('Phạm Thị Linh', 'employee01@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', 'Nữ', '0945678901', '654 Đường Cách Mạng Tháng 8, Q10, TP.HCM', 3, TRUE),
-('Hoàng Minh Tú', 'employee02@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', 'Nam', '0956789012', '987 Đường Trần Phú, Q5, TP.HCM', 3, TRUE),
-('Vũ Thị Nam', 'barista@gmail.com', 'dPE7sirzuvNVFo3p6WIQDA==:0c66ec1e102ebb1bd9c61e9f23f4fd3373c467777c3c3d1ea79f590f3cd983c9', 'Nữ', '0967890123', '147 Đường Lý Tự Trọng, Q1, TP.HCM', 4, TRUE),
-('Đỗ Văn Phong', 'cashier02@coffeelux.com', '$2a$10$X9Y7ZqKkQpLmN5rO8sT4veBcD2fG6hJ1kL3mP9qR5sU7wX0zA2bC4', 'Nam', '0978901234', '258 Đường Võ Thị Sáu, Q3, TP.HCM', 4, TRUE);
+('Nguyễn Thị Hồng', 'hr@gmail.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', 'Nữ', '0901234567', '123 Đường Lê Lợi, Q1, TP.HCM', 1, TRUE),
+('Trần Minh Quân', 'admin@gmail.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', 'Nam', '0912345678', '456 Đường Nguyễn Huệ, Q1, TP.HCM', 2, TRUE),
+('Lê Thị Mai', 'staff@gmail.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', 'Nữ', '0923456789', '789 Đường Điện Biên Phủ, Q3, TP.HCM', 3, TRUE),
+('Nguyễn Văn Hùng', 'inventory.hn@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', 'Nam', '0934567890', '321 Đường Hoàn Kiếm, Hà Nội', 3, TRUE),
+('Phạm Thị Linh', 'employee01@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', 'Nữ', '0945678901', '654 Đường Cách Mạng Tháng 8, Q10, TP.HCM', 3, TRUE),
+('Hoàng Minh Tú', 'employee02@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', 'Nam', '0956789012', '987 Đường Trần Phú, Q5, TP.HCM', 3, TRUE),
+('Vũ Thị Nam', 'barista@gmail.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', 'Nữ', '0967890123', '147 Đường Lý Tự Trọng, Q1, TP.HCM', 4, TRUE),
+('Đỗ Văn Phong', 'cashier02@coffeelux.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', 'Nam', '0978901234', '258 Đường Võ Thị Sáu, Q3, TP.HCM', 4, TRUE),
+('Trần Văn Bình', 'user@gmail.com', '$2a$10$Tna2uT0s8BRJ3oAiQyvUmOipacGm3ObrzS3FlDTxh5GqFu0QsBoli', 'Nam', '0989012345', '369 Đường Hai Bà Trưng, Q1, TP.HCM', 5, TRUE);
 
 ---
--- 4. Thêm dữ liệu cho bảng Shops
-INSERT INTO Shop (ShopName, Address, Phone, IsActive) VALUES
-('CoffeeLux - Chi nhánh Quận 1', '123 Đường Đồng Khởi, P. Bến Nghé, Q1, TP.HCM', '02838234567', TRUE),
-('CoffeeLux - Chi nhánh Quận 3', '456 Đường Võ Văn Tần, P.6, Q3, TP.HCM', '02838345678', TRUE),
-('CoffeeLux - Chi nhánh Hà Nội', '789 Đường Hoàn Kiếm, P. Hàng Trống, Q. Hoàn Kiếm, HN', '02438456789', TRUE),
-('CoffeeLux - Chi nhánh Đà Nẵng', '321 Đường Trần Phú, P. Thạch Thang, Q. Hải Châu, ĐN', '02363567890', TRUE);
+-- 4. Thêm dữ liệu cho bảng Shops với API Token dạng JWT
+INSERT INTO Shop (ShopName, Address, Phone, OwnerID, APIToken, IsActive) VALUES
+('CoffeeLux - Chi nhánh Quận 1', '123 Đường Đồng Khởi, P. Bến Nghé, Q1, TP.HCM', '02838234567', 2, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzaG9wX2lkIjoiYTFiMmMzZDQtZTVmNi00Nzg5LTkwYWItYmNkZWYxMjM0NTY3IiwiaWF0IjoxNzI5MjMwMDAwfQ.a8f3b2c1d4e5f6g7h8i9j0k1', TRUE),
+('CoffeeLux - Chi nhánh Quận 3', '456 Đường Võ Văn Tần, P.6, Q3, TP.HCM', '02838345678', 2, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzaG9wX2lkIjoiYjJjM2Q0ZTUtZjZnNy01ODkwLWExYi1jZGVmMjM0NTY3ODkiLCJpYXQiOjE3MjkyMzAwMDB9.b9g4c3d2e5f6g7h8i9j0k1l2', TRUE),
+('CoffeeLux - Chi nhánh Hà Nội', '789 Đường Hoàn Kiếm, P. Hàng Trống, Q. Hoàn Kiếm, HN', '02438456789', 2, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzaG9wX2lkIjoiYzNkNGU1ZjYtZzdoOC02OTAxLWIyYy1kZWYzNDU2Nzg5MDEiLCJpYXQiOjE3MjkyMzAwMDB9.c0h5d4e6f7g8h9i0j1k2l3m4', TRUE),
+('CoffeeLux - Chi nhánh Đà Nẵng', '321 Đường Trần Phú, P. Thạch Thang, Q. Hải Châu, ĐN', '02363567890', 2, 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzaG9wX2lkIjoiZDRlNWY2ZzctaDhpOS03MDEyLWMzZC1lZjQ1Njc4OTAxMjMiLCJpYXQiOjE3MjkyMzAwMDB9.d1i6e7f8g9h0i1j2k3l4m5n6', TRUE);
 
 ---
 -- 5. Thêm dữ liệu cho bảng Products (CategoryID references SettingID for Category, SupplierID references Suppliers)
--- Category IDs: Espresso=5, Cold Brew=6, Latte=7, Frappuccino=8, Tea=9, Pastry=10, Dessert=11
+-- Category IDs: Espresso=6, Cold Brew=7, Latte=8, Frappuccino=9, Tea=10, Pastry=11, Dessert=12
 INSERT INTO Product (ProductName, Description, CategoryID, Price, SupplierID, IsActive) VALUES
 -- Espresso Products
-('Americano', 'Cà phê đen truyền thống', 5, 35000.00, 1, TRUE),
-('Espresso', 'Cà phê espresso đậm đà', 5, 30000.00, 1, TRUE),
-('Double Espresso', 'Espresso tăng cường', 5, 45000.00, 1, TRUE),
+('Americano', 'Cà phê đen truyền thống', 6, 35000.00, 1, TRUE),
+('Espresso', 'Cà phê espresso đậm đà', 6, 30000.00, 1, TRUE),
+('Double Espresso', 'Espresso tăng cường', 6, 45000.00, 1, TRUE),
 
 -- Cold Brew Products
-('Cold Brew Original', 'Cà phê pha lạnh nguyên chất', 6, 45000.00, 2, TRUE),
-('Cold Brew Vanilla', 'Cà phê lạnh vị vanilla', 6, 50000.00, 2, TRUE),
+('Cold Brew Original', 'Cà phê pha lạnh nguyên chất', 7, 45000.00, 2, TRUE),
+('Cold Brew Vanilla', 'Cà phê lạnh vị vanilla', 7, 50000.00, 2, TRUE),
 
 -- Latte Products
-('Caffe Latte', 'Cà phê sữa nghệ thuật', 7, 55000.00, 1, TRUE),
-('Vanilla Latte', 'Latte vị vanilla', 7, 60000.00, 1, TRUE),
-('Caramel Latte', 'Latte vị caramel', 7, 65000.00, 1, TRUE),
+('Caffe Latte', 'Cà phê sữa nghệ thuật', 8, 55000.00, 1, TRUE),
+('Vanilla Latte', 'Latte vị vanilla', 8, 60000.00, 1, TRUE),
+('Caramel Latte', 'Latte vị caramel', 8, 65000.00, 1, TRUE),
 
 -- Frappuccino Products
-('Chocolate Frappuccino', 'Đá xay chocolate', 8, 70000.00, 3, TRUE),
-('Coffee Frappuccino', 'Đá xay cà phê', 8, 65000.00, 3, TRUE),
+('Chocolate Frappuccino', 'Đá xay chocolate', 9, 70000.00, 3, TRUE),
+('Coffee Frappuccino', 'Đá xay cà phê', 9, 65000.00, 3, TRUE),
 
 -- Tea Products
-('Green Tea Latte', 'Trà xanh sữa', 9, 50000.00, 2, TRUE),
-('Earl Grey Tea', 'Trà Earl Grey', 9, 40000.00, 2, TRUE),
+('Green Tea Latte', 'Trà xanh sữa', 10, 50000.00, 2, TRUE),
+('Earl Grey Tea', 'Trà Earl Grey', 10, 40000.00, 2, TRUE),
 
 -- Pastry Products
-('Croissant', 'Bánh sừng bò bơ', 10, 25000.00, 4, TRUE),
-('Chocolate Muffin', 'Bánh muffin chocolate', 10, 30000.00, 4, TRUE),
-('Blueberry Scone', 'Bánh scone việt quất', 10, 35000.00, 4, TRUE),
+('Croissant', 'Bánh sừng bò bơ', 11, 25000.00, 4, TRUE),
+('Chocolate Muffin', 'Bánh muffin chocolate', 11, 30000.00, 4, TRUE),
+('Blueberry Scone', 'Bánh scone việt quất', 11, 35000.00, 4, TRUE),
 
 -- Dessert Products
-('Tiramisu', 'Bánh tiramisu Ý', 11, 65000.00, 4, TRUE),
-('Cheesecake', 'Bánh phô mai New York', 11, 70000.00, 4, TRUE);
+('Tiramisu', 'Bánh tiramisu Ý', 12, 65000.00, 4, TRUE),
+('Cheesecake', 'Bánh phô mai New York', 12, 70000.00, 4, TRUE);
 
 ---
 -- 6. Thêm dữ liệu cho bảng Ingredients (UnitID references SettingID for Unit, SupplierID references Suppliers)
--- Unit IDs: kg=12, g=13, l=14, ml=15, pack=16, bottle=17, bag=18
+-- Unit IDs: kg=13, g=14, l=15, ml=16, pack=17, bottle=18, bag=19
 INSERT INTO Ingredient (Name, UnitID, StockQuantity, SupplierID, IsActive) VALUES
 -- Coffee beans and powder
-('Cà phê Arabica hạt', 12, 50.00, 1, TRUE),      -- kg
-('Cà phê Robusta hạt', 12, 30.00, 2, TRUE),      -- kg
-('Cà phê Espresso xay', 12, 20.00, 1, TRUE),     -- kg
+('Cà phê Arabica hạt', 13, 50.00, 1, TRUE),      -- kg
+('Cà phê Robusta hạt', 13, 30.00, 2, TRUE),      -- kg
+('Cà phê Espresso xay', 13, 20.00, 1, TRUE),     -- kg
 
 -- Dairy products
-('Sữa tươi nguyên kem', 15, 100.00, 3, TRUE),    -- ml - Note: Changed 'l' to 'ml' (15) for consistency with 100.00 being a large amount, assuming 100L or 100 units. Using 15 (ml) for safety, but if meant 100 Liters, should be 14 (l). Kept 15 as per original logic.
-('Sữa đặc có đường', 18, 50.00, 3, TRUE),        -- bag (original was bottle=17, but is 18) -- Using 17 (bottle)
-('Kem tươi', 15, 25.00, 3, TRUE),                -- ml
-('Sữa hạnh nhân', 15, 30.00, 3, TRUE),           -- ml
+('Sữa tươi nguyên kem', 16, 100.00, 3, TRUE),    -- ml
+('Sữa đặc có đường', 19, 50.00, 3, TRUE),        -- bag
+('Kem tươi', 16, 25.00, 3, TRUE),                -- ml
+('Sữa hạnh nhân', 16, 30.00, 3, TRUE),           -- ml
 
 -- Sweeteners
-('Đường trắng', 12, 25.00, 5, TRUE),             -- kg
-('Đường nâu', 12, 15.00, 5, TRUE),               -- kg
-('Mật ong', 17, 20.00, 5, TRUE),                 -- bottle
+('Đường trắng', 13, 25.00, 5, TRUE),             -- kg
+('Đường nâu', 13, 15.00, 5, TRUE),               -- kg
+('Mật ong', 18, 20.00, 5, TRUE),                 -- bottle
 
 -- Syrups and flavors
-('Syrup Vanilla', 17, 15.00, 4, TRUE),           -- bottle
-('Syrup Caramel', 17, 12.00, 4, TRUE),           -- bottle
-('Syrup Hazelnut', 17, 10.00, 4, TRUE),          -- bottle
+('Syrup Vanilla', 18, 15.00, 4, TRUE),           -- bottle
+('Syrup Caramel', 18, 12.00, 4, TRUE),           -- bottle
+('Syrup Hazelnut', 18, 10.00, 4, TRUE),          -- bottle
 
 -- Baking ingredients
-('Bột mì đa dụng', 12, 40.00, 4, TRUE),          -- kg
-('Bột chocolate', 12, 8.00, 4, TRUE),            -- kg
-('Bột nở', 16, 20.00, 4, TRUE),                  -- pack
-('Trứng gà', 16, 50.00, 4, TRUE),                -- pack
-('Bơ lạt', 12, 15.00, 4, TRUE),                  -- kg
+('Bột mì đa dụng', 13, 40.00, 4, TRUE),          -- kg
+('Bột chocolate', 13, 8.00, 4, TRUE),            -- kg
+('Bột nở', 17, 20.00, 4, TRUE),                  -- pack
+('Trứng gà', 17, 50.00, 4, TRUE),                -- pack
+('Bơ lạt', 13, 15.00, 4, TRUE),                  -- kg
 
 -- Tea leaves
-('Lá trà xanh', 16, 25.00, 2, TRUE),             -- pack
-('Lá trà Earl Grey', 16, 20.00, 2, TRUE),        -- pack
-('Lá trà Oolong', 16, 15.00, 2, TRUE);           -- pack
+('Lá trà xanh', 17, 25.00, 2, TRUE),             -- pack
+('Lá trà Earl Grey', 17, 20.00, 2, TRUE),        -- pack
+('Lá trà Oolong', 17, 15.00, 2, TRUE);           -- pack
 
 ---
 -- 7. Thêm dữ liệu cho bảng PurchaseOrders (StatusID references SettingID for POStatus)
--- POStatus IDs: Pending=19, Approved=20, Shipping=21, Received=22, Cancelled=23 (Note: Original script used 22, 21, 20, 19, 22. Adjusted to match IDs)
+-- POStatus IDs: Pending=20, Approved=21, Shipping=22, Received=23, Cancelled=24
 INSERT INTO PurchaseOrder (ShopID, SupplierID, CreatedBy, StatusID) VALUES
-(1, 1, 3, 22), -- Received - Created by Inventory HCM
-(1, 3, 3, 21), -- Shipping - Created by Inventory HCM
-(2, 2, 4, 20), -- Approved - Created by Inventory HN
-(3, 4, 4, 19), -- Pending - Created by Inventory HN
-(4, 5, 3, 22); -- Received - Created by Inventory HCM
+(1, 1, 3, 23), -- Received - Created by Inventory HCM
+(1, 3, 3, 22), -- Shipping - Created by Inventory HCM
+(2, 2, 4, 21), -- Approved - Created by Inventory HN
+(3, 4, 4, 20), -- Pending - Created by Inventory HN
+(4, 5, 3, 23); -- Received - Created by Inventory HCM
 
 -- 8. Thêm dữ liệu cho bảng PurchaseOrderDetails
 INSERT INTO PurchaseOrderDetail (POID, IngredientID, Quantity, ReceivedQuantity) VALUES
@@ -356,26 +359,26 @@ INSERT INTO PurchaseOrderDetail (POID, IngredientID, Quantity, ReceivedQuantity)
 
 ---
 -- 9. Thêm dữ liệu cho bảng Issues (StatusID references SettingID for IssueStatus)
--- IssueStatus IDs: Reported=24, Under Investigation=25, Resolved=26, Rejected=27
+-- IssueStatus IDs: Reported=25, Under Investigation=26, Resolved=27, Rejected=28
 INSERT INTO Issue (IngredientID, Description, Quantity, StatusID, CreatedBy, ConfirmedBy) VALUES
-(1, 'Cà phê Arabica bị ẩm mốc, có mùi lạ không thể sử dụng', 2.50, 26, 5, 3),     -- Resolved
-(4, 'Sữa tươi đã hết hạn sử dụng 2 ngày, cần xử lý gấp', 5.00, 24, 6, NULL),      -- Reported
-(7, 'Đường trắng bị vón cục do để nơi ẩm ướt', 1.00, 25, 5, 4),                   -- Under Investigation
-(13, 'Bột mì phát hiện có mọt, cần loại bỏ toàn bộ', 3.00, 26, 7, 3),             -- Resolved
-(6, 'Kem tươi bị tách nước, không đủ độ sánh', 2.00, 24, 6, NULL);                -- Reported
+(1, 'Cà phê Arabica bị ẩm mốc, có mùi lạ không thể sử dụng', 2.50, 27, 5, 3),     -- Resolved
+(4, 'Sữa tươi đã hết hạn sử dụng 2 ngày, cần xử lý gấp', 5.00, 25, 6, NULL),      -- Reported
+(7, 'Đường trắng bị vón cục do để nơi ẩm ướt', 1.00, 26, 5, 4),                   -- Under Investigation
+(13, 'Bột mì phát hiện có mọt, cần loại bỏ toàn bộ', 3.00, 27, 7, 3),             -- Resolved
+(6, 'Kem tươi bị tách nước, không đủ độ sánh', 2.00, 25, 6, NULL);                -- Reported
 
 ---
 -- 10. Thêm dữ liệu cho bảng Orders (StatusID references SettingID for OrderStatus)
--- OrderStatus IDs: New=27, Preparing=28, Ready=29, Completed=30, Cancelled=31
+-- OrderStatus IDs: New=29, Preparing=30, Ready=31, Completed=32, Cancelled=33
 INSERT INTO "Order" (ShopID, CreatedBy, StatusID) VALUES
-(1, 5, 30), -- Completed - Barista 01
-(1, 6, 29), -- Ready - Barista 02
-(2, 7, 28), -- Preparing - Barista 03
-(1, 5, 30), -- Completed - Barista 01
-(3, 6, 27), -- New - Barista 02
-(2, 8, 30), -- Completed - Barista 04
-(4, 7, 28), -- Preparing - Barista 03
-(1, 5, 29); -- Ready - Barista 01
+(1, 5, 32), -- Completed - Barista 01
+(1, 6, 31), -- Ready - Barista 02
+(2, 7, 30), -- Preparing - Barista 03
+(1, 5, 32), -- Completed - Barista 01
+(3, 6, 29), -- New - Barista 02
+(2, 8, 32), -- Completed - Barista 04
+(4, 7, 30), -- Preparing - Barista 03
+(1, 5, 31); -- Ready - Barista 01
 
 -- 11. Thêm dữ liệu cho bảng OrderDetails
 INSERT INTO OrderDetail (OrderID, ProductID, Quantity, Price) VALUES
@@ -457,3 +460,21 @@ JOIN Setting u ON i.UnitID = u.SettingID
 LEFT JOIN Suppliers s ON i.SupplierID = s.SupplierID
 ORDER BY i.Name;
 */
+
+---
+-- ============================================
+-- Bảng SystemConfig - Lưu Master API Token và cấu hình hệ thống
+-- ============================================
+CREATE TABLE SystemConfig (
+    ConfigID SERIAL PRIMARY KEY,
+    ConfigKey VARCHAR(100) UNIQUE NOT NULL,  -- 'MASTER_API_TOKEN', 'SYSTEM_NAME', etc.
+    ConfigValue TEXT NOT NULL,
+    Description VARCHAR(255),
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Insert Master API Token (token cho phép xem tất cả shops)
+INSERT INTO SystemConfig (ConfigKey, ConfigValue, Description) VALUES 
+('MASTER_API_TOKEN', 'MASTER_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJhbGxfc2hvcHMiLCJpYXQiOjE3Mjk1MDAwMDB9.a1b2c3d4e5f6g7h8i9j0k1', 
+ 'Master API Token để xem danh sách tất cả các shop - Dành cho HR và User. Admin quản lý tại /admin/master-token');

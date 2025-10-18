@@ -13,7 +13,7 @@ import java.sql.SQLException;
  */
     public class BaseDAO {
 
-    private static final String URL = "jdbc:postgresql://localhost:5432/CoffeeDB_v2";
+    private static final String URL = "jdbc:postgresql://localhost:5432/CoffeeDB";
     private static final String USER = "postgres";
     private static final String PASSWORD = "123"; // thay bằng mật khẩu bạn đặt
 
