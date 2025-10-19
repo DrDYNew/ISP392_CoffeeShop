@@ -197,15 +197,6 @@
                     </form>
                 </div>
 
-                <!-- Actions Bar -->
-                <div class="row" style="margin-bottom: 15px;">
-                    <div class="col-md-12">
-                        <a href="${pageContext.request.contextPath}/issue?action=create" class="btn btn-success">
-                            <i class="fa fa-plus"></i> Thêm vấn đề mới
-                        </a>
-                    </div>
-                </div>
-
                 <!-- Issues List -->
                 <div class="box">
                     <div class="box-header with-border">
@@ -224,7 +215,9 @@
                                     <table class="table table-bordered table-hover">
                                         <thead>
                                             <tr>
-                                                <th style="width: 50px;">ID</th>
+                                                <th class="sortable-stt" onclick="sortBySTT('issueTableBody')" style="width: 50px; cursor: pointer;">
+                                                    ID <i class="fa fa-sort"></i>
+                                                </th>
                                                 <th>Nguyên liệu</th>
                                                 <th>Mô tả</th>
                                                 <th style="width: 100px;">Số lượng</th>
@@ -234,7 +227,7 @@
                                                 <th style="width: 150px;">Thao tác</th>
                                             </tr>
                                         </thead>
-                                        <tbody>
+                                        <tbody id="issueTableBody">
                                             <c:forEach items="${issues}" var="issue">
                                                 <tr>
                                                     <td>${issue.issueID}</td>
@@ -277,10 +270,6 @@
                                                         <a href="${pageContext.request.contextPath}/issue?action=view&id=${issue.issueID}" 
                                                            class="btn btn-xs btn-info" title="Xem chi tiết">
                                                             <i class="fa fa-eye"></i>
-                                                        </a>
-                                                        <a href="${pageContext.request.contextPath}/issue?action=edit&id=${issue.issueID}" 
-                                                           class="btn btn-xs btn-warning" title="Chỉnh sửa">
-                                                            <i class="fa fa-edit"></i>
                                                         </a>
                                                     </td>
                                                 </tr>
@@ -336,10 +325,14 @@
         <%@include file="../compoment/footer.jsp" %>
     </div>
 
-    <!-- jQuery 2.2.0 -->
-    <script src="${pageContext.request.contextPath}/bootstrap/js/jquery-2.2.0.min.js"></script>
+    <!-- jQuery from CDN -->
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <!-- Bootstrap 3.3.6 -->
     <script src="${pageContext.request.contextPath}/bootstrap/js/bootstrap.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="https://adminlte.io/themes/AdminLTE/dist/js/app.min.js"></script>
+    <!-- Table Sort -->
+    <script src="${pageContext.request.contextPath}/js/table-sort.js"></script>
     
     <script>
         // Auto dismiss alerts after 5 seconds
@@ -348,4 +341,5 @@
         }, 5000);
     </script>
 </body>
+</html>
 </html>

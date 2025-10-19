@@ -120,7 +120,7 @@
                                                 <table class="table table-bordered table-striped table-hover">
                                                     <thead>
                                                         <tr>
-                                                            <th style="width: 50px;">ID</th>
+                                                            <th class="sortable-stt" style="width: 50px;" onclick="sortBySTT('shopTableBody')">ID</th>
                                                             <th>Tên Shop</th>
                                                             <th>Địa Chỉ</th>
                                                             <th>Số Điện Thoại</th>
@@ -129,7 +129,7 @@
                                                             <th style="width: 100px;">Hành Động</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
+                                                    <tbody id="shopTableBody">
                                                         <c:forEach var="shop" items="${shops}">
                                                             <tr>
                                                                 <td><strong>#${shop.shopID}</strong></td>
@@ -193,5 +193,7 @@
     <script src="${pageContext.request.contextPath}/bootstrap/js/bootstrap.min.js"></script>
     <!-- AdminLTE App -->
     <script src="${pageContext.request.contextPath}/dist/js/app.min.js"></script>
+    <!-- Table Sort Utility -->
+    <script src="${pageContext.request.contextPath}/js/table-sort.js"></script>
 </body>
 </html>

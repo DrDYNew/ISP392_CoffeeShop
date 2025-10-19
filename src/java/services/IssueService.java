@@ -162,4 +162,30 @@ public class IssueService {
             return "Lỗi hệ thống khi từ chối sự cố";
         }
     }
+    
+    /**
+     * Approve issue (set status to In Progress - StatusID = 26)
+     * Used by Inventory Staff to approve Barista's issue request
+     * @param issueID Issue ID
+     * @return Error message if failed, null if successful
+     */
+    public String approveIssue(int issueID) {
+        // Check if issue exists
+        Issue existingIssue = issueDAO.getIssueById(issueID);
+        if (existingIssue == null) {
+            return "Không tìm thấy sự cố";
+        }
+        
+        // Check if issue is in Pending status (StatusID = 25)
+        if (existingIssue.getStatusID() != 25) {
+            return "Chỉ có thể phê duyệt sự cố đang ở trạng thái Chờ xử lý";
+        }
+        
+        // Approve the issue - change status to "In Progress" (StatusID = 26)
+        if (issueDAO.updateIssueStatus(issueID, 26)) {
+            return null; // Success
+        } else {
+            return "Lỗi hệ thống khi phê duyệt sự cố";
+        }
+    }
 }

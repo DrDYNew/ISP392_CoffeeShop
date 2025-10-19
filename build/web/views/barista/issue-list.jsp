@@ -46,6 +46,11 @@
                     <div class="box">
                         <div class="box-header">
                             <h3 class="box-title">Tất cả báo cáo sự cố</h3>
+                            <div class="box-tools pull-right">
+                                <a href="${pageContext.request.contextPath}/barista/create-issue" class="btn btn-primary btn-sm">
+                                    <i class="fa fa-plus"></i> Tạo yêu cầu sự cố
+                                </a>
+                            </div>
                         </div>
                         
                         <div class="box-body">
@@ -92,7 +97,9 @@
                                 <table class="table table-bordered table-striped">
                                     <thead>
                                         <tr>
-                                            <th>ID</th>
+                                            <th class="sortable-stt" onclick="sortBySTT('issueTableBody')" style="cursor: pointer;">
+                                                ID <i class="fa fa-sort"></i>
+                                            </th>
                                             <th>Nguyên liệu</th>
                                             <th>Mô tả</th>
                                             <th>Số lượng</th>
@@ -103,7 +110,7 @@
                                             <th>Thao tác</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody id="issueTableBody">
                                         <c:forEach var="issue" items="${issues}">
                                             <tr>
                                                 <td>${issue.issueID}</td>
@@ -182,11 +189,14 @@
 </div>
 
 <!-- jQuery -->
-<script src="${pageContext.request.contextPath}/bootstrap/js/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 <!-- Bootstrap -->
 <script src="${pageContext.request.contextPath}/bootstrap/js/bootstrap.min.js"></script>
 <!-- AdminLTE App -->
 <script src="https://adminlte.io/themes/AdminLTE/dist/js/app.min.js"></script>
+<!-- Table Sort -->
+<script src="${pageContext.request.contextPath}/js/table-sort.js"></script>
 
 </body>
+</html>
 </html>

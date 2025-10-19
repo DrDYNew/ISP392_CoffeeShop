@@ -210,10 +210,21 @@
                             </div>
                             
                             <div class="box-footer">
-                                <a href="${pageContext.request.contextPath}/issue?action=edit&id=${issue.issueID}" 
-                                   class="btn btn-warning">
-                                    <i class="fa fa-edit"></i> Chỉnh sửa
-                                </a>
+                                <!-- Show Approve/Reject buttons only for Pending status (StatusID = 25) -->
+                                <c:if test="${issue.statusID == 25}">
+                                    <form method="post" action="${pageContext.request.contextPath}/issue" style="display: inline;">
+                                        <input type="hidden" name="action" value="approve">
+                                        <input type="hidden" name="id" value="${issue.issueID}">
+                                        <button type="submit" class="btn btn-success" onclick="return confirm('Xác nhận phê duyệt yêu cầu sự cố này?')">
+                                            <i class="fa fa-check"></i> Phê duyệt
+                                        </button>
+                                    </form>
+                                    
+                                    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#rejectModal">
+                                        <i class="fa fa-times"></i> Từ chối
+                                    </button>
+                                </c:if>
+                                
                                 <a href="${pageContext.request.contextPath}/issue?action=list" 
                                    class="btn btn-default pull-right">
                                     <i class="fa fa-arrow-left"></i> Quay lại danh sách
@@ -271,15 +282,60 @@
         <%@include file="../compoment/footer.jsp" %>
     </div>
 
-    <!-- jQuery 2.2.0 -->
-    <script src="${pageContext.request.contextPath}/bootstrap/js/jquery-2.2.0.min.js"></script>
+    <!-- Reject Modal -->
+    <div class="modal fade" id="rejectModal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form method="post" action="${pageContext.request.contextPath}/issue">
+                    <div class="modal-header bg-danger">
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                        <h4 class="modal-title">
+                            <i class="fa fa-times-circle"></i> Từ chối yêu cầu sự cố
+                        </h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="reject">
+                        <input type="hidden" name="id" value="${issue.issueID}">
+                        
+                        <div class="form-group">
+                            <label for="rejectionReason">
+                                Lý do từ chối <span class="text-danger">*</span>
+                            </label>
+                            <textarea class="form-control" 
+                                      id="rejectionReason" 
+                                      name="rejectionReason" 
+                                      rows="4" 
+                                      placeholder="Nhập lý do từ chối yêu cầu..."
+                                      required></textarea>
+                        </div>
+                        
+                        <div class="callout callout-warning">
+                            <p><i class="fa fa-warning"></i> Yêu cầu sẽ chuyển sang trạng thái "Từ chối" sau khi xác nhận.</p>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Hủy</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fa fa-times"></i> Xác nhận từ chối
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery from CDN -->
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
     <!-- Bootstrap 3.3.6 -->
     <script src="${pageContext.request.contextPath}/bootstrap/js/bootstrap.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="https://adminlte.io/themes/AdminLTE/dist/js/app.min.js"></script>
     
     <script>
         // Auto dismiss alerts after 5 seconds
         setTimeout(function() {
             $('.alert').fadeOut('slow');
+        }, 5000);
         }, 5000);
     </script>
 </body>

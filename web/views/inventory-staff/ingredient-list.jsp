@@ -209,7 +209,7 @@
                                                 <table class="table table-striped table-hover">
                                                     <thead>
                                                         <tr>
-                                                            <th>STT</th>
+                                                            <th class="sortable-stt" onclick="sortBySTT('ingredientTableBody')">STT</th>
                                                             <th>Tên nguyên liệu</th>
                                                             <th>Số lượng tồn kho</th>
                                                             <th>Đơn vị</th>
@@ -219,7 +219,7 @@
                                                             <th>Thao tác</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
+                                                    <tbody id="ingredientTableBody">
                                                         <c:forEach var="ingredient" items="${ingredients}" varStatus="status">
                                                             <tr class="ingredient-row
                                                                 <c:choose>
@@ -438,5 +438,7 @@
                 $('.alert').fadeOut();
             }, 5000);
         </script>
+        <!-- Table Sort Utility -->
+        <script src="${pageContext.request.contextPath}/js/table-sort.js"></script>
     </body>
 </html>

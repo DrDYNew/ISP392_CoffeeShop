@@ -159,25 +159,30 @@
                         
                         <div class="box-body">
                             <!-- Action Buttons -->
-                            <c:if test="${issue.statusName != 'Resolved' && issue.statusName != 'Rejected'}">
-                                <!-- Update to Under Investigation -->
-                                <c:if test="${issue.statusName == 'Reported'}">
-                                    <form method="post" action="${pageContext.request.contextPath}/barista/issues?action=updateStatus">
-                                        <input type="hidden" name="id" value="${issue.issueID}">
-                                        <c:forEach var="status" items="${issueStatuses}">
-                                            <c:if test="${status.value == 'Under Investigation'}">
-                                                <input type="hidden" name="statusId" value="${status.settingID}">
-                                            </c:if>
-                                        </c:forEach>
-                                        <button type="submit" class="btn btn-primary btn-block">
-                                            <i class="fa fa-search"></i> Bắt đầu điều tra
-                                        </button>
-                                    </form>
-                                    <hr>
-                                </c:if>
+                            
+                            <!-- Show status-based messages and actions -->
+                            <c:choose>
+                                <%-- Status 25: Pending (Chờ xử lý) - Waiting for Inventory Staff approval --%>
+                                <c:when test="${issue.statusID == 25}">
+                                    <div class="callout callout-warning">
+                                        <h4><i class="fa fa-clock-o"></i> Chờ phê duyệt</h4>
+                                        <p>Yêu cầu sự cố đang chờ Inventory Staff phê duyệt. Bạn chưa thể xử lý.</p>
+                                    </div>
+                                    
+                                    <!-- Edit Button - Only for Pending status -->
+                                    <a href="${pageContext.request.contextPath}/barista/edit-issue?id=${issue.issueID}" 
+                                       class="btn btn-warning btn-block">
+                                        <i class="fa fa-edit"></i> Chỉnh sửa yêu cầu
+                                    </a>
+                                </c:when>
                                 
-                                <!-- Resolve or Reject (when Under Investigation) -->
-                                <c:if test="${issue.statusName == 'Under Investigation'}">
+                                <%-- Status 26: In Progress (Đang xử lý) - Approved by Inventory Staff --%>
+                                <c:when test="${issue.statusID == 26}">
+                                    <div class="callout callout-info">
+                                        <h4><i class="fa fa-check"></i> Đã được phê duyệt</h4>
+                                        <p>Yêu cầu đã được Inventory Staff phê duyệt. Bạn có thể giải quyết.</p>
+                                    </div>
+                                    
                                     <!-- Resolve Button -->
                                     <form method="post" action="${pageContext.request.contextPath}/barista/issues?action=resolve">
                                         <input type="hidden" name="id" value="${issue.issueID}">
@@ -185,19 +190,33 @@
                                             <i class="fa fa-check-circle"></i> Giải quyết xong
                                         </button>
                                     </form>
-                                    
-                                    <hr>
-                                    
-                                    <!-- Reject Button (with modal) -->
-                                    <button type="button" class="btn btn-danger btn-block" data-toggle="modal" data-target="#rejectIssueModal">
-                                        <i class="fa fa-times-circle"></i> Từ chối xử lý
-                                    </button>
-                                    
-                                    <hr>
-                                </c:if>
-                            </c:if>
+                                </c:when>
+                                
+                                <%-- Status 27: Resolved (Đã giải quyết) --%>
+                                <c:when test="${issue.statusID == 27}">
+                                    <div class="callout callout-success">
+                                        <h4><i class="fa fa-check-circle"></i> Đã giải quyết</h4>
+                                        <p>Sự cố này đã được giải quyết thành công.</p>
+                                    </div>
+                                </c:when>
+                                
+                                <%-- Status 28: Rejected (Từ chối) --%>
+                                <c:when test="${issue.statusID == 28}">
+                                    <div class="callout callout-danger">
+                                        <h4><i class="fa fa-times-circle"></i> Đã từ chối</h4>
+                                        <p>Yêu cầu sự cố này đã bị từ chối bởi Inventory Staff.</p>
+                                    </div>
+                                </c:when>
+                                
+                                <%-- Other statuses --%>
+                                <c:otherwise>
+                                    <div class="callout callout-default">
+                                        <p>Trạng thái: ${issue.statusName}</p>
+                                    </div>
+                                </c:otherwise>
+                            </c:choose>
                             
-                            <c:if test="${issue.statusName == 'Resolved' || issue.statusName == 'Rejected'}">
+                            <c:if test="${issue.statusID != 27 && issue.statusID != 28}">
                                 <div class="alert alert-info">
                                     <i class="fa fa-info-circle"></i>
                                     Sự cố đã ${issue.statusName == 'Resolved' ? 'được giải quyết' : 'bị từ chối'}, không thể thay đổi trạng thái.

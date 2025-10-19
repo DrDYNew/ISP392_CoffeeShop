@@ -44,6 +44,13 @@ public class PurchaseOrderService {
     }
     
     /**
+     * Get purchase orders by status
+     */
+    public List<PurchaseOrderView> getPurchaseOrdersByStatus(int statusID) {
+        return poDAO.getPurchaseOrdersByStatus(statusID);
+    }
+    
+    /**
      * Get purchase orders with pagination
      */
     public List<PurchaseOrder> getPurchaseOrders(int page, int pageSize) {

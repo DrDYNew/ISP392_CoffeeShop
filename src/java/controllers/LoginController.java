@@ -54,7 +54,10 @@ public class LoginController extends HttpServlet {
             if (session != null) {
                 session.invalidate();
             }
-            response.sendRedirect(request.getContextPath() + "/login?message=Đăng xuất thành công");
+            // Create new session to store logout message
+            HttpSession newSession = request.getSession(true);
+            newSession.setAttribute("successMessage", "Đăng xuất thành công!");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         

@@ -116,6 +116,9 @@ public class PurchaseOrderController extends HttpServlet {
                 case "update-status":
                     updatePOStatus(request, response);
                     break;
+                case "approve":
+                    approvePO(request, response);
+                    break;
                 case "reject":
                     rejectPO(request, response);
                     break;
@@ -135,15 +138,35 @@ public class PurchaseOrderController extends HttpServlet {
 
     /**
      * Show list of all purchase orders
+     * Support filter by status via query parameter: ?status=20
      */
     private void showPOList(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        List<PurchaseOrderView> poList = poService.getAllPurchaseOrdersView();
+        // Get status filter from request parameter
+        String statusParam = request.getParameter("status");
+        Integer statusFilter = null;
+        if (statusParam != null && !statusParam.isEmpty()) {
+            try {
+                statusFilter = Integer.parseInt(statusParam);
+            } catch (NumberFormatException e) {
+                // Invalid status, ignore filter
+            }
+        }
+        
+        // Get all POs or filtered by status
+        List<PurchaseOrderView> poList;
+        if (statusFilter != null) {
+            poList = poService.getPurchaseOrdersByStatus(statusFilter);
+        } else {
+            poList = poService.getAllPurchaseOrdersView();
+        }
+        
         List<Setting> statuses = poService.getAllPOStatuses();
         
         request.setAttribute("poList", poList);
         request.setAttribute("statuses", statuses);
+        request.setAttribute("currentStatus", statusFilter); // For highlighting active filter
         request.getRequestDispatcher("/views/inventory-staff/po-list.jsp").forward(request, response);
     }
 
@@ -209,7 +232,9 @@ public class PurchaseOrderController extends HttpServlet {
         
         int shopID = Integer.parseInt(request.getParameter("shopID"));
         int supplierID = Integer.parseInt(request.getParameter("supplierID"));
-        int statusID = Integer.parseInt(request.getParameter("statusID"));
+        // Always set status to Pending (20) when creating new PO
+        // Staff creates PO in Pending status, then Admin approves
+        int statusID = 20; // Pending status
         
         PurchaseOrder po = new PurchaseOrder();
         po.setShopID(shopID);
@@ -245,6 +270,7 @@ public class PurchaseOrderController extends HttpServlet {
 
     /**
      * Update purchase order
+     * Note: Status cannot be changed here - only Admin can approve/reject
      */
     private void updatePO(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -252,13 +278,28 @@ public class PurchaseOrderController extends HttpServlet {
         int poID = Integer.parseInt(request.getParameter("poID"));
         int shopID = Integer.parseInt(request.getParameter("shopID"));
         int supplierID = Integer.parseInt(request.getParameter("supplierID"));
-        int statusID = Integer.parseInt(request.getParameter("statusID"));
+        
+        // Get existing PO to preserve status
+        PurchaseOrder existingPO = poService.getPurchaseOrderById(poID);
+        if (existingPO == null) {
+            request.getSession().setAttribute("errorMessage", "Không tìm thấy đơn hàng");
+            response.sendRedirect(request.getContextPath() + "/purchase-order?action=list");
+            return;
+        }
+        
+        // Only allow update if status is Pending (20)
+        if (existingPO.getStatusID() != 20) {
+            request.getSession().setAttribute("errorMessage", 
+                "Chỉ có thể chỉnh sửa đơn hàng ở trạng thái Chờ xử lý (Pending)");
+            response.sendRedirect(request.getContextPath() + "/purchase-order?action=view&id=" + poID);
+            return;
+        }
         
         PurchaseOrder po = new PurchaseOrder();
         po.setPoID(poID);
         po.setShopID(shopID);
         po.setSupplierID(supplierID);
-        po.setStatusID(statusID);
+        po.setStatusID(existingPO.getStatusID()); // Keep existing status
         
         boolean success = poService.updatePurchaseOrder(po);
         
@@ -379,21 +420,18 @@ public class PurchaseOrderController extends HttpServlet {
         // Get current PO to verify workflow
         PurchaseOrder po = poService.getPurchaseOrderById(poID);
         
-        // Validate workflow: cannot go backward
-        if (po.getStatusID() >= newStatusID && po.getStatusID() != 19) {
-            request.getSession().setAttribute("errorMessage", "Không thể chuyển ngược trạng thái! Vui lòng tuân thủ luồng: Pending → Approved → Shipping → Received/Cancelled");
-            response.sendRedirect(request.getContextPath() + "/purchase-order?action=view&id=" + poID);
-            return;
-        }
-        
-        // Validate correct workflow
+        // Validate correct workflow transitions
+        // Status flow: 20 (Pending) -> 21 (Approved) -> 22 (Shipping) -> 23 (Received) OR 24 (Cancelled)
         boolean validTransition = false;
-        if (po.getStatusID() == 19 && newStatusID == 20) validTransition = true;  // Pending -> Approved
-        if (po.getStatusID() == 20 && newStatusID == 21) validTransition = true;  // Approved -> Shipping
-        if (po.getStatusID() == 21 && (newStatusID == 22 || newStatusID == 23)) validTransition = true;  // Shipping -> Received/Cancelled
+        
+        if (po.getStatusID() == 20 && newStatusID == 21) validTransition = true;  // Pending -> Approved
+        if (po.getStatusID() == 21 && newStatusID == 22) validTransition = true;  // Approved -> Shipping
+        if (po.getStatusID() == 22 && newStatusID == 23) validTransition = true;  // Shipping -> Received
+        if (po.getStatusID() == 22 && newStatusID == 24) validTransition = true;  // Shipping -> Cancelled
         
         if (!validTransition) {
-            request.getSession().setAttribute("errorMessage", "Chuyển trạng thái không hợp lệ! Vui lòng tuân thủ luồng: Pending → Approved → Shipping → Received/Cancelled");
+            request.getSession().setAttribute("errorMessage", 
+                "Chuyển trạng thái không hợp lệ! Vui lòng tuân thủ luồng: Pending → Approved → Shipping → Received/Cancelled");
             response.sendRedirect(request.getContextPath() + "/purchase-order?action=view&id=" + poID);
             return;
         }
@@ -410,19 +448,64 @@ public class PurchaseOrderController extends HttpServlet {
     }
     
     /**
-     * Reject purchase order with reason (only from Pending status)
+     * Approve purchase order (Admin only, from Pending to Approved)
+     */
+    private void approvePO(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        int poID = Integer.parseInt(request.getParameter("poID"));
+        
+        // Get current PO to verify can approve
+        PurchaseOrder po = poService.getPurchaseOrderById(poID);
+        
+        if (po == null) {
+            request.getSession().setAttribute("errorMessage", "Không tìm thấy đơn hàng!");
+            response.sendRedirect(request.getContextPath() + "/purchase-order?action=list");
+            return;
+        }
+        
+        // Only allow approve from Pending status (20)
+        if (po.getStatusID() != 20) {
+            request.getSession().setAttribute("errorMessage", 
+                "Chỉ có thể phê duyệt đơn hàng ở trạng thái Chờ xử lý (Pending)!");
+            response.sendRedirect(request.getContextPath() + "/purchase-order?action=view&id=" + poID);
+            return;
+        }
+        
+        // Status 21 = Approved
+        boolean success = poService.updatePurchaseOrderStatus(poID, 21);
+        
+        if (success) {
+            request.getSession().setAttribute("successMessage", "Phê duyệt đơn hàng thành công!");
+        } else {
+            request.getSession().setAttribute("errorMessage", "Không thể phê duyệt đơn hàng. Vui lòng thử lại.");
+        }
+        
+        response.sendRedirect(request.getContextPath() + "/purchase-order?action=view&id=" + poID);
+    }
+    
+    /**
+     * Reject purchase order with reason (Admin only, from Pending status)
      */
     private void rejectPO(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        int poID = Integer.parseInt(request.getParameter("id"));
+        int poID = Integer.parseInt(request.getParameter("poID"));
         String rejectReason = request.getParameter("rejectReason");
         
         // Get current PO to verify can reject
         PurchaseOrder po = poService.getPurchaseOrderById(poID);
         
-        if (po.getStatusID() != 19) {
-            request.getSession().setAttribute("errorMessage", "Chỉ có thể từ chối đơn hàng ở trạng thái Pending!");
+        if (po == null) {
+            request.getSession().setAttribute("errorMessage", "Không tìm thấy đơn hàng!");
+            response.sendRedirect(request.getContextPath() + "/purchase-order?action=list");
+            return;
+        }
+        
+        // Only allow reject from Pending status (20)
+        if (po.getStatusID() != 20) {
+            request.getSession().setAttribute("errorMessage", 
+                "Chỉ có thể từ chối đơn hàng ở trạng thái Chờ xử lý (Pending)!");
             response.sendRedirect(request.getContextPath() + "/purchase-order?action=view&id=" + poID);
             return;
         }
@@ -433,8 +516,8 @@ public class PurchaseOrderController extends HttpServlet {
             return;
         }
         
-        // Status 23 = Cancelled
-        boolean success = poService.updatePurchaseOrderStatusWithReason(poID, 23, rejectReason);
+        // Status 24 = Cancelled
+        boolean success = poService.updatePurchaseOrderStatusWithReason(poID, 24, rejectReason);
         
         if (success) {
             request.getSession().setAttribute("successMessage", "Từ chối đơn hàng thành công!");

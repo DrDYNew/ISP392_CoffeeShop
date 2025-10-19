@@ -15,6 +15,8 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/dist/css/AdminLTE.min.css">
     <link rel="stylesheet" href="${pageContext.request.contextPath}/dist/css/skins/_all-skins.min.css">
+    <!-- Custom sidebar styles -->
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar-custom.css">
     
     <style>
         body {
@@ -300,7 +302,7 @@
                                     <i class="fa fa-arrow-left"></i> Quay lại
                                 </a>
                                 
-                                <c:if test="${po.statusID == 19}">
+                                <c:if test="${po.statusID == 20}">
                                     <a href="${pageContext.request.contextPath}/purchase-order?action=edit&id=${po.poID}" class="btn btn-warning btn-action">
                                         <i class="fa fa-edit"></i> Chỉnh sửa
                                     </a>
@@ -312,19 +314,27 @@
                                     </button>
                                 </c:if>
                                 
-                                <c:if test="${po.statusID == 20}">
-                                    <button type="button" class="btn btn-info btn-action" onclick="updateStatus(${po.poID}, 21, 'Shipping')">
+                                <c:if test="${po.statusID == 21}">
+                                    <button type="button" class="btn btn-info btn-action" onclick="updateStatus(${po.poID}, 22, 'Shipping')">
                                         <i class="fa fa-truck"></i> Chuyển sang Shipping
                                     </button>
                                 </c:if>
                                 
-                                <c:if test="${po.statusID == 21}">
-                                    <button type="button" class="btn btn-success btn-action" onclick="updateStatus(${po.poID}, 22, 'Received')">
+                                <c:if test="${po.statusID == 22}">
+                                    <button type="button" class="btn btn-success btn-action" onclick="updateStatus(${po.poID}, 23, 'Received')">
                                         <i class="fa fa-check"></i> Đã nhận hàng (Received)
                                     </button>
                                     <button type="button" class="btn btn-danger btn-action" onclick="showCancelModal()">
                                         <i class="fa fa-ban"></i> Hủy đơn (Cancel)
                                     </button>
+                                </c:if>
+                                
+                                <!-- Status 23 (Received) and 24 (Cancelled) are final states - no actions available -->
+                                <c:if test="${po.statusID == 23 || po.statusID == 24}">
+                                    <div class="alert alert-info" style="margin-top: 10px;">
+                                        <i class="fa fa-info-circle"></i> 
+                                        Đơn hàng đã hoàn tất. Không thể thực hiện thêm thao tác nào.
+                                    </div>
                                 </c:if>
                             </div>
                         </div>
@@ -702,7 +712,25 @@
         
         function confirmApprove(poID) {
             if (confirm('Bạn có chắc muốn duyệt đơn hàng này? Sau khi duyệt, trạng thái sẽ chuyển sang Approved.')) {
-                updateStatus(poID, 20, 'Approved');
+                // Call approve action directly
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '${pageContext.request.contextPath}/purchase-order';
+                
+                var actionInput = document.createElement('input');
+                actionInput.type = 'hidden';
+                actionInput.name = 'action';
+                actionInput.value = 'approve';
+                form.appendChild(actionInput);
+                
+                var poIDInput = document.createElement('input');
+                poIDInput.type = 'hidden';
+                poIDInput.name = 'poID';
+                poIDInput.value = poID;
+                form.appendChild(poIDInput);
+                
+                document.body.appendChild(form);
+                form.submit();
             }
         }
         

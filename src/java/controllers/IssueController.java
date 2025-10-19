@@ -47,7 +47,7 @@ public class IssueController extends HttpServlet {
         // Check authentication and authorization
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/auth?action=login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         
@@ -70,14 +70,23 @@ public class IssueController extends HttpServlet {
                 case "list":
                     showIssueList(request, response);
                     break;
-                case "create":
-                    showCreateForm(request, response);
-                    break;
-                case "edit":
-                    showEditForm(request, response);
-                    break;
                 case "view":
                     showIssueDetails(request, response);
+                    break;
+                // Inventory Staff is NOT allowed to create or edit issues
+                // Only Admin can create/edit issues
+                case "create":
+                case "edit":
+                    if ("Admin".equals(currentUserRole)) {
+                        if ("create".equals(action)) {
+                            showCreateForm(request, response);
+                        } else {
+                            showEditForm(request, response);
+                        }
+                    } else {
+                        response.sendError(HttpServletResponse.SC_FORBIDDEN, 
+                            "Bạn không có quyền tạo/chỉnh sửa issue. Chỉ Admin mới có quyền này.");
+                    }
                     break;
                 default:
                     showIssueList(request, response);
@@ -97,7 +106,7 @@ public class IssueController extends HttpServlet {
         // Check authentication and authorization
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/auth?action=login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
         
@@ -114,13 +123,31 @@ public class IssueController extends HttpServlet {
         
         try {
             switch (action) {
+                // Only Admin can create/update issues
                 case "create":
-                    System.out.println("DEBUG: Calling handleCreateIssue");
-                    handleCreateIssue(request, response, currentUser);
+                    if ("Admin".equals(currentUserRole)) {
+                        System.out.println("DEBUG: Calling handleCreateIssue");
+                        handleCreateIssue(request, response, currentUser);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Chỉ Admin mới có quyền tạo issue");
+                    }
                     break;
                 case "update":
-                    System.out.println("DEBUG: Calling handleUpdateIssue");
-                    handleUpdateIssue(request, response, currentUser);
+                    if ("Admin".equals(currentUserRole)) {
+                        System.out.println("DEBUG: Calling handleUpdateIssue");
+                        handleUpdateIssue(request, response, currentUser);
+                    } else {
+                        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Chỉ Admin mới có quyền chỉnh sửa issue");
+                    }
+                    break;
+                // Inventory Staff can approve/reject issues
+                case "approve":
+                    System.out.println("DEBUG: Calling handleApproveIssue");
+                    handleApproveIssue(request, response);
+                    break;
+                case "reject":
+                    System.out.println("DEBUG: Calling handleRejectIssue");
+                    handleRejectIssue(request, response);
                     break;
                 default:
                     System.out.println("DEBUG: Showing issue list (default)");
@@ -413,4 +440,79 @@ public class IssueController extends HttpServlet {
         }
     }
     
+    
+    /**
+     * Handle approve issue request from Inventory Staff
+     */
+    private void handleApproveIssue(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        String issueIdParam = request.getParameter("id");
+        if (issueIdParam == null || issueIdParam.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/issue?action=list&error=Invalid issue ID");
+            return;
+        }
+        
+        try {
+            int issueID = Integer.parseInt(issueIdParam);
+            
+            // Approve the issue
+            String error = issueService.approveIssue(issueID);
+            
+            if (error == null) {
+                response.sendRedirect(request.getContextPath() + 
+                    "/issue?action=view&id=" + issueID + "&success=Issue approved successfully");
+            } else {
+                response.sendRedirect(request.getContextPath() + 
+                    "/issue?action=view&id=" + issueID + "&error=" + error);
+            }
+            
+        } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/issue?action=list&error=Invalid issue ID format");
+        }
+    }
+    
+    /**
+     * Handle reject issue request from Inventory Staff
+     */
+    private void handleRejectIssue(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        String issueIdParam = request.getParameter("id");
+        String rejectionReason = request.getParameter("rejectionReason");
+        
+        if (issueIdParam == null || issueIdParam.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/issue?action=list&error=Invalid issue ID");
+            return;
+        }
+        
+        if (rejectionReason == null || rejectionReason.trim().isEmpty()) {
+            try {
+                int issueID = Integer.parseInt(issueIdParam);
+                response.sendRedirect(request.getContextPath() + 
+                    "/issue?action=view&id=" + issueID + "&error=Rejection reason is required");
+            } catch (NumberFormatException e) {
+                response.sendRedirect(request.getContextPath() + "/issue?action=list&error=Invalid issue ID");
+            }
+            return;
+        }
+        
+        try {
+            int issueID = Integer.parseInt(issueIdParam);
+            
+            // Reject the issue
+            String error = issueService.rejectIssue(issueID, rejectionReason.trim());
+            
+            if (error == null) {
+                response.sendRedirect(request.getContextPath() + 
+                    "/issue?action=view&id=" + issueID + "&success=Issue rejected successfully");
+            } else {
+                response.sendRedirect(request.getContextPath() + 
+                    "/issue?action=view&id=" + issueID + "&error=" + error);
+            }
+            
+        } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/issue?action=list&error=Invalid issue ID format");
+        }
+    }
 }

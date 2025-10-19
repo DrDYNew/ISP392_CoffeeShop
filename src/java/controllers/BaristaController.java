@@ -6,8 +6,10 @@ package controllers;
 
 import model.User;
 import model.Issue;
+import model.Ingredient;
 import model.Setting;
 import services.IssueService;
+import services.IngredientService;
 import services.OrderService;
 import services.SettingService;
 import java.io.IOException;
@@ -31,6 +33,7 @@ import jakarta.servlet.http.HttpSession;
 public class BaristaController extends HttpServlet {
 
     private IssueService issueService;
+    private IngredientService ingredientService;
     private OrderService orderService;
     private SettingService settingService;
 
@@ -38,6 +41,7 @@ public class BaristaController extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         issueService = new IssueService();
+        ingredientService = new IngredientService();
         orderService = new OrderService();
         settingService = new SettingService();
     }
@@ -49,7 +53,7 @@ public class BaristaController extends HttpServlet {
         // Check authentication
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/auth?action=login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -84,6 +88,12 @@ public class BaristaController extends HttpServlet {
                 case "/issue-details":
                     showIssueDetails(request, response);
                     break;
+                case "/create-issue":
+                    showCreateIssueForm(request, response);
+                    break;
+                case "/edit-issue":
+                    showEditIssueForm(request, response);
+                    break;
                 case "/menu":
                     showMenu(request, response);
                     break;
@@ -108,7 +118,7 @@ public class BaristaController extends HttpServlet {
         // Check authentication
         HttpSession session = request.getSession(false);
         if (session == null || session.getAttribute("user") == null) {
-            response.sendRedirect(request.getContextPath() + "/auth?action=login");
+            response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
@@ -131,6 +141,12 @@ public class BaristaController extends HttpServlet {
                     break;
                 case "/issues":
                     handleIssueAction(request, response, action, currentUser);
+                    break;
+                case "/create-issue":
+                    handleCreateIssue(request, response, currentUser);
+                    break;
+                case "/edit-issue":
+                    handleEditIssue(request, response, currentUser);
                     break;
                 default:
                     showDashboard(request, response);
@@ -424,6 +440,26 @@ public class BaristaController extends HttpServlet {
     }
     
     /**
+     * Show create issue form
+     */
+    private void showCreateIssueForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        // Get all ingredients for selection
+        List<Ingredient> ingredients = ingredientService.getAllIngredients(1, 1000, null, null, true);
+        
+        // Get issue statuses
+        List<Setting> issueStatuses = settingService.getSettingsByType("IssueStatus");
+        
+        // Set attributes
+        request.setAttribute("ingredients", ingredients);
+        request.setAttribute("issueStatuses", issueStatuses);
+        
+        // Forward to JSP
+        request.getRequestDispatcher("/views/barista/create-issue.jsp").forward(request, response);
+    }
+    
+    /**
      * Show issue details
      */
     private void showIssueDetails(HttpServletRequest request, HttpServletResponse response)
@@ -588,6 +624,210 @@ public class BaristaController extends HttpServlet {
             
         } catch (NumberFormatException e) {
             request.getSession().setAttribute("errorMessage", "Dữ liệu không hợp lệ");
+            response.sendRedirect(request.getContextPath() + "/barista/issues");
+        }
+    }
+    
+    /**
+     * Handle create issue request from Barista
+     */
+    private void handleCreateIssue(HttpServletRequest request, HttpServletResponse response, User currentUser)
+            throws ServletException, IOException {
+        
+        try {
+            // Get form parameters
+            String ingredientIdParam = request.getParameter("ingredientId");
+            String quantityParam = request.getParameter("quantity");
+            String description = request.getParameter("description");
+            
+            // Validate parameters
+            if (ingredientIdParam == null || ingredientIdParam.isEmpty()) {
+                request.getSession().setAttribute("errorMessage", "Vui l�ng ch?n nguy�n li?u");
+                response.sendRedirect(request.getContextPath() + "/barista/create-issue");
+                return;
+            }
+            
+            if (quantityParam == null || quantityParam.isEmpty()) {
+                request.getSession().setAttribute("errorMessage", "Vui l�ng nh?p s? lu?ng");
+                response.sendRedirect(request.getContextPath() + "/barista/create-issue");
+                return;
+            }
+            
+            if (description == null || description.trim().isEmpty()) {
+                request.getSession().setAttribute("errorMessage", "Vui l�ng nh?p m� t? s? c?");
+                response.sendRedirect(request.getContextPath() + "/barista/create-issue");
+                return;
+            }
+            
+            int ingredientID = Integer.parseInt(ingredientIdParam);
+            BigDecimal quantity = new BigDecimal(quantityParam);
+            
+            // Validate quantity
+            if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
+                request.getSession().setAttribute("errorMessage", "Số lượng phải lớn hơn 0");
+                response.sendRedirect(request.getContextPath() + "/barista/create-issue");
+                return;
+            }
+            
+            // Create issue with "Pending" status (StatusID = 25)
+            // Status 25 = "Chờ xử lý" (Pending) - waiting for Inventory Staff to approve
+            Issue newIssue = new Issue();
+            newIssue.setIngredientID(ingredientID);
+            newIssue.setQuantity(quantity);
+            newIssue.setDescription(description.trim());
+            newIssue.setStatusID(25); // Pending status
+            newIssue.setCreatedBy(currentUser.getUserID());
+            
+            // Save issue - createIssue returns issueID (int), not error message
+            int newIssueID = issueService.createIssue(newIssue);
+            
+            if (newIssueID > 0) {
+                request.getSession().setAttribute("successMessage", 
+                    "Tạo yêu cầu sự cố thành công! Đang chờ Inventory Staff phê duyệt.");
+                response.sendRedirect(request.getContextPath() + "/barista/issues");
+            } else {
+                request.getSession().setAttribute("errorMessage", "Lỗi khi tạo yêu cầu sự cố");
+                response.sendRedirect(request.getContextPath() + "/barista/create-issue");
+            }
+            
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("errorMessage", "Dữ liệu không hợp lệ");
+            response.sendRedirect(request.getContextPath() + "/barista/create-issue");
+        }
+    }
+    
+    /**
+     * Show edit issue form (only for Pending status issues)
+     */
+    private void showEditIssueForm(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        String issueIdParam = request.getParameter("id");
+        if (issueIdParam == null || issueIdParam.isEmpty()) {
+            response.sendRedirect(request.getContextPath() + "/barista/issues");
+            return;
+        }
+        
+        try {
+            int issueID = Integer.parseInt(issueIdParam);
+            
+            // Get issue by ID
+            Issue issue = issueService.getIssueById(issueID);
+            if (issue == null) {
+                request.getSession().setAttribute("errorMessage", "Kh�ng t�m th?y s? c?");
+                response.sendRedirect(request.getContextPath() + "/barista/issues");
+                return;
+            }
+            
+            // Only allow editing Pending status (StatusID = 25)
+            if (issue.getStatusID() != 25) {
+                request.getSession().setAttribute("errorMessage", 
+                    "Ch? c� th? ch?nh s?a s? c? dang ? tr?ng th�i Ch? x? l�");
+                response.sendRedirect(request.getContextPath() + "/barista/issue-details?id=" + issueID);
+                return;
+            }
+            
+            // Get all ingredients for selection
+            List<Ingredient> ingredients = ingredientService.getAllIngredients(1, 1000, null, null, true);
+            
+            // Set attributes
+            request.setAttribute("issue", issue);
+            request.setAttribute("ingredients", ingredients);
+            
+            // Forward to JSP
+            request.getRequestDispatcher("/views/barista/edit-issue.jsp").forward(request, response);
+            
+        } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/barista/issues");
+        }
+    }
+    
+    /**
+     * Handle edit issue request from Barista (only for Pending status)
+     */
+    private void handleEditIssue(HttpServletRequest request, HttpServletResponse response, User currentUser)
+            throws ServletException, IOException {
+        
+        try {
+            // Get form parameters
+            String issueIdParam = request.getParameter("id");
+            String ingredientIdParam = request.getParameter("ingredientId");
+            String quantityParam = request.getParameter("quantity");
+            String description = request.getParameter("description");
+            
+            // Validate parameters
+            if (issueIdParam == null || issueIdParam.isEmpty()) {
+                request.getSession().setAttribute("errorMessage", "ID s? c? kh�ng h?p l?");
+                response.sendRedirect(request.getContextPath() + "/barista/issues");
+                return;
+            }
+            
+            int issueID = Integer.parseInt(issueIdParam);
+            
+            // Get existing issue
+            Issue existingIssue = issueService.getIssueById(issueID);
+            if (existingIssue == null) {
+                request.getSession().setAttribute("errorMessage", "Kh�ng t�m th?y s? c?");
+                response.sendRedirect(request.getContextPath() + "/barista/issues");
+                return;
+            }
+            
+            // Only allow editing Pending status (StatusID = 25)
+            if (existingIssue.getStatusID() != 25) {
+                request.getSession().setAttribute("errorMessage", 
+                    "Ch? c� th? ch?nh s?a s? c? dang ? tr?ng th�i Ch? x? l�");
+                response.sendRedirect(request.getContextPath() + "/barista/issue-details?id=" + issueID);
+                return;
+            }
+            
+            if (ingredientIdParam == null || ingredientIdParam.isEmpty()) {
+                request.getSession().setAttribute("errorMessage", "Vui l�ng ch?n nguy�n li?u");
+                response.sendRedirect(request.getContextPath() + "/barista/edit-issue?id=" + issueID);
+                return;
+            }
+            
+            if (quantityParam == null || quantityParam.isEmpty()) {
+                request.getSession().setAttribute("errorMessage", "Vui l�ng nh?p s? lu?ng");
+                response.sendRedirect(request.getContextPath() + "/barista/edit-issue?id=" + issueID);
+                return;
+            }
+            
+            if (description == null || description.trim().isEmpty()) {
+                request.getSession().setAttribute("errorMessage", "Vui l�ng nh?p m� t? s? c?");
+                response.sendRedirect(request.getContextPath() + "/barista/edit-issue?id=" + issueID);
+                return;
+            }
+            
+            int ingredientID = Integer.parseInt(ingredientIdParam);
+            BigDecimal quantity = new BigDecimal(quantityParam);
+            
+            // Validate quantity
+            if (quantity.compareTo(BigDecimal.ZERO) <= 0) {
+                request.getSession().setAttribute("errorMessage", "S? lu?ng ph?i l?n hon 0");
+                response.sendRedirect(request.getContextPath() + "/barista/edit-issue?id=" + issueID);
+                return;
+            }
+            
+            // Update issue - keep status as Pending (25)
+            existingIssue.setIngredientID(ingredientID);
+            existingIssue.setQuantity(quantity);
+            existingIssue.setDescription(description.trim());
+            existingIssue.setStatusID(25); // Keep Pending status
+            
+            // Save changes
+            boolean success = issueService.updateIssue(existingIssue);
+            
+            if (success) {
+                request.getSession().setAttribute("successMessage", 
+                    "C?p nh?t y�u c?u s? c? th�nh c�ng!");
+                response.sendRedirect(request.getContextPath() + "/barista/issue-details?id=" + issueID);
+            } else {
+                request.getSession().setAttribute("errorMessage", "L?i khi c?p nh?t y�u c?u s? c?");
+                response.sendRedirect(request.getContextPath() + "/barista/edit-issue?id=" + issueID);
+            }
+            
+        } catch (NumberFormatException e) {
+            request.getSession().setAttribute("errorMessage", "D? li?u kh�ng h?p l?");
             response.sendRedirect(request.getContextPath() + "/barista/issues");
         }
     }

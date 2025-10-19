@@ -119,6 +119,49 @@ public class PurchaseOrderDAO extends BaseDAO {
     }
 
     /**
+     * Get purchase orders by status with joined information
+     */
+    public List<PurchaseOrderView> getPurchaseOrdersByStatus(int statusID) {
+        List<PurchaseOrderView> list = new ArrayList<>();
+        String sql = "SELECT po.POID, po.ShopID, po.SupplierID, po.CreatedBy, po.StatusID, " +
+                    "po.RejectReason, po.CreatedAt, " +
+                    "sh.ShopName, sup.SupplierName, u.FullName as CreatedByName, s.Value as StatusName " +
+                    "FROM PurchaseOrder po " +
+                    "LEFT JOIN Shop sh ON po.ShopID = sh.ShopID " +
+                    "LEFT JOIN Supplier sup ON po.SupplierID = sup.SupplierID " +
+                    "LEFT JOIN \"User\" u ON po.CreatedBy = u.UserID " +
+                    "LEFT JOIN Setting s ON po.StatusID = s.SettingID AND s.Type = 'POStatus' " +
+                    "WHERE po.StatusID = ? " +
+                    "ORDER BY po.CreatedAt DESC";
+        
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            
+            ps.setInt(1, statusID);
+            ResultSet rs = ps.executeQuery();
+            
+            while (rs.next()) {
+                PurchaseOrderView pov = new PurchaseOrderView();
+                pov.setPoID(rs.getInt("POID"));
+                pov.setShopID(rs.getInt("ShopID"));
+                pov.setSupplierID(rs.getInt("SupplierID"));
+                pov.setCreatedBy(rs.getInt("CreatedBy"));
+                pov.setStatusID(rs.getInt("StatusID"));
+                pov.setRejectReason(rs.getString("RejectReason"));
+                pov.setCreatedAt(rs.getTimestamp("CreatedAt"));
+                pov.setShopName(rs.getString("ShopName"));
+                pov.setSupplierName(rs.getString("SupplierName"));
+                pov.setCreatedByName(rs.getString("CreatedByName"));
+                pov.setStatusName(rs.getString("StatusName"));
+                list.add(pov);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    /**
      * Get total count of purchase orders
      */
     public int getTotalPurchaseOrderCount() {

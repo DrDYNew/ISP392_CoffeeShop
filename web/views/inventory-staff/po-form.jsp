@@ -247,39 +247,16 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label for="statusID">
-                                    <i class="fa fa-flag"></i> Trạng thái 
-                                    <span class="required-star">*</span>
-                                </label>
-                                <select class="form-control" id="statusID" name="statusID" required>
-                                    <option value="">-- Chọn trạng thái --</option>
-                                    <option value="19" ${(po == null || po.statusID == 19) ? 'selected' : ''}>Pending (Chờ xử lý)</option>
-                                    <c:if test="${po != null}">
-                                        <option value="20" ${po.statusID == 20 ? 'selected' : ''}>Approved (Đã duyệt)</option>
-                                        <option value="21" ${po.statusID == 21 ? 'selected' : ''}>Shipping (Đang giao)</option>
-                                        <option value="22" ${po.statusID == 22 ? 'selected' : ''}>Received (Đã nhận)</option>
-                                        <option value="23" ${po.statusID == 23 ? 'selected' : ''}>Cancelled (Đã hủy)</option>
-                                    </c:if>
-                                </select>
-                                <span class="help-block">Đơn hàng mới luôn bắt đầu với trạng thái Pending</span>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
             
             <!-- Purchase Order Details -->
-            <c:if test="${po == null}">
-                <div class="box" style="margin-top: 20px;">
-                    <div class="box-header">
-                        <h3 class="box-title"><i class="fa fa-list"></i> Chi tiết nguyên liệu</h3>
-                    </div>
-                    <div class="box-body">
-                        <div id="detailsContainer">
+            <div class="box" style="margin-top: 20px;">
+                <div class="box-header">
+                    <h3 class="box-title"><i class="fa fa-list"></i> Chi tiết nguyên liệu</h3>
+                </div>
+                <div class="box-body">
+                    <div id="detailsContainer">
                             <div class="detail-row">
                                 <div class="row">
                                     <div class="col-md-5">
@@ -320,7 +297,7 @@
                         </button>
                     </div>
                 </div>
-            </c:if>
+            </div>
             
             <!-- Action Buttons -->
             <div class="box" style="margin-top: 20px;">
@@ -343,8 +320,8 @@
     </div>
 </div>
 
-<!-- jQuery 2.2.3 -->
-<script src="${pageContext.request.contextPath}/plugins/jQuery/jquery-2.2.3.min.js"></script>
+<!-- jQuery 2.2.4 from CDN -->
+<script src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
 <!-- Bootstrap 3.3.6 -->
 <script src="${pageContext.request.contextPath}/bootstrap/js/bootstrap.min.js"></script>
 <!-- Select2 -->

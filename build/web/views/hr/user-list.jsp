@@ -166,7 +166,7 @@
                             <table class="table table-hover">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
+                                        <th class="sortable-stt" onclick="sortBySTT('userTableBody')">ID</th>
                                         <th>Họ tên</th>
                                         <th>Email</th>
                                         <th>Giới tính</th>
@@ -176,7 +176,7 @@
                                         <th>Thao tác</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="userTableBody">
                                     <c:choose>
                                         <c:when test="${empty users}">
                                             <tr>
@@ -329,6 +329,8 @@
 <script src="${pageContext.request.contextPath}/bootstrap/js/bootstrap.min.js"></script>
 <!-- AdminLTE App -->
 <script src="${pageContext.request.contextPath}/dist/js/app.min.js"></script>
+<!-- Table Sort Utility -->
+<script src="${pageContext.request.contextPath}/js/table-sort.js"></script>
 
 <script>
     function confirmDelete(userId, userName) {

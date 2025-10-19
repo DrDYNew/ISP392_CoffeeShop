@@ -1,0 +1,81 @@
+/* Custom Sidebar Styles - Override AdminLTE defaults */
+
+/* Sidebar menu list styles */
+.sidebar-menu {
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Header styles */
+.sidebar-menu .header {
+    color: #4b646f;
+    background: #1a2226;
+    padding: 10px 25px 10px 15px;
+    font-size: 12px;
+}
+
+/* Menu item link styles */
+.sidebar-menu > li > a {
+    padding: 12px 5px 12px 15px;
+    display: block;
+    color: #b8c7ce;
+    text-decoration: none;
+}
+
+.sidebar-menu > li > a:hover {
+    background-color: #1e282c;
+    color: #fff;
+}
+
+/* Active menu item */
+.sidebar-menu > li.active > a {
+    background-color: #1e282c;
+    border-left: 3px solid #3c8dbc;
+    color: #fff;
+}
+
+/* Pull right container for arrows */
+.pull-right-container {
+    float: right;
+}
+
+/* Treeview menu (submenu) */
+.treeview-menu {
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: #2c3b41;
+}
+
+.treeview.active > .treeview-menu {
+    display: block;
+}
+
+/* Treeview submenu items */
+.treeview-menu > li > a {
+    color: #8aa4af;
+    padding: 5px 5px 5px 35px;
+    display: block;
+    text-decoration: none;
+}
+
+.treeview-menu > li > a:hover {
+    background-color: #1e282c;
+    color: #fff;
+}
+
+.treeview-menu > li.active > a {
+    color: #fff;
+}
+
+/* Logout link special color */
+.sidebar-menu > li > a[href*="logout"] {
+    color: #dd4b39 !important;
+}
+
+.sidebar-menu > li > a[href*="logout"]:hover {
+    background-color: #dd4b39 !important;
+    color: #fff !important;
+}
